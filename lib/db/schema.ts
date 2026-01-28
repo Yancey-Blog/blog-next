@@ -8,12 +8,13 @@ import {
   timestamp
 } from 'drizzle-orm/pg-core'
 
-export const users = pgTable('user', {
+export const users = pgTable('users', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').default(false).notNull(),
   image: text('image'),
+  role: text('role').default('user').notNull(), // 'admin' or 'user'
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()
@@ -22,7 +23,7 @@ export const users = pgTable('user', {
 })
 
 export const sessions = pgTable(
-  'session',
+  'sessions',
   {
     id: text('id').primaryKey(),
     expiresAt: timestamp('expires_at').notNull(),
@@ -41,7 +42,7 @@ export const sessions = pgTable(
 )
 
 export const accounts = pgTable(
-  'account',
+  'accounts',
   {
     id: text('id').primaryKey(),
     accountId: text('account_id').notNull(),
@@ -65,7 +66,7 @@ export const accounts = pgTable(
 )
 
 export const verifications = pgTable(
-  'verification',
+  'verifications',
   {
     id: text('id').primaryKey(),
     identifier: text('identifier').notNull(),
@@ -133,9 +134,24 @@ export const blogVersions = pgTable('blog_versions', {
   createdAt: timestamp('created_at').defaultNow().notNull()
 })
 
+// Settings table for storing app-wide configuration
+export const settings = pgTable('settings', {
+  id: text('id').primaryKey(),
+  key: text('key').notNull().unique(), // Setting key (e.g., 'theme', 'siteName')
+  value: text('value').notNull(), // JSON string value
+  description: text('description'), // Optional description
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull()
+})
+
 export type User = typeof users.$inferSelect
 export type InsertUser = typeof users.$inferInsert
 export type Blog = typeof blogs.$inferSelect
 export type InsertBlog = typeof blogs.$inferInsert
 export type BlogVersion = typeof blogVersions.$inferSelect
 export type InsertBlogVersion = typeof blogVersions.$inferInsert
+export type Setting = typeof settings.$inferSelect
+export type InsertSetting = typeof settings.$inferInsert
