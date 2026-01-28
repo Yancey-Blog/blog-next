@@ -50,7 +50,11 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
   }
 
   const handleRestore = async (versionId: string) => {
-    if (!confirm('Are you sure you want to restore to this version? Current content will be overwritten.')) {
+    if (
+      !confirm(
+        'Are you sure you want to restore to this version? Current content will be overwritten.'
+      )
+    ) {
       return
     }
 
@@ -111,7 +115,9 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Version History</DialogTitle>
-          <DialogDescription>View and restore previous blog versions</DialogDescription>
+          <DialogDescription>
+            View and restore previous blog versions
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

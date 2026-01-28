@@ -1,7 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import type { Blog } from '@/lib/db/schema'
+import { Edit, ExternalLink, Search } from 'lucide-react'
 import Link from 'next/link'
+import { useMemo, useState } from 'react'
+import { DeleteBlogDialog } from './delete-blog-dialog'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -14,9 +17,6 @@ import {
   TableRow
 } from './ui/table'
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs'
-import { DeleteBlogDialog } from './delete-blog-dialog'
-import { Edit, ExternalLink, Search } from 'lucide-react'
-import type { Blog } from '@/lib/db/schema'
 
 interface BlogListTableProps {
   blogs: Blog[]
@@ -49,7 +49,9 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
 
   const getStatusBadge = (blog: Blog) => {
     if (blog.published) {
-      return <Badge className="bg-green-500 hover:bg-green-600">Published</Badge>
+      return (
+        <Badge className="bg-green-500 hover:bg-green-600">Published</Badge>
+      )
     }
     if (blog.preview) {
       return <Badge className="bg-blue-500 hover:bg-blue-600">Preview</Badge>
@@ -85,9 +87,7 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
           onValueChange={(value) => setStatusFilter(value as StatusFilter)}
         >
           <TabsList>
-            <TabsTrigger value="all">
-              All ({statusCounts.all})
-            </TabsTrigger>
+            <TabsTrigger value="all">All ({statusCounts.all})</TabsTrigger>
             <TabsTrigger value="published">
               Published ({statusCounts.published})
             </TabsTrigger>
@@ -104,7 +104,8 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
       {/* Results count */}
       {searchQuery && (
         <p className="text-sm text-muted-foreground">
-          Found {filteredBlogs.length} result{filteredBlogs.length !== 1 ? 's' : ''}
+          Found {filteredBlogs.length} result
+          {filteredBlogs.length !== 1 ? 's' : ''}
         </p>
       )}
 
@@ -115,8 +116,8 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
             {searchQuery
               ? 'No blogs found matching your search'
               : statusFilter !== 'all'
-              ? `No ${statusFilter} blogs found`
-              : 'No blogs found'}
+                ? `No ${statusFilter} blogs found`
+                : 'No blogs found'}
           </p>
         </div>
       ) : (
@@ -138,7 +139,9 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
                   <TableCell className="font-medium max-w-xs truncate">
                     {blog.title}
                   </TableCell>
-                  <TableCell className="font-mono text-sm">{blog.slug}</TableCell>
+                  <TableCell className="font-mono text-sm">
+                    {blog.slug}
+                  </TableCell>
                   <TableCell>{getStatusBadge(blog)}</TableCell>
                   <TableCell>
                     {new Date(blog.createdAt).toLocaleDateString('en-US', {
@@ -166,7 +169,10 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
                           <Edit className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <DeleteBlogDialog blogId={blog.id} blogTitle={blog.title} />
+                      <DeleteBlogDialog
+                        blogId={blog.id}
+                        blogTitle={blog.title}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>

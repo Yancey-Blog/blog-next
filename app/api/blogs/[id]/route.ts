@@ -1,5 +1,5 @@
-import { db } from '@/db'
-import { blogs } from '@/db/schema'
+import { db } from '@/lib/db'
+import { blogs } from '@/lib/db/schema'
 import { requireAuth } from '@/lib/session'
 import { updateBlogSchema } from '@/lib/validations/blog'
 import { eq } from 'drizzle-orm'

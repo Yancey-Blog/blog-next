@@ -36,6 +36,7 @@ export class BlogVersionService {
     const [newVersion] = await db
       .insert(blogVersions)
       .values({
+        blogId,
         version: nextVersion,
         title: blog.title,
         content: blog.content,
@@ -109,7 +110,11 @@ export class BlogVersionService {
       .where(eq(blogs.id, blogId))
 
     // Create a version record for the restore operation
-    await this.createVersion(blogId, userId, `Restored to version ${version.version}`)
+    await this.createVersion(
+      blogId,
+      userId,
+      `Restored to version ${version.version}`
+    )
   }
 
   /**

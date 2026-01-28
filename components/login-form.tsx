@@ -52,7 +52,9 @@ export function LoginForm({
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in with Google or GitHub account</CardDescription>
+          <CardDescription>
+            Sign in with Google or GitHub account
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <FieldGroup>

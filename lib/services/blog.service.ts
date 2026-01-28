@@ -1,5 +1,5 @@
-import { db } from '@/db'
-import { blogs, type Blog, type InsertBlog } from '@/db/schema'
+import { db } from '@/lib/db'
+import { blogs, type Blog, type InsertBlog } from '@/lib/db/schema'
 import { and, desc, eq, ilike, ne, or } from 'drizzle-orm'
 
 export interface GetBlogsOptions {

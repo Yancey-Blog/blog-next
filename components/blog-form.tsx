@@ -91,7 +91,11 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
         })
       }
 
-      toast.success(mode === 'create' ? 'Blog created successfully' : 'Blog updated successfully')
+      toast.success(
+        mode === 'create'
+          ? 'Blog created successfully'
+          : 'Blog updated successfully'
+      )
       router.push('/admin/blog-management')
       router.refresh()
     } catch (error) {
@@ -133,7 +137,9 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
       }
     } catch (error) {
       console.error('Save draft error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to save draft')
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to save draft'
+      )
     } finally {
       setLoading(false)
     }
@@ -145,7 +151,8 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
         <CardHeader>
           <CardTitle>Basic Information</CardTitle>
           <CardDescription>
-            Fill in the blog basic information. Title will auto-generate a URL-friendly slug
+            Fill in the blog basic information. Title will auto-generate a
+            URL-friendly slug
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -261,7 +268,8 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
         <CardHeader>
           <CardTitle>Content</CardTitle>
           <CardDescription>
-            Write your blog content using the rich text editor. Supports image paste/upload
+            Write your blog content using the rich text editor. Supports image
+            paste/upload
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -293,7 +301,11 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
           Save as Draft
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : mode === 'create' ? 'Create Blog' : 'Update Blog'}
+          {loading
+            ? 'Saving...'
+            : mode === 'create'
+              ? 'Create Blog'
+              : 'Update Blog'}
         </Button>
       </div>
     </form>
