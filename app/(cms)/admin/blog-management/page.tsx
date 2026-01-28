@@ -12,7 +12,7 @@ export default async function BlogManagementPage({
 }) {
   const session = await getSession()
   if (!session) {
-    redirect('/auth/login')
+    redirect('/login')
   }
 
   const params = await searchParams

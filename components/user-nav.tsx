@@ -23,7 +23,7 @@ export function UserNav() {
 
   const handleSignOut = async () => {
     await authClient.signOut()
-    router.push('/auth/login')
+    router.push('/login')
     router.refresh()
   }
 

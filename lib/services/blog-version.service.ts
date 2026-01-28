@@ -4,14 +4,14 @@ import { desc, eq } from 'drizzle-orm'
 
 export class BlogVersionService {
   /**
-   * 创建版本快照
+   * Create a version snapshot
    */
   static async createVersion(
     blogId: string,
     userId: string,
     changeNote?: string
   ): Promise<BlogVersion> {
-    // 获取当前博客内容
+    // Get the current blog content
     const [blog] = await db
       .select()
       .from(blogs)
@@ -19,10 +19,10 @@ export class BlogVersionService {
       .limit(1)
 
     if (!blog) {
-      throw new Error('博客不存在')
+      throw new Error('Blog does not exist')
     }
 
-    // 获取最新版本号
+    // Get the latest version number
     const [latestVersion] = await db
       .select()
       .from(blogVersions)
@@ -32,11 +32,10 @@ export class BlogVersionService {
 
     const nextVersion = latestVersion ? latestVersion.version + 1 : 1
 
-    // 创建新版本
+    // Create a new version
     const [newVersion] = await db
       .insert(blogVersions)
       .values({
-        blogId,
         version: nextVersion,
         title: blog.title,
         content: blog.content,
@@ -51,7 +50,7 @@ export class BlogVersionService {
   }
 
   /**
-   * 获取博客的所有版本历史
+   * Get all version history of the blog
    */
   static async getVersions(blogId: string): Promise<BlogVersion[]> {
     const versions = await db
@@ -64,7 +63,7 @@ export class BlogVersionService {
   }
 
   /**
-   * 获取特定版本
+   * Get a specific version
    */
   static async getVersion(versionId: string): Promise<BlogVersion | null> {
     const [version] = await db
@@ -77,27 +76,27 @@ export class BlogVersionService {
   }
 
   /**
-   * 恢复到指定版本
+   * Restore to a specific version
    */
   static async restoreVersion(
     blogId: string,
     versionId: string,
     userId: string
   ): Promise<void> {
-    // 获取版本内容
+    // Get version content
     const version = await this.getVersion(versionId)
     if (!version) {
-      throw new Error('版本不存在')
+      throw new Error('Version does not exist')
     }
 
     if (version.blogId !== blogId) {
-      throw new Error('版本不属于该博客')
+      throw new Error('Version does not belong to this blog')
     }
 
-    // 先创建当前状态的版本快照
-    await this.createVersion(blogId, userId, '恢复前自动保存')
+    // Create a version snapshot of the current state first
+    await this.createVersion(blogId, userId, 'Auto-save before restore')
 
-    // 更新博客内容为该版本的内容
+    // Update blog content to the version content
     await db
       .update(blogs)
       .set({
@@ -109,12 +108,12 @@ export class BlogVersionService {
       })
       .where(eq(blogs.id, blogId))
 
-    // 创建恢复操作的版本记录
-    await this.createVersion(blogId, userId, `恢复到版本 ${version.version}`)
+    // Create a version record for the restore operation
+    await this.createVersion(blogId, userId, `Restored to version ${version.version}`)
   }
 
   /**
-   * 比较两个版本的差异
+   * Compare differences between two versions
    */
   static async compareVersions(
     versionId1: string,

@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Protect /admin routes
@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
       const sessionToken = request.cookies.get('better-auth.session_token')
 
       if (!sessionToken) {
-        return NextResponse.redirect(new URL('/auth/login', request.url))
+        return NextResponse.redirect(new URL('/login', request.url))
       }
 
       // Verify session
@@ -25,13 +25,13 @@ export async function middleware(request: NextRequest) {
       )
 
       if (!response.ok) {
-        return NextResponse.redirect(new URL('/auth/login', request.url))
+        return NextResponse.redirect(new URL('/login', request.url))
       }
 
       const session = await response.json()
 
       if (!session || !session.user) {
-        return NextResponse.redirect(new URL('/auth/login', request.url))
+        return NextResponse.redirect(new URL('/login', request.url))
       }
 
       // Check if user is admin
@@ -39,11 +39,11 @@ export async function middleware(request: NextRequest) {
 
       if (!isUserAdmin) {
         // Redirect to unauthorized page
-        return NextResponse.redirect(new URL('/auth/unauthorized', request.url))
+        return NextResponse.redirect(new URL('/unauthorized', request.url))
       }
     } catch (error) {
-      console.error('Middleware error:', error)
-      return NextResponse.redirect(new URL('/auth/login', request.url))
+      console.error('Proxy error:', error)
+      return NextResponse.redirect(new URL('/login', request.url))
     }
   }
 

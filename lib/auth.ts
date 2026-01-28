@@ -2,8 +2,6 @@ import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { getAdminEmails } from './auth-utils'
-import { eq } from 'drizzle-orm'
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -28,26 +26,7 @@ export const auth = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET!
     }
   },
-  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'],
-  hooks: {
-    after: [
-      {
-        matcher: () => true,
-        handler: async (ctx) => {
-          // Auto-assign admin role to whitelisted emails on first login
-          if (ctx.context && ctx.context.newUser && ctx.user) {
-            const adminEmails = getAdminEmails()
-            if (adminEmails.includes(ctx.user.email.toLowerCase())) {
-              await db
-                .update(schema.users)
-                .set({ role: 'admin' })
-                .where(eq(schema.users.id, ctx.user.id))
-            }
-          }
-        }
-      }
-    ]
-  }
+  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000']
 })
 
 export type Session = typeof auth.$Infer.Session

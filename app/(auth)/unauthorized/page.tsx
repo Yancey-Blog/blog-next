@@ -19,7 +19,7 @@ export default function UnauthorizedPage() {
           </div>
           <CardTitle className="text-2xl">Access Denied</CardTitle>
           <CardDescription>
-            You don't have permission to access the admin area
+            You don&apos;t have permission to access the admin area
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -33,7 +33,7 @@ export default function UnauthorizedPage() {
                 Go to Homepage
               </Button>
             </Link>
-            <Link href="/auth/login" className="w-full">
+            <Link href="/login" className="w-full">
               <Button variant="outline" className="w-full">
                 Try Different Account
               </Button>

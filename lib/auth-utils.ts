@@ -1,17 +1,11 @@
 import type { User } from './db/schema'
 
 /**
- * Check if a user is an admin based on email whitelist or role
+ * Check if a user is an admin based on email whitelist
  */
 export function isAdmin(user: User | null | undefined): boolean {
   if (!user) return false
 
-  // Method 1: Check role field (if using role-based system)
-  if (user.role === 'admin') {
-    return true
-  }
-
-  // Method 2: Check email whitelist from environment variable
   const adminEmails = process.env.ADMIN_EMAILS?.split(',').map((email) =>
     email.trim().toLowerCase()
   )
