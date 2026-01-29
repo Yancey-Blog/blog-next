@@ -76,7 +76,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'Unauthorized') {
-        return NextResponse.json({ error: '未授权' }, { status: 401 })
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
       return NextResponse.json({ error: error.message }, { status: 400 })
     }

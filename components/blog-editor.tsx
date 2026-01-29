@@ -2,7 +2,7 @@
 
 import { uploadApi } from '@/lib/api/upload'
 import { Editor } from '@tinymce/tinymce-react'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import type { Editor as TinyMCEEditor } from 'tinymce'
 
 interface BlogEditorProps {
@@ -12,6 +12,11 @@ interface BlogEditorProps {
   disabled?: boolean
 }
 
+interface BlobInfo {
+  blob: () => Blob
+  filename: () => string
+}
+
 export function BlogEditor({
   value,
   onChange,
@@ -19,18 +24,14 @@ export function BlogEditor({
   disabled = false
 }: BlogEditorProps) {
   const editorRef = useRef<TinyMCEEditor | null>(null)
-  const [mounted, setMounted] = useState(false)
+  // Client-side only rendering to avoid SSR hydration issues
+  const [mounted] = useState(true)
 
-  // Only render editor on client side to avoid SSR hydration issues
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // 处理图片上传 - 使用预签名 URL 直接上传到 S3
-  const handleImageUpload = async (
-    blobInfo: any,
-    progress: (percent: number) => void
-  ): Promise<string> => {
+  /**
+   * Handle image upload to S3
+   * Uses presigned URLs for direct upload to S3 bucket
+   */
+  const handleImageUpload = async (blobInfo: BlobInfo): Promise<string> => {
     const file = blobInfo.blob() as File
 
     if (onImageUpload) {
@@ -126,14 +127,14 @@ export function BlogEditor({
           'removeformat help',
         content_style:
           'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-        // 图片上传配置
+        // Image upload configuration
         images_upload_handler: handleImageUpload,
         automatic_uploads: true,
         images_reuse_filename: true,
-        // 粘贴配置
+        // Paste configuration
         paste_data_images: true,
         paste_as_text: false,
-        // 文件选择器配置
+        // File picker configuration
         file_picker_types: 'image',
         file_picker_callback: (callback, value, meta) => {
           if (meta.filetype === 'image') {
@@ -165,17 +166,17 @@ export function BlogEditor({
                 callback(url, { alt: file.name })
               } catch (error) {
                 console.error('Image upload failed:', error)
-                alert('图片上传失败')
+                alert('Image upload failed')
               }
             }
 
             input.click()
           }
         },
-        // 内容样式
+        // Content styling
         content_css: 'default',
         skin: 'oxide',
-        // 代码编辑器语言
+        // Code editor language options
         codesample_languages: [
           { text: 'HTML/XML', value: 'markup' },
           { text: 'JavaScript', value: 'javascript' },
@@ -195,7 +196,7 @@ export function BlogEditor({
         ],
         link_default_target: '_blank',
         link_assume_external_targets: true,
-        // 表格配置
+        // Table configuration
         table_default_attributes: {
           border: '1'
         },

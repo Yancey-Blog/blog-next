@@ -41,22 +41,25 @@ export function BlogImageUpload({
     return null
   }
 
-  const uploadFile = async (file: File) => {
-    const validationError = validateFile(file)
-    if (validationError) {
-      toast.error(validationError)
-      return
-    }
+  const uploadFile = useCallback(
+    async (file: File) => {
+      const validationError = validateFile(file)
+      if (validationError) {
+        toast.error(validationError)
+        return
+      }
 
-    try {
-      const publicUrl = await uploadImage(file)
-      onChange(publicUrl)
-      toast.success('Image uploaded successfully')
-    } catch (error) {
-      console.error('Upload error:', error)
-      toast.error('Failed to upload image')
-    }
-  }
+      try {
+        const publicUrl = await uploadImage(file)
+        onChange(publicUrl)
+        toast.success('Image uploaded successfully')
+      } catch (error) {
+        console.error('Upload error:', error)
+        toast.error('Failed to upload image')
+      }
+    },
+    [uploadImage, onChange]
+  )
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

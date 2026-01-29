@@ -41,10 +41,8 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
   // Initialize form with react-hook-form
   const {
     control,
-    handleSubmit,
     watch,
-    setValue,
-    formState: { errors, isDirty }
+    formState: { errors }
   } = useForm<BlogFormData>({
     resolver: zodResolver(blogFormSchema),
     defaultValues: {

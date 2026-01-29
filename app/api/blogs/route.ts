@@ -7,7 +7,10 @@ import { createBlogSchema, getBlogsQuerySchema } from '@/lib/validations/blog'
 import { and, desc, eq, ilike, or } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 
-// GET /api/blogs - 获取博客列表（公开）
+/**
+ * GET /api/blogs - Get list of blogs (public)
+ * Supports pagination, filtering by published status, and search
+ */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl
@@ -21,15 +24,15 @@ export async function GET(request: NextRequest) {
     const { page, pageSize, published, search } = query
     const offset = (page - 1) * pageSize
 
-    // 构建查询条件
+    // Build query conditions
     const conditions = []
 
-    // 如果指定了 published 参数，则过滤
+    // Filter by published status if specified
     if (published !== undefined) {
       conditions.push(eq(blogs.published, published))
     }
 
-    // 如果有搜索关键词
+    // Add search filter if search term provided
     if (search) {
       conditions.push(
         or(
@@ -68,7 +71,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/blogs - 创建博客（需要认证）
+/**
+ * POST /api/blogs - Create a new blog (requires authentication)
+ * Automatically creates version snapshot if published
+ */
 export async function POST(request: NextRequest) {
   try {
     const session = await requireAuth()
@@ -95,7 +101,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'Unauthorized') {
-        return NextResponse.json({ error: '未授权' }, { status: 401 })
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
       return NextResponse.json({ error: error.message }, { status: 400 })
     }

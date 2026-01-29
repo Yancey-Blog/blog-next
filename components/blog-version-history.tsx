@@ -2,7 +2,7 @@
 
 import type { BlogVersion } from '@/lib/db/schema'
 import { DiffResult } from '@/lib/services/diff.service'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { BlogVersionDiff } from './blog-version-diff'
 import { Button } from './ui/button'
@@ -41,7 +41,7 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
   } | null>(null)
   const [open, setOpen] = useState(false)
 
-  const loadVersions = async () => {
+  const loadVersions = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/blogs/${blogId}/versions`)
@@ -56,7 +56,7 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [blogId])
 
   const handleRestore = async (versionId: string) => {
     if (
@@ -163,7 +163,7 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
       setDiffResult(null)
       setSelectedVersion(null)
     }
-  }, [open])
+  }, [open, loadVersions])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

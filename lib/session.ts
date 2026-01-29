@@ -28,9 +28,12 @@ export function getSessionUser(
 ): User | null {
   if (!session?.user) return null
 
+  // Better-auth user object may have role field, cast safely
+  const userWithRole = session.user as { role?: string }
+
   return {
     ...session.user,
-    role: (session.user as any).role || 'user',
+    role: userWithRole.role || 'user',
     image: session.user.image ?? null
   } as User
 }

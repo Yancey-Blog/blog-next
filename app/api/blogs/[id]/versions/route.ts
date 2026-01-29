@@ -7,7 +7,9 @@ type RouteContext = {
   params: Promise<{ id: string }>
 }
 
-// GET /api/blogs/[id]/versions - 获取版本历史
+/**
+ * GET /api/blogs/[id]/versions - Get version history
+ */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     await requireAuth()
@@ -19,7 +21,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'Unauthorized') {
-        return NextResponse.json({ error: '未授权' }, { status: 401 })
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
@@ -30,7 +32,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-// POST /api/blogs/[id]/versions - 创建版本快照
+/**
+ * POST /api/blogs/[id]/versions - Create version snapshot
+ */
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const session = await requireAuth()
@@ -53,7 +57,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'Unauthorized') {
-        return NextResponse.json({ error: '未授权' }, { status: 401 })
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
       return NextResponse.json({ error: error.message }, { status: 400 })
     }

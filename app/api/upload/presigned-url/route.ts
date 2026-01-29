@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    // 需要认证才能获取上传 URL
+    // Require authentication to get upload URL
     await requireAuth()
 
     const body = await request.json()
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 验证文件类型
+    // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(contentType)) {
       return NextResponse.json(
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 生成预签名 URL
+    // Generate presigned URL
     const { uploadUrl, publicUrl, fileKey } = await generatePresignedUploadUrl(
       fileName,
       contentType

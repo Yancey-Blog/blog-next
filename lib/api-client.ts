@@ -6,7 +6,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public data?: any
+    public data?: unknown
   ) {
     super(message)
     this.name = 'ApiError'
@@ -14,7 +14,7 @@ export class ApiError extends Error {
 }
 
 interface FetchOptions extends RequestInit {
-  params?: Record<string, any>
+  params?: Record<string, string | number | boolean>
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -38,7 +38,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json()
 }
 
-function buildUrl(endpoint: string, params?: Record<string, any>): string {
+function buildUrl(
+  endpoint: string,
+  params?: Record<string, string | number | boolean>
+): string {
   const url = new URL(endpoint, window.location.origin)
 
   if (params) {
@@ -67,7 +70,7 @@ export const apiClient = {
 
   async post<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: FetchOptions
   ): Promise<T> {
     const url = buildUrl(endpoint, options?.params)
@@ -85,7 +88,7 @@ export const apiClient = {
 
   async patch<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: FetchOptions
   ): Promise<T> {
     const url = buildUrl(endpoint, options?.params)
@@ -103,7 +106,7 @@ export const apiClient = {
 
   async put<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: FetchOptions
   ): Promise<T> {
     const url = buildUrl(endpoint, options?.params)

@@ -150,7 +150,7 @@ export class BlogVersionService {
     const version2 = await this.getVersion(versionId2)
 
     if (!version1 || !version2) {
-      throw new Error('版本不存在')
+      throw new Error('Version not found')
     }
 
     return {

@@ -27,7 +27,7 @@ export const s3Client = new S3Client({
 })
 
 /**
- * 生成预签名 URL 用于上传文件
+ * Generate presigned URL for file upload
  */
 export async function generatePresignedUploadUrl(
   fileName: string,
@@ -56,7 +56,7 @@ export async function generatePresignedUploadUrl(
 }
 
 /**
- * 直接上传文件到 S3
+ * Upload file directly to S3
  */
 export async function uploadFileToS3(
   file: Buffer,

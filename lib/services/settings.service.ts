@@ -6,8 +6,9 @@ import { v4 as uuidv4 } from 'uuid'
 export class SettingsService {
   /**
    * Get a setting by key
+   * Returns the parsed value or null if not found
    */
-  static async get<T = any>(key: string): Promise<T | null> {
+  static async get<T = unknown>(key: string): Promise<T | null> {
     const [setting] = await db
       .select()
       .from(schema.settings)
@@ -25,8 +26,9 @@ export class SettingsService {
 
   /**
    * Set a setting value
+   * Value will be JSON stringified if not already a string
    */
-  static async set<T = any>(
+  static async set<T = unknown>(
     key: string,
     value: T,
     description?: string
@@ -65,12 +67,12 @@ export class SettingsService {
   }
 
   /**
-   * Get all settings
+   * Get all settings as a key-value object
    */
-  static async getAll(): Promise<Record<string, any>> {
+  static async getAll(): Promise<Record<string, unknown>> {
     const settings = await db.select().from(schema.settings)
 
-    const result: Record<string, any> = {}
+    const result: Record<string, unknown> = {}
 
     for (const setting of settings) {
       try {

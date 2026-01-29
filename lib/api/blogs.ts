@@ -26,7 +26,7 @@ export interface CreateBlogData {
   published: boolean
 }
 
-export interface UpdateBlogData extends Partial<CreateBlogData> {}
+export type UpdateBlogData = Partial<CreateBlogData>
 
 export const blogsApi = {
   // Get blogs list

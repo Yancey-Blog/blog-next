@@ -6,7 +6,9 @@ type RouteContext = {
   params: Promise<{ id: string; versionId: string }>
 }
 
-// POST /api/blogs/[id]/versions/[versionId]/restore - 恢复到指定版本
+/**
+ * POST /api/blogs/[id]/versions/[versionId]/restore - Restore to specific version
+ */
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const session = await requireAuth()
@@ -14,11 +16,11 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     await BlogVersionService.restoreVersion(id, versionId, session.user.id)
 
-    return NextResponse.json({ message: '版本恢复成功' })
+    return NextResponse.json({ message: '版本Restored successfully' })
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'Unauthorized') {
-        return NextResponse.json({ error: '未授权' }, { status: 401 })
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
       return NextResponse.json({ error: error.message }, { status: 400 })
     }

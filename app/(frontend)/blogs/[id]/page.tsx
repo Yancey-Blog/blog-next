@@ -1,4 +1,5 @@
 import { BlogService } from '@/lib/services/blog.service'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
 export default async function BlogDetailPage({
@@ -17,15 +18,19 @@ export default async function BlogDetailPage({
     <div className="container mx-auto py-8">
       <article className="prose prose-lg mx-auto">
         {blog.coverImage && (
-          <img
-            src={blog.coverImage}
-            alt={blog.title}
-            className="mb-8 w-full rounded-lg"
-          />
+          <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-lg">
+            <Image
+              src={blog.coverImage}
+              alt={blog.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
         )}
         <h1 className="mb-4">{blog.title}</h1>
         <time className="text-muted-foreground mb-8 block text-sm">
-          {new Date(blog.createdAt).toLocaleDateString('zh-CN', {
+          {new Date(blog.createdAt).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
@@ -50,7 +55,7 @@ export async function generateMetadata({
 
   if (!blog) {
     return {
-      title: '博客不存在'
+      title: 'Blog not found'
     }
   }
 

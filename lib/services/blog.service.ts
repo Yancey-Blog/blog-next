@@ -13,7 +13,7 @@ export interface GetBlogsOptions {
 
 export class BlogService {
   /**
-   * 获取博客列表
+   * Get list of blogs
    */
   static async getBlogs(options: GetBlogsOptions = {}) {
     const { page = 1, pageSize = 10, published, search, authorId } = options
@@ -67,7 +67,7 @@ export class BlogService {
   }
 
   /**
-   * 根据 ID 获取博客
+   * Get blog by ID
    */
   static async getBlogById(id: string): Promise<Blog | null> {
     const [blog] = await db
@@ -80,7 +80,7 @@ export class BlogService {
   }
 
   /**
-   * 创建博客
+   * Create a new blog
    */
   static async createBlog(
     data: Omit<InsertBlog, 'id'> & { id?: string }
@@ -98,7 +98,7 @@ export class BlogService {
   }
 
   /**
-   * 更新博客
+   * Update a blog
    */
   static async updateBlog(
     id: string,
@@ -117,7 +117,7 @@ export class BlogService {
   }
 
   /**
-   * 删除博客
+   * Delete a blog
    */
   static async deleteBlog(id: string): Promise<boolean> {
     const result = await db.delete(blogs).where(eq(blogs.id, id)).returning()

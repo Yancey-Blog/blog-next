@@ -63,10 +63,10 @@ export function UserNav() {
         <DropdownMenuItem
           onClick={() => router.push('/admin/preference-management')}
         >
-          设置
+          Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut}>登出</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

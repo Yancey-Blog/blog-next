@@ -10,7 +10,9 @@ type RouteContext = {
   params: Promise<{ id: string }>
 }
 
-// GET /api/blogs/[id] - 获取单个博客（公开）
+/**
+ * GET /api/blogs/[id] - Get a single blog post (public)
+ */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
@@ -22,7 +24,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       .limit(1)
 
     if (!blog) {
-      return NextResponse.json({ error: '博客不存在' }, { status: 404 })
+      return NextResponse.json({ error: 'Blog not found' }, { status: 404 })
     }
 
     return NextResponse.json(blog)
@@ -37,13 +39,15 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-// PATCH /api/blogs/[id] - 更新博客（需要认证）
+/**
+ * PATCH /api/blogs/[id] - Update a blog post (requires authentication)
+ */
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
     const session = await requireAuth()
     const { id } = await context.params
 
-    // 检查博客是否存在
+    // Check if blog exists
     const [existingBlog] = await db
       .select()
       .from(blogs)
@@ -51,12 +55,15 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       .limit(1)
 
     if (!existingBlog) {
-      return NextResponse.json({ error: '博客不存在' }, { status: 404 })
+      return NextResponse.json({ error: 'Blog not found' }, { status: 404 })
     }
 
-    // 检查是否是作者本人
+    // Check if user is the author
     if (existingBlog.authorId !== session.user.id) {
-      return NextResponse.json({ error: '无权限修改此博客' }, { status: 403 })
+      return NextResponse.json(
+        { error: 'No permission to modify this blog' },
+        { status: 403 }
+      )
     }
 
     const body = await request.json()
@@ -92,7 +99,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'Unauthorized') {
-        return NextResponse.json({ error: '未授权' }, { status: 401 })
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
@@ -103,13 +110,15 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   }
 }
 
-// DELETE /api/blogs/[id] - 删除博客（需要认证）
+/**
+ * DELETE /api/blogs/[id] - Delete a blog post (requires authentication)
+ */
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
     const session = await requireAuth()
     const { id } = await context.params
 
-    // 检查博客是否存在
+    // Check if blog exists
     const [existingBlog] = await db
       .select()
       .from(blogs)
@@ -117,21 +126,24 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       .limit(1)
 
     if (!existingBlog) {
-      return NextResponse.json({ error: '博客不存在' }, { status: 404 })
+      return NextResponse.json({ error: 'Blog not found' }, { status: 404 })
     }
 
-    // 检查是否是作者本人
+    // Check if user is the author
     if (existingBlog.authorId !== session.user.id) {
-      return NextResponse.json({ error: '无权限删除此博客' }, { status: 403 })
+      return NextResponse.json(
+        { error: 'No permission to delete this blog' },
+        { status: 403 }
+      )
     }
 
     await db.delete(blogs).where(eq(blogs.id, id))
 
-    return NextResponse.json({ message: '删除成功' })
+    return NextResponse.json({ message: 'Deleted successfully' })
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'Unauthorized') {
-        return NextResponse.json({ error: '未授权' }, { status: 401 })
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
       return NextResponse.json({ error: error.message }, { status: 400 })
     }

@@ -10,7 +10,7 @@ export default async function BlogsPage({
   const page = Number(params.page) || 1
   const search = params.search || ''
 
-  // 只显示已发布的博客
+  // Only show published blogs
   const { data: blogs, pagination } = await BlogService.getBlogs({
     page,
     pageSize: 10,
@@ -20,22 +20,22 @@ export default async function BlogsPage({
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="mb-8 text-4xl font-bold">博客</h1>
+      <h1 className="mb-8 text-4xl font-bold">Blogs</h1>
 
-      {/* 搜索框 */}
+      {/* Search */}
       <form className="mb-8">
         <input
           type="text"
           name="search"
-          placeholder="搜索博客..."
+          placeholder="搜索Blogs..."
           defaultValue={search}
           className="w-full max-w-md rounded-md border px-4 py-2"
         />
       </form>
 
-      {/* 博客列表 */}
+      {/* Blogs列表 */}
       {blogs.length === 0 ? (
-        <p className="text-muted-foreground">暂无博客</p>
+        <p className="text-muted-foreground">暂无Blogs</p>
       ) : (
         <div className="grid gap-6">
           {blogs.map((blog) => (
@@ -57,7 +57,7 @@ export default async function BlogsPage({
         </div>
       )}
 
-      {/* 分页 */}
+      {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="mt-8 flex justify-center gap-2">
           {page > 1 && (
@@ -65,18 +65,18 @@ export default async function BlogsPage({
               href={`/blogs?page=${page - 1}${search ? `&search=${search}` : ''}`}
               className="rounded-md border px-4 py-2"
             >
-              上一页
+              Previous
             </Link>
           )}
           <span className="px-4 py-2">
-            第 {page} / {pagination.totalPages} 页
+            Page {page} of {pagination.totalPages}
           </span>
           {page < pagination.totalPages && (
             <Link
               href={`/blogs?page=${page + 1}${search ? `&search=${search}` : ''}`}
               className="rounded-md border px-4 py-2"
             >
-              下一页
+              Next
             </Link>
           )}
         </div>
