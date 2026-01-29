@@ -1,5 +1,6 @@
 import { AppSidebar } from '@/components/app-sidebar'
 import { SiteHeader } from '@/components/site-header'
+import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { isAdmin } from '@/lib/auth-utils'
@@ -30,7 +31,7 @@ export default async function AdminLayout({
   const currentTheme = await SettingsService.getCurrentTheme()
 
   return (
-    <>
+    <ThemeModeProvider>
       <ThemeProvider themeId={currentTheme} />
       <SidebarProvider
         style={
@@ -50,6 +51,6 @@ export default async function AdminLayout({
           </div>
         </SidebarInset>
       </SidebarProvider>
-    </>
+    </ThemeModeProvider>
   )
 }
