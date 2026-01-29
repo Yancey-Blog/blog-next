@@ -6,9 +6,7 @@ export const createBlogSchema = z.object({
     .min(1, 'Title is required')
     .max(200, 'Title must be less than 200 characters'),
   content: z.string().min(1, 'Content is required'),
-  summary: z
-    .string()
-    .max(500, 'Summary must be less than 500 characters'),
+  summary: z.string().max(500, 'Summary must be less than 500 characters'),
   coverImage: z.url('Cover image must be a valid URL'),
   published: z.boolean().default(false)
 })

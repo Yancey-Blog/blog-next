@@ -21,7 +21,9 @@ export async function POST(request: NextRequest) {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(contentType)) {
       return NextResponse.json(
-        { error: 'Unsupported file type. Only JPEG, PNG, GIF, WebP are allowed' },
+        {
+          error: 'Unsupported file type. Only JPEG, PNG, GIF, WebP are allowed'
+        },
         { status: 400 }
       )
     }

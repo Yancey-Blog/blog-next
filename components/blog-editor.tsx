@@ -1,5 +1,6 @@
 'use client'
 
+import { uploadApi } from '@/lib/api/upload'
 import { Editor } from '@tinymce/tinymce-react'
 import { useEffect, useRef, useState } from 'react'
 import type { Editor as TinyMCEEditor } from 'tinymce'
@@ -44,33 +45,13 @@ export function BlogEditor({
 
     try {
       // Step 1: Get presigned URL
-      const presignedResponse = await fetch('/api/upload/presigned-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fileName: file.name,
-          contentType: file.type
-        })
+      const { uploadUrl, publicUrl } = await uploadApi.getPresignedUrl({
+        fileName: file.name,
+        contentType: file.type
       })
-
-      if (!presignedResponse.ok) {
-        throw new Error('Failed to get upload URL')
-      }
-
-      const { uploadUrl, publicUrl } = await presignedResponse.json()
 
       // Step 2: Upload directly to S3
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type
-        },
-        body: file
-      })
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload to S3')
-      }
+      await uploadApi.uploadToS3(uploadUrl, file)
 
       return publicUrl
     } catch (error) {
@@ -170,35 +151,13 @@ export function BlogEditor({
                   url = await onImageUpload(file)
                 } else {
                   // Get presigned URL and upload directly to S3
-                  const presignedResponse = await fetch(
-                    '/api/upload/presigned-url',
-                    {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        fileName: file.name,
-                        contentType: file.type
-                      })
-                    }
-                  )
+                  const { uploadUrl, publicUrl } =
+                    await uploadApi.getPresignedUrl({
+                      fileName: file.name,
+                      contentType: file.type
+                    })
 
-                  if (!presignedResponse.ok) {
-                    throw new Error('Failed to get upload URL')
-                  }
-
-                  const { uploadUrl, publicUrl } = await presignedResponse.json()
-
-                  const uploadResponse = await fetch(uploadUrl, {
-                    method: 'PUT',
-                    headers: {
-                      'Content-Type': file.type
-                    },
-                    body: file
-                  })
-
-                  if (!uploadResponse.ok) {
-                    throw new Error('Failed to upload to S3')
-                  }
+                  await uploadApi.uploadToS3(uploadUrl, file)
 
                   url = publicUrl
                 }

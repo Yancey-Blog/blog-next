@@ -1,5 +1,6 @@
 'use client'
 
+import { useUploadImage } from '@/hooks/queries/use-upload'
 import { IconUpload, IconX } from '@tabler/icons-react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
@@ -10,7 +11,7 @@ interface BlogImageUploadProps {
   value: string | null
   onChange: (url: string | null) => void
   disabled?: boolean
-  className?:string
+  className?: string
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
@@ -27,8 +28,8 @@ export function BlogImageUpload({
   disabled = false,
   className
 }: BlogImageUploadProps) {
-  const [isUploading, setIsUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const { mutateAsync: uploadImage, isPending: isUploading } = useUploadImage()
 
   const validateFile = (file: File): string | null => {
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
@@ -47,46 +48,13 @@ export function BlogImageUpload({
       return
     }
 
-    setIsUploading(true)
-
     try {
-      // Step 1: Get presigned URL from backend
-      const presignedResponse = await fetch('/api/upload/presigned-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fileName: file.name,
-          contentType: file.type
-        })
-      })
-
-      if (!presignedResponse.ok) {
-        throw new Error('Failed to get upload URL')
-      }
-
-      const { uploadUrl, publicUrl } = await presignedResponse.json()
-
-      // Step 2: Upload directly to S3 using presigned URL
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type
-        },
-        body: file
-      })
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload to S3')
-      }
-
-      // Step 3: Use the public URL
+      const publicUrl = await uploadImage(file)
       onChange(publicUrl)
       toast.success('Image uploaded successfully')
     } catch (error) {
       console.error('Upload error:', error)
       toast.error('Failed to upload image')
-    } finally {
-      setIsUploading(false)
     }
   }
 

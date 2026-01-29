@@ -147,6 +147,8 @@ export const settings = pgTable('settings', {
 
 export type User = typeof users.$inferSelect
 export type InsertUser = typeof users.$inferInsert
+export type Session = typeof sessions.$inferSelect
+export type InsertSession = typeof sessions.$inferInsert
 export type Blog = typeof blogs.$inferSelect
 export type InsertBlog = typeof blogs.$inferInsert
 export type BlogVersion = typeof blogVersions.$inferSelect
