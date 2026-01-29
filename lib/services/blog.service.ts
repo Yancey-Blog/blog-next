@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { blogs, type Blog, type InsertBlog } from '@/lib/db/schema'
-import { and, desc, eq, ilike, ne, or } from 'drizzle-orm'
+import { and, desc, eq, ilike, or } from 'drizzle-orm'
+import { v4 as uuidv4 } from 'uuid'
 
 export interface GetBlogsOptions {
   page?: number
@@ -79,23 +80,19 @@ export class BlogService {
   }
 
   /**
-   * 根据 slug 获取博客
-   */
-  static async getBlogBySlug(slug: string): Promise<Blog | null> {
-    const [blog] = await db
-      .select()
-      .from(blogs)
-      .where(eq(blogs.slug, slug))
-      .limit(1)
-
-    return blog || null
-  }
-
-  /**
    * 创建博客
    */
-  static async createBlog(data: InsertBlog): Promise<Blog> {
-    const [newBlog] = await db.insert(blogs).values(data).returning()
+  static async createBlog(
+    data: Omit<InsertBlog, 'id'> & { id?: string }
+  ): Promise<Blog> {
+    const blogData = {
+      ...data,
+      id: data.id || uuidv4()
+    }
+    const [newBlog] = await db
+      .insert(blogs)
+      .values(blogData as InsertBlog)
+      .returning()
 
     return newBlog
   }
@@ -126,28 +123,5 @@ export class BlogService {
     const result = await db.delete(blogs).where(eq(blogs.id, id)).returning()
 
     return result.length > 0
-  }
-
-  /**
-   * 检查 slug 是否可用
-   */
-  static async isSlugAvailable(
-    slug: string,
-    excludeId?: string
-  ): Promise<boolean> {
-    const conditions = [eq(blogs.slug, slug)]
-
-    // 如果提供了 excludeId，排除该博客（用于更新时检查）
-    if (excludeId) {
-      conditions.push(ne(blogs.id, excludeId))
-    }
-
-    const [existingBlog] = await db
-      .select()
-      .from(blogs)
-      .where(and(...conditions))
-      .limit(1)
-
-    return !existingBlog
   }
 }

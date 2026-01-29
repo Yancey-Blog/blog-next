@@ -1,7 +1,7 @@
 import { isSuperAdmin } from '@/lib/auth-utils'
 import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
-import { requireAuth } from '@/lib/session'
+import { getSessionUser, requireAuth } from '@/lib/session'
 import { eq } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 
@@ -12,10 +12,11 @@ export async function PATCH(
 ) {
   try {
     const session = await requireAuth()
+    const user = getSessionUser(session)
     const { id } = await params
 
     // Only super admins can update user roles
-    if (!isSuperAdmin(session.user)) {
+    if (!isSuperAdmin(user)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -61,10 +62,11 @@ export async function DELETE(
 ) {
   try {
     const session = await requireAuth()
+    const user = getSessionUser(session)
     const { id } = await params
 
     // Only super admins can delete users
-    if (!isSuperAdmin(session.user)) {
+    if (!isSuperAdmin(user)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

@@ -5,7 +5,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { isAdmin } from '@/lib/auth-utils'
 import { autoPromoteAdmin } from '@/lib/auto-promote-admin'
 import { SettingsService } from '@/lib/services/settings.service'
-import { requireAuth } from '@/lib/session'
+import { getSessionUser, requireAuth } from '@/lib/session'
 import { redirect } from 'next/navigation'
 
 export default async function AdminLayout({
@@ -21,7 +21,8 @@ export default async function AdminLayout({
 
   // Check if user is admin (reload user data after potential promotion)
   const updatedSession = await requireAuth()
-  if (!isAdmin(updatedSession.user)) {
+  const user = getSessionUser(updatedSession)
+  if (!isAdmin(user)) {
     redirect('/login')
   }
 

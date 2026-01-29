@@ -1,7 +1,7 @@
 'use client'
 
 import { Editor } from '@tinymce/tinymce-react'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Editor as TinyMCEEditor } from 'tinymce'
 
 interface BlogEditorProps {
@@ -18,8 +18,14 @@ export function BlogEditor({
   disabled = false
 }: BlogEditorProps) {
   const editorRef = useRef<TinyMCEEditor | null>(null)
+  const [mounted, setMounted] = useState(false)
 
-  // 处理图片上传
+  // Only render editor on client side to avoid SSR hydration issues
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // 处理图片上传 - 使用预签名 URL 直接上传到 S3
   const handleImageUpload = async (
     blobInfo: any,
     progress: (percent: number) => void
@@ -36,31 +42,55 @@ export function BlogEditor({
       }
     }
 
-    // 默认上传到 API
-    const formData = new FormData()
-    formData.append('file', file)
-
     try {
-      const response = await fetch('/api/upload', {
+      // Step 1: Get presigned URL
+      const presignedResponse = await fetch('/api/upload/presigned-url', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileName: file.name,
+          contentType: file.type
+        })
       })
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || '上传失败')
+      if (!presignedResponse.ok) {
+        throw new Error('Failed to get upload URL')
       }
 
-      const data = await response.json()
-      return data.url
+      const { uploadUrl, publicUrl } = await presignedResponse.json()
+
+      // Step 2: Upload directly to S3
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type
+        },
+        body: file
+      })
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload to S3')
+      }
+
+      return publicUrl
     } catch (error) {
       console.error('Image upload failed:', error)
       throw error
     }
   }
 
+  // Show loading state on server side
+  if (!mounted) {
+    return (
+      <div className="flex h-150 items-center justify-center rounded-md border bg-muted">
+        <p className="text-sm text-muted-foreground">Loading editor...</p>
+      </div>
+    )
+  }
+
   return (
     <Editor
+      id="blog-content-editor"
       apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
       value={value}
       onEditorChange={onChange}
@@ -139,20 +169,38 @@ export function BlogEditor({
                 if (onImageUpload) {
                   url = await onImageUpload(file)
                 } else {
-                  const formData = new FormData()
-                  formData.append('file', file)
+                  // Get presigned URL and upload directly to S3
+                  const presignedResponse = await fetch(
+                    '/api/upload/presigned-url',
+                    {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        fileName: file.name,
+                        contentType: file.type
+                      })
+                    }
+                  )
 
-                  const response = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
-                  })
-
-                  if (!response.ok) {
-                    throw new Error('上传失败')
+                  if (!presignedResponse.ok) {
+                    throw new Error('Failed to get upload URL')
                   }
 
-                  const data = await response.json()
-                  url = data.url
+                  const { uploadUrl, publicUrl } = await presignedResponse.json()
+
+                  const uploadResponse = await fetch(uploadUrl, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': file.type
+                    },
+                    body: file
+                  })
+
+                  if (!uploadResponse.ok) {
+                    throw new Error('Failed to upload to S3')
+                  }
+
+                  url = publicUrl
                 }
 
                 callback(url, { alt: file.name })
@@ -186,11 +234,9 @@ export function BlogEditor({
           { text: 'SQL', value: 'sql' },
           { text: 'Bash', value: 'bash' }
         ],
-        // 链接配置
         link_default_target: '_blank',
         link_assume_external_targets: true,
         // 表格配置
-        table_responsive_width: true,
         table_default_attributes: {
           border: '1'
         },

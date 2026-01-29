@@ -1,8 +1,20 @@
 import { db } from '@/lib/db'
 import { blogVersions, blogs, type BlogVersion } from '@/lib/db/schema'
 import { desc, eq } from 'drizzle-orm'
+import { v4 as uuidv4 } from 'uuid'
 
 export class BlogVersionService {
+  /**
+   * Check if a version should be created based on publish status change
+   */
+  static shouldCreateVersion(
+    oldPublished: boolean,
+    newPublished: boolean
+  ): boolean {
+    // Create version when publishing (false -> true) or republishing (true -> true)
+    return newPublished === true
+  }
+
   /**
    * Create a version snapshot
    */
@@ -36,6 +48,7 @@ export class BlogVersionService {
     const [newVersion] = await db
       .insert(blogVersions)
       .values({
+        id: uuidv4(),
         blogId,
         version: nextVersion,
         title: blog.title,
@@ -103,8 +116,8 @@ export class BlogVersionService {
       .set({
         title: version.title,
         content: version.content,
-        summary: version.summary,
-        coverImage: version.coverImage,
+        summary: version.summary ?? undefined,
+        coverImage: version.coverImage ?? undefined,
         updatedAt: new Date()
       })
       .where(eq(blogs.id, blogId))

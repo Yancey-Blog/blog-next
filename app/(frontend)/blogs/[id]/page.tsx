@@ -4,10 +4,10 @@ import { notFound } from 'next/navigation'
 export default async function BlogDetailPage({
   params
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ id: string }>
 }) {
-  const { slug } = await params
-  const blog = await BlogService.getBlogBySlug(slug)
+  const { id } = await params
+  const blog = await BlogService.getBlogById(id)
 
   if (!blog || !blog.published) {
     notFound()
@@ -43,10 +43,10 @@ export default async function BlogDetailPage({
 export async function generateMetadata({
   params
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ id: string }>
 }) {
-  const { slug } = await params
-  const blog = await BlogService.getBlogBySlug(slug)
+  const { id } = await params
+  const blog = await BlogService.getBlogById(id)
 
   if (!blog) {
     return {

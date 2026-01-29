@@ -19,7 +19,7 @@ export default async function EditBlogPage({
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Edit Blog</h1>

@@ -1,13 +1,14 @@
 import { UserManagement } from '@/components/user-management'
 import { isSuperAdmin } from '@/lib/auth-utils'
-import { requireAuth } from '@/lib/session'
+import { getSessionUser, requireAuth } from '@/lib/session'
 import { redirect } from 'next/navigation'
 
 export default async function UsersPage() {
   const session = await requireAuth()
+  const user = getSessionUser(session)
 
   // Only super admins can access user management
-  if (!isSuperAdmin(session.user)) {
+  if (!isSuperAdmin(user)) {
     redirect('/admin')
   }
 

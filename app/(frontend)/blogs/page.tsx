@@ -43,7 +43,7 @@ export default async function BlogsPage({
               key={blog.id}
               className="rounded-lg border p-6 transition hover:shadow-lg"
             >
-              <Link href={`/blogs/${blog.slug}`}>
+              <Link href={`/blogs/${blog.id}`}>
                 <h2 className="mb-2 text-2xl font-semibold">{blog.title}</h2>
               </Link>
               {blog.summary && (

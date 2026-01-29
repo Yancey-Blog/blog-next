@@ -1,6 +1,6 @@
 import { isSuperAdmin } from '@/lib/auth-utils'
 import { SettingsService } from '@/lib/services/settings.service'
-import { requireAuth } from '@/lib/session'
+import { getSessionUser, requireAuth } from '@/lib/session'
 import { PRESET_THEMES } from '@/lib/themes'
 import { NextResponse } from 'next/server'
 
@@ -8,9 +8,10 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   try {
     const session = await requireAuth()
+    const user = getSessionUser(session)
 
     // Only super admins can manage themes
-    if (!isSuperAdmin(session.user)) {
+    if (!isSuperAdmin(user)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -34,9 +35,10 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await requireAuth()
+    const user = getSessionUser(session)
 
     // Only super admins can manage themes
-    if (!isSuperAdmin(session.user)) {
+    if (!isSuperAdmin(user)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

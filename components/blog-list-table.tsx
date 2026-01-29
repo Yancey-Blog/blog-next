@@ -22,7 +22,7 @@ interface BlogListTableProps {
   blogs: Blog[]
 }
 
-type StatusFilter = 'all' | 'published' | 'preview' | 'draft'
+type StatusFilter = 'all' | 'published' | 'draft'
 
 export function BlogListTable({ blogs }: BlogListTableProps) {
   const [searchQuery, setSearchQuery] = useState('')
@@ -33,15 +33,13 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
       // Search filter
       const matchesSearch =
         searchQuery === '' ||
-        blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        blog.slug.toLowerCase().includes(searchQuery.toLowerCase())
+        blog.title.toLowerCase().includes(searchQuery.toLowerCase())
 
       // Status filter
       const matchesStatus =
         statusFilter === 'all' ||
         (statusFilter === 'published' && blog.published) ||
-        (statusFilter === 'preview' && blog.preview) ||
-        (statusFilter === 'draft' && !blog.published && !blog.preview)
+        (statusFilter === 'draft' && !blog.published)
 
       return matchesSearch && matchesStatus
     })
@@ -53,9 +51,6 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
         <Badge className="bg-green-500 hover:bg-green-600">Published</Badge>
       )
     }
-    if (blog.preview) {
-      return <Badge className="bg-blue-500 hover:bg-blue-600">Preview</Badge>
-    }
     return <Badge variant="secondary">Draft</Badge>
   }
 
@@ -63,8 +58,7 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
     return {
       all: blogs.length,
       published: blogs.filter((b) => b.published).length,
-      preview: blogs.filter((b) => b.preview).length,
-      draft: blogs.filter((b) => !b.published && !b.preview).length
+      draft: blogs.filter((b) => !b.published).length
     }
   }, [blogs])
 
@@ -75,7 +69,7 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by title or slug..."
+            placeholder="Search by title..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -90,9 +84,6 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
             <TabsTrigger value="all">All ({statusCounts.all})</TabsTrigger>
             <TabsTrigger value="published">
               Published ({statusCounts.published})
-            </TabsTrigger>
-            <TabsTrigger value="preview">
-              Preview ({statusCounts.preview})
             </TabsTrigger>
             <TabsTrigger value="draft">
               Draft ({statusCounts.draft})
@@ -126,7 +117,6 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
-                <TableHead>Slug</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead>Updated</TableHead>
@@ -138,9 +128,6 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
                 <TableRow key={blog.id}>
                   <TableCell className="font-medium max-w-xs truncate">
                     {blog.title}
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {blog.slug}
                   </TableCell>
                   <TableCell>{getStatusBadge(blog)}</TableCell>
                   <TableCell>
@@ -159,11 +146,13 @@ export function BlogListTable({ blogs }: BlogListTableProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Link href={`/blogs/${blog.slug}`} target="_blank">
-                        <Button variant="outline" size="sm">
-                          <ExternalLink className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                      {blog.published && (
+                        <Link href={`/blogs/${blog.id}`} target="_blank">
+                          <Button variant="outline" size="sm">
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                      )}
                       <Link href={`/admin/blog-management/edit/${blog.id}`}>
                         <Button variant="secondary" size="sm">
                           <Edit className="h-4 w-4" />

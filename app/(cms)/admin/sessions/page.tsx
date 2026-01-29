@@ -1,13 +1,14 @@
 import { SessionManagement } from '@/components/session-management'
 import { isSuperAdmin } from '@/lib/auth-utils'
-import { requireAuth } from '@/lib/session'
+import { getSessionUser, requireAuth } from '@/lib/session'
 import { redirect } from 'next/navigation'
 
 export default async function SessionsPage() {
   const session = await requireAuth()
+  const user = getSessionUser(session)
 
   // Only super admins can access session management
-  if (!isSuperAdmin(session.user)) {
+  if (!isSuperAdmin(user)) {
     redirect('/admin')
   }
 

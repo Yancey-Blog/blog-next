@@ -1,7 +1,7 @@
 import { isSuperAdmin } from '@/lib/auth-utils'
 import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
-import { requireAuth } from '@/lib/session'
+import { getSessionUser, requireAuth } from '@/lib/session'
 import { desc, eq } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 
@@ -9,9 +9,10 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   try {
     const session = await requireAuth()
+    const user = getSessionUser(session)
 
     // Only super admins can view sessions
-    if (!isSuperAdmin(session.user)) {
+    if (!isSuperAdmin(user)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { blogs } from '@/lib/db/schema'
+import { BlogVersionService } from '@/lib/services/blog-version.service'
 import { requireAuth } from '@/lib/session'
 import { updateBlogSchema } from '@/lib/validations/blog'
 import { eq } from 'drizzle-orm'
@@ -61,18 +62,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const body = await request.json()
     const validatedData = updateBlogSchema.parse(body)
 
-    // 如果更新 slug，检查新 slug 是否已被使用
-    if (validatedData.slug && validatedData.slug !== existingBlog.slug) {
-      const [duplicateBlog] = await db
-        .select()
-        .from(blogs)
-        .where(eq(blogs.slug, validatedData.slug))
-        .limit(1)
-
-      if (duplicateBlog) {
-        return NextResponse.json({ error: '该 slug 已存在' }, { status: 409 })
-      }
-    }
+    // Check if we need to create a version (when publishing)
+    const shouldVersion =
+      validatedData.published !== undefined &&
+      BlogVersionService.shouldCreateVersion(
+        existingBlog.published,
+        validatedData.published
+      )
 
     const [updatedBlog] = await db
       .update(blogs)
@@ -82,6 +78,15 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       })
       .where(eq(blogs.id, id))
       .returning()
+
+    // Create version if publishing
+    if (shouldVersion) {
+      await BlogVersionService.createVersion(
+        id,
+        session.user.id,
+        'Published update'
+      )
+    }
 
     return NextResponse.json(updatedBlog)
   } catch (error) {

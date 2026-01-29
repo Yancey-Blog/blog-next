@@ -2,7 +2,7 @@ import { BlogForm } from '@/components/blog-form'
 
 export default function CreateBlogPage() {
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Create Blog</h1>
         <p className="text-muted-foreground mt-2">

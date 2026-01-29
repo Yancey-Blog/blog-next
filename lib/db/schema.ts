@@ -103,12 +103,10 @@ export const accountRelations = relations(accounts, ({ one }) => ({
 export const blogs = pgTable('blogs', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
-  slug: text('slug').notNull().unique(),
   content: text('content').notNull(),
-  summary: text('summary'),
-  coverImage: text('cover_image'),
+  summary: text('summary').notNull(),
+  coverImage: text('cover_image').notNull(),
   published: boolean('published').default(false).notNull(),
-  preview: boolean('preview').default(false).notNull(), // Preview mode (accessible only to author)
   authorId: text('author_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),

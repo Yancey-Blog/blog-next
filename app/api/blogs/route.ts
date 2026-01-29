@@ -1,5 +1,7 @@
 import { db } from '@/lib/db'
 import { blogs } from '@/lib/db/schema'
+import { BlogVersionService } from '@/lib/services/blog-version.service'
+import { BlogService } from '@/lib/services/blog.service'
 import { requireAuth } from '@/lib/session'
 import { createBlogSchema, getBlogsQuerySchema } from '@/lib/validations/blog'
 import { and, desc, eq, ilike, or } from 'drizzle-orm'
@@ -74,24 +76,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = createBlogSchema.parse(body)
 
-    // 检查 slug 是否已存在
-    const existingBlog = await db
-      .select()
-      .from(blogs)
-      .where(eq(blogs.slug, validatedData.slug))
-      .limit(1)
+    // Create blog with UUID
+    const newBlog = await BlogService.createBlog({
+      ...validatedData,
+      authorId: session.user.id
+    })
 
-    if (existingBlog.length > 0) {
-      return NextResponse.json({ error: '该 slug 已存在' }, { status: 409 })
+    // Create version if publishing
+    if (validatedData.published) {
+      await BlogVersionService.createVersion(
+        newBlog.id,
+        session.user.id,
+        'Initial publish'
+      )
     }
-
-    const [newBlog] = await db
-      .insert(blogs)
-      .values({
-        ...validatedData,
-        authorId: session.user.id
-      })
-      .returning()
 
     return NextResponse.json(newBlog, { status: 201 })
   } catch (error) {

@@ -58,7 +58,6 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = authClient.useSession()
-  console.log(user.data?.user)
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>

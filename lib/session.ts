@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth'
+import { User } from '@/lib/db/schema'
 import { headers } from 'next/headers'
 
 export async function getSession() {
@@ -17,4 +18,19 @@ export async function requireAuth() {
   }
 
   return session
+}
+
+/**
+ * Get the current user with proper type casting including role field
+ */
+export function getSessionUser(
+  session: Awaited<ReturnType<typeof getSession>>
+): User | null {
+  if (!session?.user) return null
+
+  return {
+    ...session.user,
+    role: (session.user as any).role || 'user',
+    image: session.user.image ?? null
+  } as User
 }

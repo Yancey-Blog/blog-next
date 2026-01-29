@@ -1,10 +1,16 @@
 'use client'
 
+import { useAutosave } from '@/hooks/use-autosave'
 import type { Blog } from '@/lib/db/schema'
+import { createBlogSchema } from '@/lib/validations/blog'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { z } from 'zod'
 import { BlogEditor } from './blog-editor'
+import { BlogImageUpload } from './blog-image-upload'
 import { Button } from './ui/button'
 import {
   Card,
@@ -15,7 +21,6 @@ import {
 } from './ui/card'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
-import { Switch } from './ui/switch'
 import { Textarea } from './ui/textarea'
 
 interface BlogFormProps {
@@ -23,118 +28,147 @@ interface BlogFormProps {
   mode: 'create' | 'edit'
 }
 
+// Form schema without ID (ID is auto-generated)
+const blogFormSchema = createBlogSchema.omit({ published: true })
+
+type BlogFormData = z.infer<typeof blogFormSchema>
+
 export function BlogForm({ blog, mode }: BlogFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    title: blog?.title || '',
-    slug: blog?.slug || '',
-    content: blog?.content || '',
-    summary: blog?.summary || '',
-    coverImage: blog?.coverImage || '',
-    published: blog?.published || false,
-    preview: blog?.preview || false
+  const [blogId, setBlogId] = useState(blog?.id || '')
+
+  // Initialize form with react-hook-form
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isDirty }
+  } = useForm<BlogFormData>({
+    resolver: zodResolver(blogFormSchema),
+    defaultValues: {
+      title: blog?.title ?? '',
+      content: blog?.content ?? '',
+      summary: blog?.summary ?? '',
+      coverImage: blog?.coverImage ?? ''
+    }
   })
 
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim()
-  }
+  // Watch form data for autosave
+  const formData = watch()
+  const isPublished = blog?.published || false
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const title = e.target.value
-    setFormData((prev) => ({
-      ...prev,
-      title,
-      // Auto-generate slug only in create mode
-      slug: mode === 'create' ? generateSlug(title) : prev.slug
-    }))
-  }
+  const shouldAutoSave = useMemo(
+    () =>
+      formData?.title.trim() !== '' &&
+      formData?.summary.trim() !== '' &&
+      formData?.coverImage.trim() !== '' &&
+      formData?.content?.trim() !== '',
+    [
+      formData?.content,
+      formData?.coverImage,
+      formData?.summary,
+      formData?.title
+    ]
+  )
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // Autosave functionality - only enabled for drafts
+  const {
+    status: autosaveStatus,
+    lastSaved,
+    error: autosaveError
+  } = useAutosave({
+    data: formData,
+    enabled: !isPublished && !loading && shouldAutoSave,
+    onSave: async (data) => {
+      // For new blogs, create draft on first autosave
+      if (!blogId && mode === 'create') {
+        const response = await fetch('/api/blogs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...data, published: false })
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to create draft')
+        }
+
+        const newBlog = await response.json()
+        setBlogId(newBlog.id)
+
+        // Update URL to edit mode
+        router.replace(`/admin/blog-management/edit/${newBlog.id}`)
+      } else if (blogId) {
+        // Update existing draft
+        const response = await fetch(`/api/blogs/${blogId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to autosave')
+        }
+      }
+    }
+  })
+
+  // Show toast notifications for autosave status
+  const toastIdRef = useRef<string | number | null>(null)
+
+  useEffect(() => {
+    if (autosaveStatus === 'saving') {
+      toastIdRef.current = toast.loading('Saving draft...')
+    } else if (autosaveStatus === 'saved' && toastIdRef.current) {
+      toast.success('Draft saved', {
+        id: toastIdRef.current,
+        description: lastSaved
+          ? `Last saved at ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+          : undefined
+      })
+      toastIdRef.current = null
+    } else if (autosaveStatus === 'error' && toastIdRef.current) {
+      toast.error('Failed to save draft', {
+        id: toastIdRef.current,
+        description: autosaveError?.message || 'Please try again'
+      })
+      toastIdRef.current = null
+    }
+  }, [autosaveStatus, lastSaved, autosaveError])
+
+  const handleSaveDraft = async () => {
     setLoading(true)
-
     try {
-      const url = mode === 'create' ? '/api/blogs' : `/api/blogs/${blog?.id}`
-      const method = mode === 'create' ? 'POST' : 'PATCH'
+      const data = formData
+      const url = blogId ? `/api/blogs/${blogId}` : '/api/blogs'
+      const method = blogId ? 'PATCH' : 'POST'
 
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Operation failed')
-      }
-
-      const data = await response.json()
-
-      // Create version snapshot in edit mode
-      if (mode === 'edit' && blog?.id) {
-        await fetch(`/api/blogs/${blog.id}/versions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            changeNote: 'Manual save'
-          })
+        body: JSON.stringify({
+          ...data,
+          published: false
         })
-      }
-
-      toast.success(
-        mode === 'create'
-          ? 'Blog created successfully'
-          : 'Blog updated successfully'
-      )
-      router.push('/admin/blog-management')
-      router.refresh()
-    } catch (error) {
-      console.error('Submit error:', error)
-      toast.error(error instanceof Error ? error.message : 'Operation failed')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleSaveDraft = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch(
-        mode === 'create' ? '/api/blogs' : `/api/blogs/${blog?.id}`,
-        {
-          method: mode === 'create' ? 'POST' : 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            ...formData,
-            published: false,
-            preview: false
-          })
-        }
-      )
+      })
 
       if (!response.ok) {
         const error = await response.json()
         throw new Error(error.error || 'Failed to save draft')
       }
 
-      toast.success('Draft saved successfully')
-      if (mode === 'create') {
-        const data = await response.json()
-        router.push(`/admin/blog-management/edit/${data.id}`)
-        router.refresh()
+      const savedBlog = await response.json()
+
+      if (!blogId) {
+        setBlogId(savedBlog.id)
+        router.replace(`/admin/blog-management/edit/${savedBlog.id}`)
       }
+
+      toast.success('Draft saved successfully')
+      router.refresh()
     } catch (error) {
       console.error('Save draft error:', error)
       toast.error(
@@ -145,119 +179,129 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
     }
   }
 
+  const handlePublish = async () => {
+    setLoading(true)
+    try {
+      const data = formData
+      const url = blogId ? `/api/blogs/${blogId}` : '/api/blogs'
+      const method = blogId ? 'PATCH' : 'POST'
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...data,
+          published: true
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to publish')
+      }
+
+      const savedBlog = await response.json()
+
+      if (!blogId) {
+        setBlogId(savedBlog.id)
+      }
+
+      toast.success('Blog published successfully')
+      router.push('/admin/blog-management')
+      router.refresh()
+    } catch (error) {
+      console.error('Publish error:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to publish')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Basic Information</CardTitle>
-          <CardDescription>
-            Fill in the blog basic information. Title will auto-generate a
-            URL-friendly slug
-          </CardDescription>
+          <CardDescription>Fill in the blog basic information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={handleTitleChange}
-              placeholder="Enter blog title"
-              required
-              disabled={loading}
+            <Controller
+              name="title"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="title"
+                  placeholder="Enter blog title"
+                  disabled={loading}
+                  {...field}
+                />
+              )}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="slug">Slug *</Label>
-            <Input
-              id="slug"
-              value={formData.slug}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, slug: e.target.value }))
-              }
-              placeholder="url-friendly-slug"
-              required
-              disabled={loading}
-            />
-            <p className="text-muted-foreground text-sm">
-              URL: /blogs/{formData.slug || 'your-slug'}
-            </p>
+            {errors.title && (
+              <p className="text-sm text-destructive">{errors.title.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="summary">Summary</Label>
-            <Textarea
-              id="summary"
-              value={formData.summary}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, summary: e.target.value }))
-              }
-              placeholder="Brief description for SEO and list page"
-              rows={3}
-              disabled={loading}
+            <Controller
+              name="summary"
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  id="summary"
+                  placeholder="Brief description for SEO and list page"
+                  rows={3}
+                  disabled={loading}
+                  {...field}
+                  value={field.value || ''}
+                />
+              )}
             />
+            {errors.summary && (
+              <p className="text-sm text-destructive">
+                {errors.summary.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="coverImage">Cover Image URL</Label>
-            <Input
-              id="coverImage"
-              value={formData.coverImage}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  coverImage: e.target.value
-                }))
-              }
-              placeholder="https://example.com/image.jpg"
-              type="url"
-              disabled={loading}
+            <Label>Cover Image</Label>
+            <Controller
+              name="coverImage"
+              control={control}
+              render={({ field }) => (
+                <BlogImageUpload
+                  value={field.value || null}
+                  onChange={(url) => field.onChange(url || '')}
+                  disabled={loading}
+                  className="w-80"
+                />
+              )}
             />
+            {errors.coverImage && (
+              <p className="text-sm text-destructive">
+                {errors.coverImage.message}
+              </p>
+            )}
           </div>
 
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="preview"
-                checked={formData.preview}
-                onCheckedChange={(checked) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    preview: checked,
-                    // If enabling preview, disable published
-                    published: checked ? false : prev.published
-                  }))
-                }
-                disabled={loading}
-              />
+          <div className="rounded-lg border border-muted bg-muted/50 p-4">
+            <div className="flex items-center justify-between">
               <div>
-                <Label htmlFor="preview">Preview Mode</Label>
-                <p className="text-xs text-muted-foreground">
-                  Enable preview to test before publishing (only visible to you)
+                <Label className="text-base">Status</Label>
+                <p className="text-sm text-muted-foreground">
+                  {isPublished ? 'Published' : 'Draft'}
                 </p>
               </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="published"
-                checked={formData.published}
-                onCheckedChange={(checked) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    published: checked,
-                    // If enabling published, disable preview
-                    preview: checked ? false : prev.preview
-                  }))
-                }
-                disabled={loading || formData.preview}
-              />
-              <div>
-                <Label htmlFor="published">Publish</Label>
-                <p className="text-xs text-muted-foreground">
-                  Make this blog publicly visible
-                </p>
+              <div className="text-sm text-muted-foreground">
+                {isPublished
+                  ? 'This blog is publicly visible'
+                  : 'This blog is saved as a draft'}
               </div>
             </div>
           </div>
@@ -273,13 +317,22 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <BlogEditor
-            value={formData.content}
-            onChange={(content) =>
-              setFormData((prev) => ({ ...prev, content }))
-            }
-            disabled={loading}
+          <Controller
+            name="content"
+            control={control}
+            render={({ field }) => (
+              <BlogEditor
+                value={field.value}
+                onChange={field.onChange}
+                disabled={loading}
+              />
+            )}
           />
+          {errors.content && (
+            <p className="text-sm text-destructive mt-2">
+              {errors.content.message}
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -292,20 +345,20 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
         >
           Cancel
         </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={handleSaveDraft}
-          disabled={loading}
-        >
-          Save as Draft
-        </Button>
-        <Button type="submit" disabled={loading}>
-          {loading
-            ? 'Saving...'
-            : mode === 'create'
-              ? 'Create Blog'
-              : 'Update Blog'}
+
+        {!isPublished && (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleSaveDraft}
+            disabled={loading}
+          >
+            {loading ? 'Saving...' : 'Save Draft'}
+          </Button>
+        )}
+
+        <Button type="button" onClick={handlePublish} disabled={loading}>
+          {loading ? 'Publishing...' : isPublished ? 'Update' : 'Publish'}
         </Button>
       </div>
     </form>
