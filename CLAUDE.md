@@ -65,12 +65,7 @@ app/
 │   └── blogs/[slug]/
 └── api/
     ├── auth/[...all]/   # better-auth handlers
-    ├── blogs/           # Blog CRUD endpoints
-    ├── upload/          # AWS S3 image upload
-    └── admin/           # Admin-only endpoints
-        ├── users/       # User management
-        ├── sessions/    # Session management
-        └── theme/       # Theme switching
+    └── trpc/[trpc]/     # Single tRPC endpoint for all API calls
 ```
 
 ### Database Schema (lib/db/schema.ts)
@@ -90,6 +85,45 @@ app/
 **Config Tables**:
 
 - `settings` - Key-value JSON storage (id, key, value, description)
+
+### tRPC API Layer
+
+All API calls use tRPC for end-to-end type safety. Architecture:
+
+**Server-side routers** (`server/routers/`):
+- `blog.ts` - Blog CRUD operations (list, create, update, delete)
+- `version.ts` - Version history (list, get, diff, restore)
+- `upload.ts` - S3 presigned URL generation
+- `admin.ts` - Admin operations (users, sessions, theme)
+- `_app.ts` - Root router combining all routers
+
+**tRPC Setup**:
+- `server/trpc.ts` - Three procedure types (public, protected, admin)
+- `server/context.ts` - Request context with session and user
+- `app/api/trpc/[trpc]/route.ts` - Next.js API handler
+
+**Client-side hooks** (`lib/trpc/`):
+- `client.tsx` - tRPC React hooks and provider (use in Client Components)
+- `server.tsx` - Server-side helpers for RSC (prefetch, hydration, direct calls)
+- `query-client.ts` - Shared QueryClient factory with dehydration config
+- `query-client-server.ts` - Server-side cached QueryClient
+
+**Usage patterns**:
+```typescript
+// Client Components
+'use client'
+import { trpc } from '@/lib/trpc/client'
+const { data } = trpc.blog.list.useQuery({ page: 1 })
+
+// Server Components (prefetch + hydrate)
+import { trpc, HydrateClient } from '@/lib/trpc/server'
+await trpc.blog.list.prefetch({ page: 1 })
+return <HydrateClient><MyComponent /></HydrateClient>
+
+// Server Components (direct call)
+import { serverClient } from '@/lib/trpc/server'
+const blogs = await (await serverClient()).blog.list({ page: 1 })
+```
 
 ### Service Layer Pattern
 
@@ -115,16 +149,36 @@ Key files:
 
 ### Image Upload (AWS S3)
 
-- Route: `POST /api/upload`
+- tRPC endpoint: `trpc.upload.getPresignedUrl`
 - Direct upload to S3 with presigned URLs
-- Used by TinyMCE editor in blog form
+- Used by TinyMCE editor and image upload components
 
 ## Important Patterns
 
 ### Admin Access Control
 
+**In tRPC routers** (automatic via procedures):
 ```typescript
-// Server Components / API Routes
+// Protected endpoint - requires authentication
+export const myRouter = router({
+  protectedEndpoint: protectedProcedure
+    .input(z.object({ ... }))
+    .mutation(async ({ input, ctx }) => {
+      // ctx.user is guaranteed to exist
+      // ctx.session is guaranteed to exist
+    }),
+
+  // Admin endpoint - requires admin role
+  adminEndpoint: adminProcedure
+    .input(z.object({ ... }))
+    .mutation(async ({ input, ctx }) => {
+      // ctx.user is guaranteed to exist and be admin
+    })
+})
+```
+
+**In Server Components / Pages**:
+```typescript
 const session = await requireAuth()
 if (!isAdmin(session.user)) {
   redirect('/login')
@@ -132,7 +186,7 @@ if (!isAdmin(session.user)) {
 
 // Super admin only features
 if (!isSuperAdmin(session.user)) {
-  return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  redirect('/unauthorized')
 }
 ```
 
@@ -169,21 +223,28 @@ NEXT_PUBLIC_APP_URL=             # App URL for OAuth callbacks
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router, Server Components, React 19)
+- **API**: tRPC 11 with React Server Components support
+- **Data Fetching**: TanStack Query (React Query) via @trpc/tanstack-react-query
 - **Database**: PostgreSQL (Neon) + Drizzle ORM
 - **Auth**: better-auth with OAuth (Google, GitHub)
 - **UI**: shadcn/ui + Radix UI + Tailwind CSS
 - **Editor**: TinyMCE (WYSIWYG for blog content)
 - **Storage**: AWS S3 (images)
 - **Validation**: Zod schemas
+- **Serialization**: SuperJSON (for Date, Map, Set, etc.)
 
 ## Critical Notes
 
-1. **Never use better-auth hooks** - They cause "hook.handler is not a function" errors. Use `autoPromoteAdmin()` utility instead.
+1. **Use tRPC for all API calls** - Never create new REST API routes. All backend operations should use tRPC routers in `server/routers/`. Client components use `trpc` hooks from `lib/trpc/client`, Server Components use helpers from `lib/trpc/server`.
 
-2. **All table IDs must be text type** - better-auth generates string IDs, not UUIDs. Do not change ID types back to uuid.
+2. **Never use better-auth hooks** - They cause "hook.handler is not a function" errors. Use `autoPromoteAdmin()` utility instead.
 
-3. **Admin layout auto-promotion** - The shared `app/(cms)/admin/layout.tsx` calls `autoPromoteAdmin()` on every request to sync env admins with database roles.
+3. **All table IDs must be text type** - better-auth generates string IDs, not UUIDs. Do not change ID types back to uuid.
 
-4. **Theme changes require page refresh** - After updating theme via API, `router.refresh()` is called to reapply CSS variables.
+4. **Admin layout auto-promotion** - The shared `app/(cms)/admin/layout.tsx` calls `autoPromoteAdmin()` on every request to sync env admins with database roles.
 
-5. **Blog versions are immutable** - Every update creates a new version. Never edit existing versions.
+5. **Theme changes require page refresh** - After updating theme via tRPC, `router.refresh()` is called to reapply CSS variables.
+
+6. **Blog versions are immutable** - Every update creates a new version. Never edit existing versions.
+
+7. **tRPC context in Server Components** - When using `trpc` or `serverClient` in Server Components, they automatically use Next.js `headers()` for context. No need to pass request objects manually.
