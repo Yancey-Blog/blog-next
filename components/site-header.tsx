@@ -1,6 +1,6 @@
+import { ThemeModeSwitcher } from '@/components/theme-mode-switcher'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { ThemeModeSwitcher } from '@/components/theme-mode-switcher'
 
 export function SiteHeader() {
   return (

@@ -7,11 +7,7 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes'
  * Manages light/dark/system theme modes
  * Automatically syncs with system preferences and persists to localStorage
  */
-export function ThemeModeProvider({
-  children
-}: {
-  children: React.ReactNode
-}) {
+export function ThemeModeProvider({ children }: { children: React.ReactNode }) {
   return (
     <NextThemesProvider
       attribute="class"

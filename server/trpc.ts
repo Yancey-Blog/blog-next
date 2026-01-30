@@ -1,7 +1,7 @@
-import { initTRPC, TRPCError } from '@trpc/server'
-import { type Context } from './context'
 import { isAdmin } from '@/lib/auth-utils'
+import { initTRPC, TRPCError } from '@trpc/server'
 import superjson from 'superjson'
+import { type Context } from './context'
 
 /**
  * Initialization of tRPC backend
@@ -19,7 +19,7 @@ const t = initTRPC.context<Context>().create({
  * that can be used throughout the router
  */
 export const router = t.router
-export const createCallerFactory = t.createCallerFactory;
+export const createCallerFactory = t.createCallerFactory
 export const publicProcedure = t.procedure
 
 /**

@@ -1,8 +1,8 @@
-import { z } from 'zod'
-import { router, protectedProcedure, publicProcedure } from '../trpc'
-import { BlogService } from '@/lib/services/blog.service'
 import { BlogVersionService } from '@/lib/services/blog-version.service'
+import { BlogService } from '@/lib/services/blog.service'
 import { createBlogSchema, updateBlogSchema } from '@/lib/validations/blog'
+import { z } from 'zod'
+import { protectedProcedure, publicProcedure, router } from '../trpc'
 
 export const blogRouter = router({
   // Get all blogs with pagination and filters
@@ -41,7 +41,11 @@ export const blogRouter = router({
 
       // Create initial version if published
       if (input.published) {
-        await BlogVersionService.createVersion(blog.id, ctx.user.id, 'Initial version')
+        await BlogVersionService.createVersion(
+          blog.id,
+          ctx.user.id,
+          'Initial version'
+        )
       }
 
       return blog

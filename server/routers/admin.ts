@@ -1,10 +1,10 @@
-import { z } from 'zod'
-import { router, adminProcedure } from '../trpc'
 import { db } from '@/lib/db'
-import { users, sessions } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { sessions, users } from '@/lib/db/schema'
 import { SettingsService } from '@/lib/services/settings.service'
 import { PRESET_THEMES, type ThemeConfig } from '@/lib/themes'
+import { eq } from 'drizzle-orm'
+import { z } from 'zod'
+import { adminProcedure, router } from '../trpc'
 
 export const adminRouter = router({
   // User management

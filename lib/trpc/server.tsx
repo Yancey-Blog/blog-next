@@ -1,13 +1,13 @@
 import 'server-only'
 
-import { cache } from 'react'
-import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { createCallerFactory } from '@/server/trpc'
+import { appRouter } from '@/server'
 import { createContext } from '@/server/context'
-import { makeQueryClient } from './query-client-server'
-import { appRouter } from '@/server/routers/_app'
+import { createCallerFactory } from '@/server/trpc'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
 import { headers } from 'next/headers'
+import { cache } from 'react'
+import { makeQueryClient } from './query-client-server'
 
 // Create a stable query client for server-side rendering
 export const getQueryClient = cache(makeQueryClient)
@@ -21,9 +21,9 @@ const createServerContext = async () => {
   return createContext({
     req: {
       headers: headersList
-    } as any,
+    },
     resHeaders: new Headers(),
-    info: {} as any
+    info: {}
   })
 }
 

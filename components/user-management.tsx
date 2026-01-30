@@ -156,9 +156,7 @@ export function UserManagement() {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() =>
-                            deleteUser.mutate({ userId: user.id })
-                          }
+                          onClick={() => deleteUser.mutate({ userId: user.id })}
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                           Delete

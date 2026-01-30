@@ -1,7 +1,7 @@
 'use client'
 
+import { PRESET_THEMES } from '@/lib/themes'
 import { trpc } from '@/lib/trpc/client'
-import { PRESET_THEMES, type ThemeConfig } from '@/lib/themes'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'

@@ -91,6 +91,7 @@ app/
 All API calls use tRPC for end-to-end type safety. Architecture:
 
 **Server-side routers** (`server/routers/`):
+
 - `blog.ts` - Blog CRUD operations (list, create, update, delete)
 - `version.ts` - Version history (list, get, diff, restore)
 - `upload.ts` - S3 presigned URL generation
@@ -98,17 +99,20 @@ All API calls use tRPC for end-to-end type safety. Architecture:
 - `_app.ts` - Root router combining all routers
 
 **tRPC Setup**:
+
 - `server/trpc.ts` - Three procedure types (public, protected, admin)
 - `server/context.ts` - Request context with session and user
 - `app/api/trpc/[trpc]/route.ts` - Next.js API handler
 
 **Client-side hooks** (`lib/trpc/`):
+
 - `client.tsx` - tRPC React hooks and provider (use in Client Components)
 - `server.tsx` - Server-side helpers for RSC (prefetch, hydration, direct calls)
 - `query-client.ts` - Shared QueryClient factory with dehydration config
 - `query-client-server.ts` - Server-side cached QueryClient
 
 **Usage patterns**:
+
 ```typescript
 // Client Components
 'use client'
@@ -158,6 +162,7 @@ Key files:
 ### Admin Access Control
 
 **In tRPC routers** (automatic via procedures):
+
 ```typescript
 // Protected endpoint - requires authentication
 export const myRouter = router({
@@ -178,6 +183,7 @@ export const myRouter = router({
 ```
 
 **In Server Components / Pages**:
+
 ```typescript
 const session = await requireAuth()
 if (!isAdmin(session.user)) {

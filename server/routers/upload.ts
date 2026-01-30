@@ -1,6 +1,6 @@
-import { z } from 'zod'
-import { router, protectedProcedure } from '../trpc'
 import { generatePresignedUploadUrl } from '@/lib/s3'
+import { z } from 'zod'
+import { protectedProcedure, router } from '../trpc'
 
 export const uploadRouter = router({
   // Get presigned URL for S3 upload
@@ -15,15 +15,20 @@ export const uploadRouter = router({
       const { fileName, contentType } = input
 
       // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+      const allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp'
+      ]
       if (!allowedTypes.includes(contentType)) {
-        throw new Error('Unsupported file type. Only JPEG, PNG, GIF, WebP are allowed')
+        throw new Error(
+          'Unsupported file type. Only JPEG, PNG, GIF, WebP are allowed'
+        )
       }
 
-      const { uploadUrl, publicUrl, fileKey } = await generatePresignedUploadUrl(
-        fileName,
-        contentType
-      )
+      const { uploadUrl, publicUrl, fileKey } =
+        await generatePresignedUploadUrl(fileName, contentType)
 
       return {
         uploadUrl,
