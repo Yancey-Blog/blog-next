@@ -1,6 +1,7 @@
 'use client'
 
-import { trpc } from '@/lib/trpc/client'
+import { useTRPC } from '@/lib/trpc/client'
+import { useMutation } from '@tanstack/react-query'
 import { Editor } from '@tinymce/tinymce-react'
 import { useTheme } from 'next-themes'
 import { useRef, useState } from 'react'
@@ -27,9 +28,12 @@ export function BlogEditor({
   const editorRef = useRef<TinyMCEEditor | null>(null)
   const { resolvedTheme } = useTheme()
   const [mounted] = useState(true)
+  const trpc = useTRPC()
 
   // tRPC mutation for getting presigned URL
-  const getPresignedUrl = trpc.upload.getPresignedUrl.useMutation()
+  const getPresignedUrl = useMutation(
+    trpc.upload.getPresignedUrl.mutationOptions()
+  )
 
   // Detect dark mode - use as key to force re-render when theme changes
   const isDarkMode = resolvedTheme === 'dark'

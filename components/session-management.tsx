@@ -1,6 +1,7 @@
 'use client'
 
-import { trpc } from '@/lib/trpc/client'
+import { useTRPC } from '@/lib/trpc/client'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   AlertDialog,
@@ -32,18 +33,26 @@ import {
 } from './ui/table'
 
 export function SessionManagement() {
-  const { data: sessions, isLoading } = trpc.admin.sessions.list.useQuery()
-  const utils = trpc.useUtils()
+  const trpc = useTRPC()
+  const queryClient = useQueryClient()
 
-  const revokeSession = trpc.admin.sessions.revoke.useMutation({
-    onSuccess: () => {
-      toast.success('Session revoked successfully (user logged out)')
-      utils.admin.sessions.list.invalidate()
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to revoke session')
-    }
-  })
+  const { data: sessions, isLoading } = useQuery(
+    trpc.admin.sessions.list.queryOptions()
+  )
+
+  const revokeSession = useMutation(
+    trpc.admin.sessions.revoke.mutationOptions({
+      onSuccess: () => {
+        toast.success('Session revoked successfully (user logged out)')
+        queryClient.invalidateQueries({
+          queryKey: trpc.admin.sessions.list.queryOptions().queryKey
+        })
+      },
+      onError: (error) => {
+        toast.error(error.message || 'Failed to revoke session')
+      }
+    })
+  )
 
   const formatUserAgent = (ua: string | null) => {
     if (!ua) return 'Unknown'

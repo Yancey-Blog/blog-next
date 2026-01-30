@@ -1,6 +1,7 @@
 'use client'
 
-import { trpc } from '@/lib/trpc/client'
+import { useTRPC } from '@/lib/trpc/client'
+import { useMutation } from '@tanstack/react-query'
 import { IconUpload, IconX } from '@tabler/icons-react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
@@ -30,8 +31,11 @@ export function BlogImageUpload({
 }: BlogImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const trpc = useTRPC()
 
-  const getPresignedUrl = trpc.upload.getPresignedUrl.useMutation()
+  const getPresignedUrl = useMutation(
+    trpc.upload.getPresignedUrl.mutationOptions()
+  )
 
   const validateFile = (file: File): string | null => {
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {

@@ -2,18 +2,18 @@ import { BlogVersionService } from '@/lib/services/blog-version.service'
 import { BlogService } from '@/lib/services/blog.service'
 import { DiffService } from '@/lib/services/diff.service'
 import { z } from 'zod'
-import { protectedProcedure, router } from '../trpc'
+import { publicProcedure, protectedProcedure } from '../init'
 
-export const versionRouter = router({
+export const versionRouter = {
   // Get all versions for a blog
-  list: protectedProcedure
+  list: publicProcedure
     .input(z.object({ blogId: z.string() }))
     .query(async ({ input }) => {
       return await BlogVersionService.getVersions(input.blogId)
     }),
 
   // Get a specific version
-  byId: protectedProcedure
+  byId: publicProcedure
     .input(
       z.object({
         blogId: z.string(),
@@ -25,7 +25,7 @@ export const versionRouter = router({
     }),
 
   // Get diff between two versions
-  diff: protectedProcedure
+  diff: publicProcedure
     .input(
       z.object({
         blogId: z.string(),
@@ -70,4 +70,4 @@ export const versionRouter = router({
 
       return { message: 'Version restored successfully' }
     })
-})
+}

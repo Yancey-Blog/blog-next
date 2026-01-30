@@ -116,16 +116,16 @@ All API calls use tRPC for end-to-end type safety. Architecture:
 ```typescript
 // Client Components
 'use client'
-import { trpc } from '@/lib/trpc/client'
+import { trpc } from '@/_trpc/client'
 const { data } = trpc.blog.list.useQuery({ page: 1 })
 
 // Server Components (prefetch + hydrate)
-import { trpc, HydrateClient } from '@/lib/trpc/server'
+import { trpc, HydrateClient } from '@/_trpc/server'
 await trpc.blog.list.prefetch({ page: 1 })
 return <HydrateClient><MyComponent /></HydrateClient>
 
 // Server Components (direct call)
-import { serverClient } from '@/lib/trpc/server'
+import { serverClient } from '@/_trpc/server'
 const blogs = await (await serverClient()).blog.list({ page: 1 })
 ```
 

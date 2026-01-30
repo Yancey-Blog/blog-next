@@ -1,8 +1,8 @@
 import { generatePresignedUploadUrl } from '@/lib/s3'
 import { z } from 'zod'
-import { protectedProcedure, router } from '../trpc'
+import { protectedProcedure } from '../init'
 
-export const uploadRouter = router({
+export const uploadRouter = {
   // Get presigned URL for S3 upload
   getPresignedUrl: protectedProcedure
     .input(
@@ -36,4 +36,4 @@ export const uploadRouter = router({
         fileKey
       }
     })
-})
+}

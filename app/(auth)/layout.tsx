@@ -1,6 +1,6 @@
 import '@/app/globals.css'
 import { Toaster } from '@/components/ui/sonner'
-import { TRPCProvider } from '@/lib/trpc/client'
+import { TRPCReactProvider } from '@/lib/trpc/client'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
@@ -29,10 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TRPCProvider>
+        <TRPCReactProvider>
           {children}
           <Toaster />
-        </TRPCProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   )

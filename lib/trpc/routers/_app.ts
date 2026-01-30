@@ -1,10 +1,10 @@
-import { router } from '../trpc'
+import { createTRPCRouter } from '../init'
 import { adminRouter } from './admin'
 import { blogRouter } from './blog'
 import { uploadRouter } from './upload'
 import { versionRouter } from './version'
 
-export const appRouter = router({
+export const appRouter = createTRPCRouter({
   blog: blogRouter,
   version: versionRouter,
   upload: uploadRouter,

@@ -4,11 +4,11 @@ import { SettingsService } from '@/lib/services/settings.service'
 import { PRESET_THEMES, type ThemeConfig } from '@/lib/themes'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { adminProcedure, router } from '../trpc'
+import { adminProcedure } from '../init'
 
-export const adminRouter = router({
+export const adminRouter = {
   // User management
-  users: router({
+  users: {
     list: adminProcedure.query(async () => {
       return await db.select().from(users).orderBy(users.createdAt)
     }),
@@ -36,10 +36,10 @@ export const adminRouter = router({
         await db.delete(users).where(eq(users.id, input.userId))
         return { message: 'User deleted successfully' }
       })
-  }),
+  },
 
   // Session management
-  sessions: router({
+  sessions: {
     list: adminProcedure.query(async () => {
       return await db
         .select({
@@ -60,10 +60,10 @@ export const adminRouter = router({
         await db.delete(sessions).where(eq(sessions.id, input.sessionId))
         return { message: 'Session revoked successfully' }
       })
-  }),
+  },
 
   // Theme management
-  theme: router({
+  theme: {
     get: adminProcedure.query(async () => {
       const themeId = await SettingsService.getCurrentTheme()
       const theme = PRESET_THEMES.find((t) => t.id === themeId)
@@ -76,5 +76,5 @@ export const adminRouter = router({
         await SettingsService.setCurrentTheme(input.theme.id)
         return { message: 'Theme updated successfully', theme: input.theme }
       })
-  })
-})
+  }
+}

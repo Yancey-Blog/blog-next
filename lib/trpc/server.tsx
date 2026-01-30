@@ -1,61 +1,25 @@
-import 'server-only'
+import 'server-only'; // <-- ensure this file cannot be imported from the client
 
-import { appRouter } from '@/server'
-import { createContext } from '@/server/context'
-import { createCallerFactory } from '@/server/trpc'
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
-import { headers } from 'next/headers'
-import { cache } from 'react'
-import { makeQueryClient } from './query-client-server'
+import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
+import { cache } from 'react';
+import { createTRPCContext } from './init';
+import { makeQueryClient } from './query-client';
+import { appRouter } from './routers/_app';
 
-// Create a stable query client for server-side rendering
-export const getQueryClient = cache(makeQueryClient)
+// IMPORTANT: Create a stable getter for the query client that
+//            will return the same client during the same request.
+export const getQueryClient = cache(makeQueryClient);
 
-/**
- * Create context for server components
- * Uses Next.js headers() instead of fetch request
- */
-const createServerContext = async () => {
-  const headersList = await headers()
-  return createContext({
-    req: {
-      headers: headersList
-    },
-    resHeaders: new Headers(),
-    info: {}
-  })
-}
-
-/**
- * Main tRPC proxy for server components
- * Used for prefetching queries on the server
- */
 export const trpc = createTRPCOptionsProxy({
-  ctx: createServerContext,
+  ctx: createTRPCContext,
   router: appRouter,
-  queryClient: getQueryClient
-})
+  queryClient: getQueryClient,
+});
 
-/**
- * Helper component to hydrate client with server-fetched data
- */
-export function HydrateClient(props: { children: React.ReactNode }) {
-  const queryClient = getQueryClient()
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      {props.children}
-    </HydrationBoundary>
-  )
-}
-
-// Create a caller for server-side data fetching (bypasses query cache)
-const createCaller = createCallerFactory(appRouter)
-
-/**
- * Server-side tRPC caller for direct API calls in Server Components
- * This bypasses the query cache and directly calls the router
- */
-export const serverClient = cache(async () => {
-  return createCaller(await createServerContext())
-})
+// // If your router is on a separate server, pass a client:
+// createTRPCOptionsProxy({
+//   client: createTRPCClient({
+//     links: [httpLink({ url: '...' })],
+//   }),
+//   queryClient: getQueryClient,
+// });

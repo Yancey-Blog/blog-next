@@ -2,8 +2,9 @@
 
 import { useAutosave } from '@/hooks/use-autosave'
 import type { Blog } from '@/lib/db/schema'
-import { trpc } from '@/lib/trpc/client'
+import { useTRPC } from '@/lib/trpc/client'
 import { createBlogSchema } from '@/lib/validations/blog'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -38,11 +39,12 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [blogId, setBlogId] = useState(blog?.id || '')
+  const trpc = useTRPC()
+  const queryClient = useQueryClient()
 
   // tRPC mutations
-  const utils = trpc.useUtils()
-  const createBlog = trpc.blog.create.useMutation()
-  const updateBlog = trpc.blog.update.useMutation()
+  const createBlog = useMutation(trpc.blog.create.mutationOptions())
+  const updateBlog = useMutation(trpc.blog.update.mutationOptions())
 
   // Initialize form with react-hook-form
   const {
@@ -150,7 +152,9 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
       }
 
       toast.success('Draft saved successfully')
-      utils.blog.list.invalidate()
+      queryClient.invalidateQueries({
+        queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
+      })
       router.refresh()
     } catch (error) {
       console.error('Save draft error:', error)
@@ -181,7 +185,9 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
       }
 
       toast.success('Blog published successfully')
-      utils.blog.list.invalidate()
+      queryClient.invalidateQueries({
+        queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
+      })
       router.push('/admin/blog-management')
       router.refresh()
     } catch (error) {

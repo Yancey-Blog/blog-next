@@ -1,6 +1,7 @@
 'use client'
 
-import { trpc } from '@/lib/trpc/client'
+import { useTRPC } from '@/lib/trpc/client'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   AlertDialog,
@@ -39,28 +40,38 @@ import {
 } from './ui/table'
 
 export function UserManagement() {
-  const { data: users, isLoading } = trpc.admin.users.list.useQuery()
-  const utils = trpc.useUtils()
+  const trpc = useTRPC()
+  const queryClient = useQueryClient()
 
-  const updateRole = trpc.admin.users.updateRole.useMutation({
-    onSuccess: () => {
-      toast.success('User role updated successfully')
-      utils.admin.users.list.invalidate()
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to update user')
-    }
-  })
+  const { data: users, isLoading } = useQuery(trpc.admin.users.list.queryOptions())
 
-  const deleteUser = trpc.admin.users.delete.useMutation({
-    onSuccess: () => {
-      toast.success('User deleted successfully')
-      utils.admin.users.list.invalidate()
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to delete user')
-    }
-  })
+  const updateRole = useMutation(
+    trpc.admin.users.updateRole.mutationOptions({
+      onSuccess: () => {
+        toast.success('User role updated successfully')
+        queryClient.invalidateQueries({
+          queryKey: trpc.admin.users.list.queryOptions().queryKey
+        })
+      },
+      onError: (error) => {
+        toast.error(error.message || 'Failed to update user')
+      }
+    })
+  )
+
+  const deleteUser = useMutation(
+    trpc.admin.users.delete.mutationOptions({
+      onSuccess: () => {
+        toast.success('User deleted successfully')
+        queryClient.invalidateQueries({
+          queryKey: trpc.admin.users.list.queryOptions().queryKey
+        })
+      },
+      onError: (error) => {
+        toast.error(error.message || 'Failed to delete user')
+      }
+    })
+  )
 
   if (isLoading) {
     return (

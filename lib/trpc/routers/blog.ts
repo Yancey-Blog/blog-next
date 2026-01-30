@@ -2,9 +2,9 @@ import { BlogVersionService } from '@/lib/services/blog-version.service'
 import { BlogService } from '@/lib/services/blog.service'
 import { createBlogSchema, updateBlogSchema } from '@/lib/validations/blog'
 import { z } from 'zod'
-import { protectedProcedure, publicProcedure, router } from '../trpc'
+import { publicProcedure, protectedProcedure } from '../init'
 
-export const blogRouter = router({
+export const blogRouter = {
   // Get all blogs with pagination and filters
   list: publicProcedure
     .input(
@@ -91,4 +91,4 @@ export const blogRouter = router({
       await BlogService.deleteBlog(input.id)
       return { message: 'Blog deleted successfully' }
     })
-})
+}

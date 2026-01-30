@@ -1,7 +1,8 @@
 'use client'
 
 import { PRESET_THEMES } from '@/lib/themes'
-import { trpc } from '@/lib/trpc/client'
+import { useTRPC } from '@/lib/trpc/client'
+import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
@@ -21,19 +22,22 @@ export function ThemeSettings({ currentTheme }: ThemeSettingsProps) {
   const [selectedTheme, setSelectedTheme] = useState(currentTheme)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const trpc = useTRPC()
 
-  const updateTheme = trpc.admin.theme.update.useMutation({
-    onSuccess: () => {
-      toast.success('Theme updated successfully')
-      // Refresh the page to apply new theme
-      startTransition(() => {
-        router.refresh()
-      })
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to update theme')
-    }
-  })
+  const updateTheme = useMutation(
+    trpc.admin.theme.update.mutationOptions({
+      onSuccess: () => {
+        toast.success('Theme updated successfully')
+        // Refresh the page to apply new theme
+        startTransition(() => {
+          router.refresh()
+        })
+      },
+      onError: (error) => {
+        toast.error(error.message || 'Failed to update theme')
+      }
+    })
+  )
 
   const handleThemeChange = (themeId: string) => {
     const theme = PRESET_THEMES.find((t) => t.id === themeId)
