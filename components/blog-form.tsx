@@ -2,6 +2,7 @@
 
 import { useAutosave } from '@/hooks/use-autosave'
 import type { Blog } from '@/lib/db/schema'
+import { trpc } from '@/lib/trpc/client'
 import { createBlogSchema } from '@/lib/validations/blog'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
@@ -37,6 +38,11 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [blogId, setBlogId] = useState(blog?.id || '')
+
+  // tRPC mutations
+  const utils = trpc.useUtils()
+  const createBlog = trpc.blog.create.useMutation()
+  const updateBlog = trpc.blog.update.useMutation()
 
   // Initialize form with react-hook-form
   const {
@@ -82,32 +88,21 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
     onSave: async (data) => {
       // For new blogs, create draft on first autosave
       if (!blogId && mode === 'create') {
-        const response = await fetch('/api/blogs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...data, published: false })
+        const newBlog = await createBlog.mutateAsync({
+          ...data,
+          published: false
         })
 
-        if (!response.ok) {
-          throw new Error('Failed to create draft')
-        }
-
-        const newBlog = await response.json()
         setBlogId(newBlog.id)
 
         // Update URL to edit mode
         router.replace(`/admin/blog-management/edit/${newBlog.id}`)
       } else if (blogId) {
         // Update existing draft
-        const response = await fetch(`/api/blogs/${blogId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+        await updateBlog.mutateAsync({
+          id: blogId,
+          data
         })
-
-        if (!response.ok) {
-          throw new Error('Failed to autosave')
-        }
       }
     }
   })
@@ -139,33 +134,23 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
     setLoading(true)
     try {
       const data = formData
-      const url = blogId ? `/api/blogs/${blogId}` : '/api/blogs'
-      const method = blogId ? 'PATCH' : 'POST'
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      if (blogId) {
+        await updateBlog.mutateAsync({
+          id: blogId,
+          data: { ...data, published: false }
+        })
+      } else {
+        const newBlog = await createBlog.mutateAsync({
           ...data,
           published: false
         })
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to save draft')
-      }
-
-      const savedBlog = await response.json()
-
-      if (!blogId) {
-        setBlogId(savedBlog.id)
-        router.replace(`/admin/blog-management/edit/${savedBlog.id}`)
+        setBlogId(newBlog.id)
+        router.replace(`/admin/blog-management/edit/${newBlog.id}`)
       }
 
       toast.success('Draft saved successfully')
+      utils.blog.list.invalidate()
       router.refresh()
     } catch (error) {
       console.error('Save draft error:', error)
@@ -181,32 +166,22 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
     setLoading(true)
     try {
       const data = formData
-      const url = blogId ? `/api/blogs/${blogId}` : '/api/blogs'
-      const method = blogId ? 'PATCH' : 'POST'
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      if (blogId) {
+        await updateBlog.mutateAsync({
+          id: blogId,
+          data: { ...data, published: true }
+        })
+      } else {
+        const newBlog = await createBlog.mutateAsync({
           ...data,
           published: true
         })
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to publish')
-      }
-
-      const savedBlog = await response.json()
-
-      if (!blogId) {
-        setBlogId(savedBlog.id)
+        setBlogId(newBlog.id)
       }
 
       toast.success('Blog published successfully')
+      utils.blog.list.invalidate()
       router.push('/admin/blog-management')
       router.refresh()
     } catch (error) {

@@ -1,0 +1,16 @@
+import { router } from '../trpc'
+import { blogRouter } from './blog'
+import { versionRouter } from './version'
+import { uploadRouter } from './upload'
+import { adminRouter } from './admin'
+
+export const appRouter = router({
+  blog: blogRouter,
+  version: versionRouter,
+  upload: uploadRouter,
+  admin: adminRouter
+})
+
+// Export type router type signature
+// This is used by the client to get type-safety
+export type AppRouter = typeof appRouter

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { trpc } from '@/lib/trpc/client'
 import { toast } from 'sonner'
 import {
   AlertDialog,
@@ -31,64 +31,19 @@ import {
   TableRow
 } from './ui/table'
 
-interface Session {
-  id: string
-  token: string
-  expiresAt: string
-  ipAddress: string | null
-  userAgent: string | null
-  createdAt: string
-  userId: string
-  userName: string
-  userEmail: string
-  userImage: string | null
-}
-
 export function SessionManagement() {
-  const [sessions, setSessions] = useState<Session[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: sessions, isLoading } = trpc.admin.sessions.list.useQuery()
+  const utils = trpc.useUtils()
 
-  const loadSessions = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/admin/sessions')
-      if (!response.ok) {
-        throw new Error('Failed to load sessions')
-      }
-      const data = await response.json()
-      setSessions(data)
-    } catch (error) {
-      console.error('Load sessions error:', error)
-      toast.error('Failed to load sessions')
-    } finally {
-      setLoading(false)
+  const revokeSession = trpc.admin.sessions.revoke.useMutation({
+    onSuccess: () => {
+      toast.success('Session revoked successfully (user logged out)')
+      utils.admin.sessions.list.invalidate()
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to revoke session')
     }
-  }
-
-  const deleteSession = async (sessionId: string) => {
-    try {
-      const response = await fetch(`/api/admin/sessions/${sessionId}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to delete session')
-      }
-
-      toast.success('Session deleted successfully (user logged out)')
-      loadSessions()
-    } catch (error) {
-      console.error('Delete session error:', error)
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to delete session'
-      )
-    }
-  }
-
-  useEffect(() => {
-    loadSessions()
-  }, [])
+  })
 
   const formatUserAgent = (ua: string | null) => {
     if (!ua) return 'Unknown'
@@ -101,7 +56,7 @@ export function SessionManagement() {
     return 'Unknown'
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
         <CardContent className="pt-6">
@@ -118,8 +73,8 @@ export function SessionManagement() {
       <CardHeader>
         <CardTitle>Active Sessions</CardTitle>
         <CardDescription>
-          Total: {sessions.length} active session
-          {sessions.length !== 1 ? 's' : ''}
+          Total: {sessions?.length || 0} active session
+          {sessions?.length !== 1 ? 's' : ''}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -130,26 +85,22 @@ export function SessionManagement() {
               <TableHead>Device</TableHead>
               <TableHead>IP Address</TableHead>
               <TableHead>Created</TableHead>
-              <TableHead>Expires</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sessions.map((session) => (
+            {sessions?.map((session) => (
               <TableRow key={session.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={session.userImage || ''} />
+                      <AvatarImage src={session.userId || ''} />
                       <AvatarFallback>
-                        {session.userName.substring(0, 2).toUpperCase()}
+                        {session.userId.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium">{session.userName}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {session.userEmail}
-                      </div>
+                      <div className="font-medium">{session.userId}</div>
                     </div>
                   </div>
                 </TableCell>
@@ -167,18 +118,14 @@ export function SessionManagement() {
                     minute: '2-digit'
                   })}
                 </TableCell>
-                <TableCell>
-                  {new Date(session.expiresAt).toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </TableCell>
                 <TableCell className="text-right">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={revokeSession.isPending}
+                      >
                         Revoke
                       </Button>
                     </AlertDialogTrigger>
@@ -193,7 +140,9 @@ export function SessionManagement() {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => deleteSession(session.id)}
+                          onClick={() =>
+                            revokeSession.mutate({ sessionId: session.id })
+                          }
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                           Revoke

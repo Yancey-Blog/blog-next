@@ -1,6 +1,6 @@
 'use client'
 
-import { useUploadImage } from '@/hooks/queries/use-upload'
+import { trpc } from '@/lib/trpc/client'
 import { IconUpload, IconX } from '@tabler/icons-react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
@@ -29,7 +29,9 @@ export function BlogImageUpload({
   className
 }: BlogImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false)
-  const { mutateAsync: uploadImage, isPending: isUploading } = useUploadImage()
+  const [isUploading, setIsUploading] = useState(false)
+
+  const getPresignedUrl = trpc.upload.getPresignedUrl.useMutation()
 
   const validateFile = (file: File): string | null => {
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
@@ -49,16 +51,37 @@ export function BlogImageUpload({
         return
       }
 
+      setIsUploading(true)
       try {
-        const publicUrl = await uploadImage(file)
+        // Step 1: Get presigned URL
+        const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
+          fileName: file.name,
+          contentType: file.type
+        })
+
+        // Step 2: Upload directly to S3
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': file.type
+          },
+          body: file
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload to S3')
+        }
+
         onChange(publicUrl)
         toast.success('Image uploaded successfully')
       } catch (error) {
         console.error('Upload error:', error)
         toast.error('Failed to upload image')
+      } finally {
+        setIsUploading(false)
       }
     },
-    [uploadImage, onChange]
+    [getPresignedUrl, onChange]
   )
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

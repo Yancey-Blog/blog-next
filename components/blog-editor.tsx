@@ -1,6 +1,6 @@
 'use client'
 
-import { uploadApi } from '@/lib/api/upload'
+import { trpc } from '@/lib/trpc/client'
 import { Editor } from '@tinymce/tinymce-react'
 import { useTheme } from 'next-themes'
 import { useRef, useState } from 'react'
@@ -28,6 +28,9 @@ export function BlogEditor({
   const { resolvedTheme } = useTheme()
   const [mounted] = useState(true)
 
+  // tRPC mutation for getting presigned URL
+  const getPresignedUrl = trpc.upload.getPresignedUrl.useMutation()
+
   // Detect dark mode - use as key to force re-render when theme changes
   const isDarkMode = resolvedTheme === 'dark'
   const editorKey = `tinymce-${isDarkMode ? 'dark' : 'light'}`
@@ -51,13 +54,23 @@ export function BlogEditor({
 
     try {
       // Step 1: Get presigned URL
-      const { uploadUrl, publicUrl } = await uploadApi.getPresignedUrl({
+      const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
         fileName: file.name,
         contentType: file.type
       })
 
       // Step 2: Upload directly to S3
-      await uploadApi.uploadToS3(uploadUrl, file)
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type
+        },
+        body: file
+      })
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload to S3')
+      }
 
       return publicUrl
     } catch (error) {
@@ -135,16 +148,16 @@ export function BlogEditor({
           'removeformat help',
         content_style:
           'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-        // Image upload configuration
+        // 图片上传配置
         images_upload_handler: handleImageUpload,
         automatic_uploads: true,
         images_reuse_filename: true,
-        // Paste configuration
+        // 粘贴配置
         paste_data_images: true,
         paste_as_text: false,
-        // File picker configuration
+        // 文件选择器配置
         file_picker_types: 'image',
-        file_picker_callback: (callback, value, meta) => {
+        file_picker_callback: async (callback, value, meta) => {
           if (meta.filetype === 'image') {
             const input = document.createElement('input')
             input.setAttribute('type', 'file')
@@ -161,12 +174,22 @@ export function BlogEditor({
                 } else {
                   // Get presigned URL and upload directly to S3
                   const { uploadUrl, publicUrl } =
-                    await uploadApi.getPresignedUrl({
+                    await getPresignedUrl.mutateAsync({
                       fileName: file.name,
                       contentType: file.type
                     })
 
-                  await uploadApi.uploadToS3(uploadUrl, file)
+                  const uploadResponse = await fetch(uploadUrl, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': file.type
+                    },
+                    body: file
+                  })
+
+                  if (!uploadResponse.ok) {
+                    throw new Error('Failed to upload to S3')
+                  }
 
                   url = publicUrl
                 }
@@ -174,14 +197,14 @@ export function BlogEditor({
                 callback(url, { alt: file.name })
               } catch (error) {
                 console.error('Image upload failed:', error)
-                alert('Image upload failed')
+                alert('图片上传失败')
               }
             }
 
             input.click()
           }
         },
-        // Code editor language options
+        // 代码编辑器语言
         codesample_languages: [
           { text: 'HTML/XML', value: 'markup' },
           { text: 'JavaScript', value: 'javascript' },
@@ -201,7 +224,7 @@ export function BlogEditor({
         ],
         link_default_target: '_blank',
         link_assume_external_targets: true,
-        // Table configuration
+        // 表格配置
         table_default_attributes: {
           border: '1'
         },

@@ -1,6 +1,7 @@
 'use client'
 
-import { PRESET_THEMES } from '@/lib/themes'
+import { trpc } from '@/lib/trpc/client'
+import { PRESET_THEMES, type ThemeConfig } from '@/lib/themes'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
@@ -21,29 +22,25 @@ export function ThemeSettings({ currentTheme }: ThemeSettingsProps) {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
-  const handleThemeChange = async (themeId: string) => {
-    try {
-      const response = await fetch('/api/admin/theme', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ themeId })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to update theme')
-      }
-
-      setSelectedTheme(themeId)
+  const updateTheme = trpc.admin.theme.update.useMutation({
+    onSuccess: () => {
       toast.success('Theme updated successfully')
-
       // Refresh the page to apply new theme
       startTransition(() => {
         router.refresh()
       })
-    } catch (error) {
-      console.error('Update theme error:', error)
-      toast.error('Failed to update theme')
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update theme')
     }
+  })
+
+  const handleThemeChange = (themeId: string) => {
+    const theme = PRESET_THEMES.find((t) => t.id === themeId)
+    if (!theme) return
+
+    setSelectedTheme(themeId)
+    updateTheme.mutate({ theme })
   }
 
   return (
@@ -60,7 +57,7 @@ export function ThemeSettings({ currentTheme }: ThemeSettingsProps) {
             <button
               key={theme.id}
               onClick={() => handleThemeChange(theme.id)}
-              disabled={isPending}
+              disabled={isPending || updateTheme.isPending}
               className={`
                 relative p-4 rounded-lg border-2 text-left transition-all
                 hover:border-primary hover:shadow-md
@@ -69,7 +66,11 @@ export function ThemeSettings({ currentTheme }: ThemeSettingsProps) {
                     ? 'border-primary bg-primary/5'
                     : 'border-border bg-card'
                 }
-                ${isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                ${
+                  isPending || updateTheme.isPending
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'cursor-pointer'
+                }
               `}
             >
               {selectedTheme === theme.id && (

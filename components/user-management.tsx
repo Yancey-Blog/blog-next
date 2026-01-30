@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { trpc } from '@/lib/trpc/client'
 import { toast } from 'sonner'
 import {
   AlertDialog,
@@ -38,87 +38,31 @@ import {
   TableRow
 } from './ui/table'
 
-interface User {
-  id: string
-  name: string
-  email: string
-  emailVerified: boolean
-  image: string | null
-  role: string
-  createdAt: string
-  updatedAt: string
-}
-
 export function UserManagement() {
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: users, isLoading } = trpc.admin.users.list.useQuery()
+  const utils = trpc.useUtils()
 
-  const loadUsers = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/admin/users')
-      if (!response.ok) {
-        throw new Error('Failed to load users')
-      }
-      const data = await response.json()
-      setUsers(data)
-    } catch (error) {
-      console.error('Load users error:', error)
-      toast.error('Failed to load users')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const updateUserRole = async (userId: string, role: string) => {
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role })
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to update user')
-      }
-
+  const updateRole = trpc.admin.users.updateRole.useMutation({
+    onSuccess: () => {
       toast.success('User role updated successfully')
-      loadUsers()
-    } catch (error) {
-      console.error('Update user error:', error)
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to update user'
-      )
+      utils.admin.users.list.invalidate()
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update user')
     }
-  }
+  })
 
-  const deleteUser = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to delete user')
-      }
-
+  const deleteUser = trpc.admin.users.delete.useMutation({
+    onSuccess: () => {
       toast.success('User deleted successfully')
-      loadUsers()
-    } catch (error) {
-      console.error('Delete user error:', error)
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to delete user'
-      )
+      utils.admin.users.list.invalidate()
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to delete user')
     }
-  }
+  })
 
-  useEffect(() => {
-    loadUsers()
-  }, [])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
         <CardContent className="pt-6">
@@ -133,7 +77,7 @@ export function UserManagement() {
       <CardHeader>
         <CardTitle>Users</CardTitle>
         <CardDescription>
-          Total: {users.length} user{users.length !== 1 ? 's' : ''}
+          Total: {users?.length || 0} user{users?.length !== 1 ? 's' : ''}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -148,7 +92,7 @@ export function UserManagement() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
+            {users?.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -165,7 +109,13 @@ export function UserManagement() {
                 <TableCell>
                   <Select
                     value={user.role}
-                    onValueChange={(role) => updateUserRole(user.id, role)}
+                    onValueChange={(role) =>
+                      updateRole.mutate({
+                        userId: user.id,
+                        role: role as 'user' | 'admin'
+                      })
+                    }
+                    disabled={updateRole.isPending}
                   >
                     <SelectTrigger className="w-32">
                       <SelectValue />
@@ -186,7 +136,11 @@ export function UserManagement() {
                 <TableCell className="text-right">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={deleteUser.isPending}
+                      >
                         Delete
                       </Button>
                     </AlertDialogTrigger>
@@ -202,7 +156,9 @@ export function UserManagement() {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => deleteUser(user.id)}
+                          onClick={() =>
+                            deleteUser.mutate({ userId: user.id })
+                          }
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                           Delete
