@@ -2,7 +2,7 @@ import { BlogVersionService } from '@/lib/services/blog-version.service'
 import { BlogService } from '@/lib/services/blog.service'
 import { DiffService } from '@/lib/services/diff.service'
 import { z } from 'zod'
-import { publicProcedure, protectedProcedure } from '../init'
+import { protectedProcedure, publicProcedure } from '../init'
 
 export const versionRouter = {
   // Get all versions for a blog

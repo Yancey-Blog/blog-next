@@ -12,7 +12,7 @@ export const createTRPCContext = cache(async () => {
 
   return {
     session,
-    user, // Properly typed User object with role field
+    user // Properly typed User object with role field
     // headers: opts.req.headers
   }
 })
@@ -28,7 +28,7 @@ const t = initTRPC.context<Context>().create({
   /**
    * @see https://trpc.io/docs/server/data-transformers
    */
-  transformer: superjson,
+  transformer: superjson
 })
 
 // Base router and procedure helpers

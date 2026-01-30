@@ -43,7 +43,9 @@ export function UserManagement() {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
 
-  const { data: users, isLoading } = useQuery(trpc.admin.users.list.queryOptions())
+  const { data: users, isLoading } = useQuery(
+    trpc.admin.users.list.queryOptions()
+  )
 
   const updateRole = useMutation(
     trpc.admin.users.updateRole.mutationOptions({
