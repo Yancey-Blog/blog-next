@@ -2,6 +2,7 @@
 
 import { uploadApi } from '@/lib/api/upload'
 import { Editor } from '@tinymce/tinymce-react'
+import { useTheme } from 'next-themes'
 import { useRef, useState } from 'react'
 import type { Editor as TinyMCEEditor } from 'tinymce'
 
@@ -24,8 +25,12 @@ export function BlogEditor({
   disabled = false
 }: BlogEditorProps) {
   const editorRef = useRef<TinyMCEEditor | null>(null)
-  // Client-side only rendering to avoid SSR hydration issues
+  const { resolvedTheme } = useTheme()
   const [mounted] = useState(true)
+
+  // Detect dark mode - use as key to force re-render when theme changes
+  const isDarkMode = resolvedTheme === 'dark'
+  const editorKey = `tinymce-${isDarkMode ? 'dark' : 'light'}`
 
   /**
    * Handle image upload to S3
@@ -72,6 +77,7 @@ export function BlogEditor({
 
   return (
     <Editor
+      key={editorKey}
       id="blog-content-editor"
       apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
       value={value}
@@ -83,6 +89,8 @@ export function BlogEditor({
       init={{
         height: 600,
         menubar: true,
+        skin: isDarkMode ? 'oxide-dark' : 'oxide',
+        content_css: isDarkMode ? 'dark' : 'default',
         plugins: [
           // Core editing features
           'anchor',
@@ -173,9 +181,6 @@ export function BlogEditor({
             input.click()
           }
         },
-        // Content styling
-        content_css: 'default',
-        skin: 'oxide',
         // Code editor language options
         codesample_languages: [
           { text: 'HTML/XML', value: 'markup' },

@@ -32,6 +32,7 @@ export function useAutosave<T>({
 
   const isSavingRef = useRef(false)
   const lastDataRef = useRef<string>('')
+  const isInitializedRef = useRef(false)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
   const intervalTimerRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -91,9 +92,17 @@ export function useAutosave<T>({
     await save(data)
   }, [data, save])
 
+  // Initialize lastDataRef with initial data to prevent immediate save on mount
+  useEffect(() => {
+    if (!isInitializedRef.current) {
+      lastDataRef.current = serializeData(data)
+      isInitializedRef.current = true
+    }
+  }, [data, serializeData])
+
   // Debounced save on data changes
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled || !isInitializedRef.current) return
 
     // Clear existing debounce timer
     if (debounceTimerRef.current) {
@@ -114,7 +123,7 @@ export function useAutosave<T>({
 
   // Periodic save interval
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled || !isInitializedRef.current) return
 
     intervalTimerRef.current = setInterval(() => {
       save(data)
