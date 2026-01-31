@@ -2,7 +2,6 @@
 
 import {
   IconDashboard,
-  IconDeviceDesktop,
   IconFileDescription,
   IconInnerShadowTop,
   IconSettings,
@@ -22,7 +21,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from '@/components/ui/sidebar'
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth/auth-client'
 
 const data = {
   navMain: [
@@ -37,14 +36,9 @@ const data = {
       icon: IconFileDescription
     },
     {
-      title: 'User Management',
-      url: '/admin/users',
+      title: 'Auth Management',
+      url: '/admin/management',
       icon: IconUsers
-    },
-    {
-      title: 'Session Management',
-      url: '/admin/sessions',
-      icon: IconDeviceDesktop
     }
   ],
   navSecondary: [

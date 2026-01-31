@@ -1,18 +1,7 @@
 import { ThemeSettings } from '@/components/theme-settings'
-import { isSuperAdmin } from '@/lib/auth-utils'
 import { SettingsService } from '@/lib/services/settings.service'
-import { getSessionUser, requireAuth } from '@/lib/session'
-import { redirect } from 'next/navigation'
 
 export default async function SettingsPage() {
-  const session = await requireAuth()
-  const user = getSessionUser(session)
-
-  // Only super admins can access settings
-  if (!isSuperAdmin(user)) {
-    redirect('/admin')
-  }
-
   const currentTheme = await SettingsService.getCurrentTheme()
 
   return (

@@ -1,7 +1,7 @@
 import { db } from '@/lib/db'
 import { sessions, users } from '@/lib/db/schema'
 import { SettingsService } from '@/lib/services/settings.service'
-import { PRESET_THEMES, type ThemeConfig } from '@/lib/themes'
+import { PRESET_THEMES } from '@/lib/themes'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { adminProcedure } from '../init'
@@ -12,23 +12,6 @@ export const adminRouter = {
     list: adminProcedure.query(async () => {
       return await db.select().from(users).orderBy(users.createdAt)
     }),
-
-    updateRole: adminProcedure
-      .input(
-        z.object({
-          userId: z.string(),
-          role: z.enum(['user', 'admin'])
-        })
-      )
-      .mutation(async ({ input }) => {
-        const [user] = await db
-          .update(users)
-          .set({ role: input.role })
-          .where(eq(users.id, input.userId))
-          .returning()
-
-        return user
-      }),
 
     delete: adminProcedure
       .input(z.object({ userId: z.string() }))
@@ -63,6 +46,10 @@ export const adminRouter = {
   },
 
   // Theme management
+  getCurrentTheme: adminProcedure.query(async () => {
+    return await SettingsService.getCurrentTheme()
+  }),
+
   theme: {
     get: adminProcedure.query(async () => {
       const themeId = await SettingsService.getCurrentTheme()
@@ -71,10 +58,16 @@ export const adminRouter = {
     }),
 
     update: adminProcedure
-      .input(z.object({ theme: z.custom<ThemeConfig>() }))
+      .input(z.object({ themeId: z.string() }))
       .mutation(async ({ input }) => {
-        await SettingsService.setCurrentTheme(input.theme.id)
-        return { message: 'Theme updated successfully', theme: input.theme }
+        // Validate that theme exists
+        const theme = PRESET_THEMES.find((t) => t.id === input.themeId)
+        if (!theme) {
+          throw new Error('Theme not found')
+        }
+
+        await SettingsService.setCurrentTheme(input.themeId)
+        return { message: 'Theme updated successfully', themeId: input.themeId }
       })
   }
 }

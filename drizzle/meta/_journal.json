@@ -29,6 +29,27 @@
       "when": 1769658938391,
       "tag": "0003_free_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1769851810710,
+      "tag": "0004_careless_black_bolt",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1769853969192,
+      "tag": "0005_open_lightspeed",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1769854850374,
+      "tag": "0006_yellow_ultragirl",
+      "breakpoints": true
     }
   ]
 }

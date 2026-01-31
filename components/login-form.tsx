@@ -9,7 +9,7 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Field, FieldDescription, FieldGroup } from '@/components/ui/field'
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth/auth-client'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 

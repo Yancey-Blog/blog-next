@@ -1,4 +1,4 @@
-import { getSession, getSessionUser } from '@/lib/session'
+import { getSession } from '@/lib/auth/session'
 import { initTRPC } from '@trpc/server'
 import { cache } from 'react'
 import superjson from 'superjson'
@@ -8,12 +8,10 @@ export const createTRPCContext = cache(async () => {
    * @see: https://trpc.io/docs/server/context
    */
   const session = await getSession()
-  const user = getSessionUser(session)
 
   return {
     session,
-    user // Properly typed User object with role field
-    // headers: opts.req.headers
+    user: session?.user // User from session (all logged-in users are admins)
   }
 })
 
@@ -38,6 +36,7 @@ export const publicProcedure = t.procedure
 
 /**
  * Protected procedure that requires authentication
+ * Since only admin emails can login, all authenticated users are admins
  */
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   if (!ctx.session || !ctx.user) {
@@ -46,17 +45,13 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   return next({
     ctx: {
       ...ctx,
-      user: ctx.user // User is already properly typed from context
+      user: ctx.user // User is guaranteed to exist and be an admin
     }
   })
 })
 
 /**
- * Admin-only procedure
+ * Alias for protectedProcedure
+ * All authenticated users are admins in this system
  */
-export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== 'admin') {
-    throw new Error('FORBIDDEN')
-  }
-  return next({ ctx })
-})
+export const adminProcedure = protectedProcedure

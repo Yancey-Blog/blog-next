@@ -32,19 +32,21 @@ npm start                # Start production server
 ### Authentication System (better-auth)
 
 - **OAuth only** - Google and GitHub providers (email/password disabled)
-- **Two-tier admin system**:
-  - **Super admins**: Email in `ADMIN_EMAILS` env var, automatically promoted to admin role
-  - **Regular admins**: Role assigned via database by super admins
-- **Auto-promotion**: `lib/auto-promote-admin.ts` utility called in admin layout to sync env admins with database
+- **Whitelist-based access control**:
+  - Only emails in `ADMIN_EMAILS` environment variable can login
+  - Non-whitelisted users are blocked at OAuth callback and their session/user records are deleted
+  - No role field in database - authentication is purely whitelist-based
+  - Add collaborators by editing `ADMIN_EMAILS` in `.env.local`
+- **OAuth hooks**: `lib/auth.ts` implements `after` hook to block unauthorized users during sign-in
 - **Session storage**: PostgreSQL via Drizzle adapter
 - **Tables**: `users`, `sessions`, `accounts`, `verifications`
 - **Important**: All table IDs use `text` type (not uuid) for better-auth compatibility
 
 Key files:
 
-- `lib/auth.ts` - better-auth configuration
+- `lib/auth.ts` - better-auth configuration with OAuth access control hooks
 - `lib/session.ts` - `getSession()` and `requireAuth()` helpers
-- `lib/auth-utils.ts` - `isAdmin()` and `isSuperAdmin()` helpers
+- `lib/auth-utils.ts` - `getAdminEmails()` and `isAdminEmail()` helpers
 
 ### Route Structure
 
@@ -54,13 +56,13 @@ app/
 │   ├── login/
 │   ├── register/
 │   └── unauthorized/
-├── (cms)/admin/         # Admin CMS - requires admin role
+├── (cms)/admin/         # Admin CMS - requires authentication (whitelisted emails only)
 │   ├── layout.tsx       # Shared layout with sidebar + theme provider
 │   ├── page.tsx         # Dashboard
 │   ├── blog-management/ # Blog CRUD
-│   ├── users/           # User role management (super admin only)
-│   ├── sessions/        # Active session monitoring (super admin only)
-│   └── settings/        # Theme selector (super admin only)
+│   ├── users/           # User management
+│   ├── sessions/        # Active session monitoring
+│   └── settings/        # Theme selector
 ├── (frontend)/          # Public blog pages
 │   └── blogs/[slug]/
 └── api/
@@ -72,7 +74,7 @@ app/
 
 **Auth Tables** (managed by better-auth):
 
-- `users` - id (text), email, name, role ('user'|'admin'), image
+- `users` - id (text), email, name, image, emailVerified, createdAt, updatedAt
 - `sessions` - id (text), userId, expiresAt, ipAddress, userAgent
 - `accounts` - OAuth account links with tokens
 - `verifications` - Email verification tokens
@@ -165,6 +167,7 @@ Key files:
 
 ```typescript
 // Protected endpoint - requires authentication
+// All authenticated users are whitelisted admins
 export const myRouter = router({
   protectedEndpoint: protectedProcedure
     .input(z.object({ ... }))
@@ -173,11 +176,12 @@ export const myRouter = router({
       // ctx.session is guaranteed to exist
     }),
 
-  // Admin endpoint - requires admin role
+  // Admin endpoint - alias for protectedProcedure
+  // All authenticated users are admins (whitelist enforced at OAuth)
   adminEndpoint: adminProcedure
     .input(z.object({ ... }))
     .mutation(async ({ input, ctx }) => {
-      // ctx.user is guaranteed to exist and be admin
+      // ctx.user is guaranteed to exist and be whitelisted admin
     })
 })
 ```
@@ -185,14 +189,13 @@ export const myRouter = router({
 **In Server Components / Pages**:
 
 ```typescript
+// Simply require authentication - all authenticated users are whitelisted admins
 const session = await requireAuth()
-if (!isAdmin(session.user)) {
-  redirect('/login')
-}
 
-// Super admin only features
-if (!isSuperAdmin(session.user)) {
-  redirect('/unauthorized')
+// Optional: Check if an email is in the whitelist (before OAuth)
+import { isAdminEmail } from '@/lib/auth-utils'
+if (!isAdminEmail(email)) {
+  // Block access
 }
 ```
 
@@ -243,14 +246,16 @@ NEXT_PUBLIC_APP_URL=             # App URL for OAuth callbacks
 
 1. **Use tRPC for all API calls** - Never create new REST API routes. All backend operations should use tRPC routers in `server/routers/`. Client components use `trpc` hooks from `lib/trpc/client`, Server Components use helpers from `lib/trpc/server`.
 
-2. **Never use better-auth hooks** - They cause "hook.handler is not a function" errors. Use `autoPromoteAdmin()` utility instead.
+2. **All table IDs must be text type** - better-auth generates string IDs, not UUIDs. Do not change ID types back to uuid.
 
-3. **All table IDs must be text type** - better-auth generates string IDs, not UUIDs. Do not change ID types back to uuid.
+3. **Whitelist-based authentication** - Only emails in `ADMIN_EMAILS` can login. Non-whitelisted users are blocked at OAuth callback via better-auth `after` hook in `lib/auth.ts`. Their session and user records are immediately deleted if they attempt to login.
 
-4. **Admin layout auto-promotion** - The shared `app/(cms)/admin/layout.tsx` calls `autoPromoteAdmin()` on every request to sync env admins with database roles.
+4. **No role field in users table** - Access control is purely whitelist-based. All authenticated users are admins by definition (since only whitelisted emails can login).
 
-5. **Theme changes require page refresh** - After updating theme via tRPC, `router.refresh()` is called to reapply CSS variables.
+5. **adminProcedure is an alias** - In `lib/trpc/init.ts`, `adminProcedure` is simply an alias of `protectedProcedure` since all authenticated users are admins.
 
-6. **Blog versions are immutable** - Every update creates a new version. Never edit existing versions.
+6. **Theme changes require page refresh** - After updating theme via tRPC, `router.refresh()` is called to reapply CSS variables.
 
-7. **tRPC context in Server Components** - When using `trpc` or `serverClient` in Server Components, they automatically use Next.js `headers()` for context. No need to pass request objects manually.
+7. **Blog versions are immutable** - Every update creates a new version. Never edit existing versions.
+
+8. **tRPC context in Server Components** - When using `trpc` or `serverClient` in Server Components, they automatically use Next.js `headers()` for context. No need to pass request objects manually.

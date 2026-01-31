@@ -18,6 +18,18 @@ interface ThemeSettingsProps {
   currentTheme: string
 }
 
+// Helper function to extract CSS variable value from theme CSS string
+function extractCSSVariable(css: string, varName: string): string {
+  // Match :root section only (not .dark section)
+  const rootMatch = css.match(/:root\s*{([^}]+)}/s)
+  if (!rootMatch) return ''
+
+  const rootContent = rootMatch[1]
+  const regex = new RegExp(`${varName}:\\s*([^;]+);`, 'm')
+  const match = rootContent.match(regex)
+  return match ? match[1].trim() : ''
+}
+
 export function ThemeSettings({ currentTheme }: ThemeSettingsProps) {
   const [selectedTheme, setSelectedTheme] = useState(currentTheme)
   const [isPending, startTransition] = useTransition()
@@ -44,7 +56,7 @@ export function ThemeSettings({ currentTheme }: ThemeSettingsProps) {
     if (!theme) return
 
     setSelectedTheme(themeId)
-    updateTheme.mutate({ theme })
+    updateTheme.mutate({ themeId })
   }
 
   return (
@@ -103,19 +115,19 @@ export function ThemeSettings({ currentTheme }: ThemeSettingsProps) {
                   <div
                     className="w-6 h-6 rounded-full border"
                     style={{
-                      background: theme.cssVars.light['--primary']
+                      background: extractCSSVariable(theme.css, '--primary')
                     }}
                   />
                   <div
                     className="w-6 h-6 rounded-full border"
                     style={{
-                      background: theme.cssVars.light['--secondary']
+                      background: extractCSSVariable(theme.css, '--secondary')
                     }}
                   />
                   <div
                     className="w-6 h-6 rounded-full border"
                     style={{
-                      background: theme.cssVars.light['--accent']
+                      background: extractCSSVariable(theme.css, '--accent')
                     }}
                   />
                 </div>

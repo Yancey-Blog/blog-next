@@ -1,7 +1,7 @@
 import { BlogListTable } from '@/components/blog-list-table'
 import { Button } from '@/components/ui/button'
+import { getSession } from '@/lib/auth/session'
 import { BlogService } from '@/lib/services/blog.service'
-import { getSession } from '@/lib/session'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 

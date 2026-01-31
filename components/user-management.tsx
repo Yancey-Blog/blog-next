@@ -24,13 +24,6 @@ import {
   CardTitle
 } from './ui/card'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from './ui/select'
-import {
   Table,
   TableBody,
   TableCell,
@@ -45,20 +38,6 @@ export function UserManagement() {
 
   const { data: users, isLoading } = useQuery(
     trpc.admin.users.list.queryOptions()
-  )
-
-  const updateRole = useMutation(
-    trpc.admin.users.updateRole.mutationOptions({
-      onSuccess: () => {
-        toast.success('User role updated successfully')
-        queryClient.invalidateQueries({
-          queryKey: trpc.admin.users.list.queryOptions().queryKey
-        })
-      },
-      onError: (error) => {
-        toast.error(error.message || 'Failed to update user')
-      }
-    })
   )
 
   const deleteUser = useMutation(
@@ -99,7 +78,6 @@ export function UserManagement() {
             <TableRow>
               <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
               <TableHead>Joined</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -119,26 +97,6 @@ export function UserManagement() {
                   </div>
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <Select
-                    value={user.role}
-                    onValueChange={(role) =>
-                      updateRole.mutate({
-                        userId: user.id,
-                        role: role as 'user' | 'admin'
-                      })
-                    }
-                    disabled={updateRole.isPending}
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
                 <TableCell>
                   {new Date(user.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',

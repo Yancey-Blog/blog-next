@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Protect /admin routes
+  // Protect /admin routes - only whitelisted emails can access
   if (pathname.startsWith('/admin')) {
     try {
       // Get session token from cookie
@@ -34,11 +34,8 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL('/login', request.url))
       }
 
-      // Check if user is admin
-      const isUserAdmin = checkIsAdmin(session.user)
-
-      if (!isUserAdmin) {
-        // Redirect to unauthorized page
+      // Check if user email is in whitelist
+      if (!isAdminEmail(session.user.email)) {
         return NextResponse.redirect(new URL('/unauthorized', request.url))
       }
     } catch (error) {
@@ -51,24 +48,16 @@ export async function proxy(request: NextRequest) {
 }
 
 /**
- * Check if user is admin based on role or email whitelist
+ * Check if email is in ADMIN_EMAILS whitelist
  */
-function checkIsAdmin(user: { email: string; role?: string }): boolean {
-  // Method 1: Check role field
-  if (user.role === 'admin') {
-    return true
-  }
+function isAdminEmail(email: string | null | undefined): boolean {
+  if (!email) return false
 
-  // Method 2: Check email whitelist
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map((email) =>
-    email.trim().toLowerCase()
+  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map((e) =>
+    e.trim().toLowerCase()
   )
 
-  if (adminEmails && adminEmails.length > 0) {
-    return adminEmails.includes(user.email.toLowerCase())
-  }
-
-  return false
+  return adminEmails?.includes(email.toLowerCase()) ?? false
 }
 
 export const config = {

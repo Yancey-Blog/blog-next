@@ -4,15 +4,12 @@ import { SiteHeader } from '@/components/site-header'
 import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { isAdmin } from '@/lib/auth-utils'
-import { autoPromoteAdmin } from '@/lib/auto-promote-admin'
+import { requireAuth } from '@/lib/auth/session'
 import { SettingsService } from '@/lib/services/settings.service'
-import { getSessionUser, requireAuth } from '@/lib/session'
 import { TRPCReactProvider } from '@/lib/trpc/client'
-import { getQueryClient } from '@/lib/trpc/server'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { redirect } from 'next/navigation'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -34,23 +31,11 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Require authentication
-  const session = await requireAuth()
-
-  // Auto-promote super admins
-  await autoPromoteAdmin(session.user.id, session.user.email)
-
-  // Check if user is admin (reload user data after potential promotion)
-  const updatedSession = await requireAuth()
-  const user = getSessionUser(updatedSession)
-  if (!isAdmin(user)) {
-    redirect('/login')
-  }
+  // Require authentication (only admin emails can login)
+  await requireAuth()
 
   // Get current theme
   const currentTheme = await SettingsService.getCurrentTheme()
-
-  const queryClient = getQueryClient()
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -58,6 +43,7 @@ export default async function AdminLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-sidebar`}
       >
         <TRPCReactProvider>
+          <ReactQueryDevtools />
           <ThemeModeProvider>
             <ThemeProvider themeId={currentTheme} />
             <SidebarProvider
