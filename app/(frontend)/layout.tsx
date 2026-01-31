@@ -1,4 +1,7 @@
 import '@/app/globals.css'
+import { FrontendHeader } from '@/components/frontend-header'
+import { ThemeModeProvider } from '@/components/theme-mode-provider'
+import { Toaster } from '@/components/ui/sonner'
 import { TRPCReactProvider } from '@/lib/trpc/client'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
@@ -24,11 +27,17 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <ThemeModeProvider>
+            <FrontendHeader />
+            {children}
+            <Toaster />
+          </ThemeModeProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   )

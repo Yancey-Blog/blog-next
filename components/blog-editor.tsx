@@ -107,7 +107,6 @@ export function BlogEditor({
         height: 600,
         menubar: true,
         skin: isDarkMode ? 'oxide-dark' : 'oxide',
-        content_css: isDarkMode ? 'dark' : 'default',
         plugins: [
           // Core editing features
           'anchor',
@@ -148,10 +147,11 @@ export function BlogEditor({
           'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | ' +
           'link image media table | align lineheight | ' +
           'checklist numlist bullist indent outdent | ' +
-          'emoticons charmap | code fullscreen preview | ' +
+          'emoticons charmap codesample | code fullscreen preview | ' +
           'removeformat help',
         content_style:
           'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+        content_css: isDarkMode ? 'dark' : 'default',
         // 图片上传配置
         images_upload_handler: handleImageUpload,
         automatic_uploads: true,
@@ -224,7 +224,10 @@ export function BlogEditor({
           { text: 'Go', value: 'go' },
           { text: 'Rust', value: 'rust' },
           { text: 'SQL', value: 'sql' },
-          { text: 'Bash', value: 'bash' }
+          { text: 'Bash', value: 'bash' },
+          { text: 'JSON', value: 'json' },
+          { text: 'YAML', value: 'yaml' },
+          { text: 'Markdown', value: 'markdown' }
         ],
         link_default_target: '_blank',
         link_assume_external_targets: true,

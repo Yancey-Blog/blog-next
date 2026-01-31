@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -131,5 +131,215 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Blog Content Styles - Medium-inspired spacing */
+  .blog-content {
+    @apply text-foreground leading-[1.7] text-[1.0625rem];
+
+    /* Headings */
+    h2 {
+      @apply mt-10 mb-4 text-3xl font-bold tracking-tight scroll-mt-20;
+    }
+
+    h2[id] {
+      @apply cursor-pointer hover:text-primary/80 transition-colors;
+    }
+
+    h3 {
+      @apply mt-8 mb-3 text-2xl font-semibold scroll-mt-20;
+    }
+
+    h4 {
+      @apply mt-6 mb-2 text-xl font-semibold scroll-mt-20;
+    }
+
+    h5 {
+      @apply mt-5 mb-2 text-lg font-semibold scroll-mt-20;
+    }
+
+    h6 {
+      @apply mt-4 mb-2 text-base font-semibold scroll-mt-20;
+    }
+
+    /* Paragraphs - tighter spacing like Medium */
+    p {
+      @apply mb-4 leading-[1.7];
+    }
+
+    p:empty {
+      @apply mb-2;
+    }
+
+    /* Lists - tighter spacing */
+    ul,
+    ol {
+      @apply mb-4 space-y-1.5 pl-6;
+    }
+
+    ul {
+      @apply list-disc;
+    }
+
+    ol {
+      @apply list-decimal;
+    }
+
+    li {
+      @apply leading-[1.7];
+    }
+
+    li::marker {
+      @apply text-primary;
+    }
+
+    li > p {
+      @apply mb-1.5;
+    }
+
+    li ul,
+    li ol {
+      @apply mt-1.5 mb-1.5;
+    }
+
+    /* Nested lists with different markers */
+    ul ul {
+      list-style-type: circle;
+    }
+
+    ul ul ul {
+      list-style-type: square;
+    }
+
+    /* Inline Code */
+    code {
+      @apply px-1.5 py-0.5 rounded bg-muted text-sm font-mono text-foreground;
+    }
+
+    a code {
+      @apply text-primary;
+    }
+
+    pre {
+      @apply mb-5 rounded-lg overflow-x-auto relative p-4 bg-muted border border-border;
+    }
+
+    /* Shiki generated code blocks - dual theme support */
+    pre.shiki,
+    pre.shiki-themes {
+      @apply p-4 rounded-lg mb-5 overflow-x-auto;
+      border: 1px solid oklch(0.922 0 0);
+      background-color: transparent !important;
+    }
+
+    /* Dark theme - switch to --shiki-dark variable */
+    :root.dark pre.shiki,
+    :root.dark pre.shiki-themes {
+      border-color: oklch(1 0 0 / 10%);
+      background-color: var(--shiki-dark-bg) !important;
+    }
+
+    :root.dark pre.shiki span,
+    :root.dark pre.shiki-themes span {
+      color: var(--shiki-dark) !important;
+    }
+
+    pre code {
+      @apply leading-6 font-mono block;
+      font-size: 0.9rem;
+      background: transparent !important;
+      padding: 0;
+    }
+
+    /* Scrollbar styling for code blocks */
+    pre::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    pre::-webkit-scrollbar-track {
+      @apply bg-transparent rounded;
+    }
+
+    pre::-webkit-scrollbar-thumb {
+      @apply bg-border rounded hover:bg-border/80;
+    }
+
+    /* Blockquotes - tighter spacing */
+    blockquote {
+      @apply mb-5 pl-4 py-2 border-l-4 border-muted-foreground/30 bg-muted/50 rounded-r-lg italic;
+    }
+
+    blockquote p {
+      @apply mb-0 text-muted-foreground;
+    }
+
+    /* Links */
+    a {
+      @apply text-primary underline underline-offset-2 hover:text-primary/80 transition-colors;
+    }
+
+    /* Strong/Bold */
+    strong {
+      @apply font-semibold text-foreground;
+    }
+
+    /* Images & Figures - responsive and tighter spacing */
+    img {
+      @apply rounded-lg shadow-md h-auto mx-auto;
+      width: 100% !important;
+      height: auto !important;
+      max-width: 100%;
+      object-fit: contain;
+    }
+
+    /* Ensure images maintain aspect ratio on mobile */
+    @media (max-width: 640px) {
+      img {
+        width: 100%;
+        height: auto;
+      }
+    }
+
+    figure {
+      @apply mb-6 mt-6 text-center;
+    }
+
+    figcaption {
+      @apply mt-2 text-center text-sm text-muted-foreground italic;
+    }
+
+    /* Image hover effect */
+    img:hover {
+      @apply shadow-lg transition-shadow duration-300;
+    }
+
+    /* Divs (for special containers) */
+    div[data-rmiz] {
+      @apply mb-6 mt-6;
+    }
+
+    /* Horizontal Rule */
+    hr {
+      @apply my-8 border-border;
+    }
+
+    /* Tables */
+    table {
+      @apply w-full mb-6 border-collapse;
+    }
+
+    th {
+      @apply border border-border bg-muted px-4 py-2 text-left font-semibold;
+    }
+
+    td {
+      @apply border border-border px-4 py-2;
+    }
+
+    tr:hover {
+      @apply bg-muted/50;
+    }
   }
 }
