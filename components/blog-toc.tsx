@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { ChevronRight } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface TocItem {
   id: string // Unique ID for React key
@@ -89,10 +89,7 @@ export function BlogToc({ content }: BlogTocProps) {
         aria-label="Toggle Table of Contents"
       >
         <ChevronRight
-          className={cn(
-            'w-5 h-5 transition-transform',
-            isOpen && 'rotate-90'
-          )}
+          className={cn('w-5 h-5 transition-transform', isOpen && 'rotate-90')}
         />
       </button>
 

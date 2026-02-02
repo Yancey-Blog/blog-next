@@ -23,6 +23,7 @@ import {
   CardHeader,
   CardTitle
 } from './ui/card'
+import { Skeleton } from './ui/skeleton'
 import {
   Table,
   TableBody,
@@ -68,10 +69,25 @@ export function SessionManagement() {
   if (isLoading) {
     return (
       <Card>
-        <CardContent className="pt-6">
-          <p className="text-center text-muted-foreground">
-            Loading sessions...
-          </p>
+        <CardHeader>
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-4 w-40 mt-2" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-36" />
+                </div>
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-8 w-16" />
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     )

@@ -23,6 +23,7 @@ import {
   CardHeader,
   CardTitle
 } from './ui/card'
+import { Skeleton } from './ui/skeleton'
 import {
   Table,
   TableBody,
@@ -57,8 +58,23 @@ export function UserManagement() {
   if (isLoading) {
     return (
       <Card>
-        <CardContent className="pt-6">
-          <p className="text-center text-muted-foreground">Loading users...</p>
+        <CardHeader>
+          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-4 w-32 mt-2" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+                <Skeleton className="h-8 w-16" />
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     )

@@ -4,7 +4,6 @@ import { BlogService } from '@/lib/services/blog.service'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
-
 export default async function BlogDetailPage({
   params
 }: {
@@ -45,6 +44,9 @@ export default async function BlogDetailPage({
                 day: 'numeric'
               })}
             </time>
+            <blockquote className="mb-8 text-lg text-muted-foreground">
+              {blog.summary}
+            </blockquote>
             <div
               className="blog-content"
               dangerouslySetInnerHTML={{ __html: content }}
