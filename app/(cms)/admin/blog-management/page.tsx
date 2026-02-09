@@ -18,35 +18,55 @@ export default function BlogManagementPage() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  // Get initial values from URL
-  const initialPage = Number(searchParams.get('page')) || 1
-  const initialSearch = searchParams.get('search') || ''
-  const initialStatus =
+  // Read values directly from URL (single source of truth)
+  const page = Number(searchParams.get('page')) || 1
+  const pageSize = 10
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(
     (searchParams.get('status') as StatusFilter) || 'all'
-
-  // Pagination and filter state
-  const [page, setPage] = useState(initialPage)
-  const [pageSize] = useState(10)
-  const [searchQuery, setSearchQuery] = useState(initialSearch)
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialStatus)
+  )
 
   // Debounce search query to avoid too many requests
   const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
-  // Update URL when filters change
-  useEffect(() => {
-    const params = new URLSearchParams()
+  // Handle page change (for resetting to page 1 when filters change)
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (newPage > 1) {
+      params.set('page', newPage.toString())
+    } else {
+      params.delete('page')
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }
 
-    if (page > 1) params.set('page', page.toString())
-    if (debouncedSearchQuery) params.set('search', debouncedSearchQuery)
-    if (statusFilter !== 'all') params.set('status', statusFilter)
+  // Update URL when search or filter changes (reset to page 1)
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+
+    // Reset to page 1 when search or filter changes
+    params.delete('page')
+
+    if (debouncedSearchQuery) {
+      params.set('search', debouncedSearchQuery)
+    } else {
+      params.delete('search')
+    }
+
+    if (statusFilter !== 'all') {
+      params.set('status', statusFilter)
+    } else {
+      params.delete('status')
+    }
 
     const newUrl = params.toString()
       ? `${pathname}?${params.toString()}`
       : pathname
 
     router.replace(newUrl, { scroll: false })
-  }, [page, debouncedSearchQuery, statusFilter, pathname, router])
+    // Only run when search or filter changes, NOT when searchParams changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchQuery, statusFilter])
 
   const { data, isLoading } = useQuery(
     trpc.blog.list.queryOptions({
@@ -127,7 +147,7 @@ export default function BlogManagementPage() {
         statusFilter={statusFilter}
         onSearchChange={setSearchQuery}
         onStatusFilterChange={setStatusFilter}
-        onPageChange={setPage}
+        onPageChange={handlePageChange}
         isLoading={isLoading}
       />
     </div>

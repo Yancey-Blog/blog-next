@@ -15,7 +15,7 @@ export function ThemeModeSwitcher() {
   const currentTheme = theme || systemTheme || 'system'
 
   return (
-    <div className="flex w-fit rounded-full bg-accent shadow-sm dark:border">
+    <div className="flex w-fit rounded-full bg-accent shadow-sm border">
       <span className="h-full">
         <input
           className="peer sr-only"

@@ -129,12 +129,14 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 @layer components {
+
   /* Blog Content Styles - Medium-inspired spacing */
   .blog-content {
     @apply text-foreground leading-[1.7] text-[1.0625rem];
@@ -195,7 +197,7 @@
       @apply text-primary;
     }
 
-    li > p {
+    li>p {
       @apply mb-1.5;
     }
 
@@ -223,27 +225,7 @@
     }
 
     pre {
-      @apply mb-5 rounded-lg overflow-x-auto relative p-4 bg-muted border border-border;
-    }
-
-    /* Shiki generated code blocks - dual theme support */
-    pre.shiki,
-    pre.shiki-themes {
-      @apply p-4 rounded-lg mb-5 overflow-x-auto;
-      border: 1px solid oklch(0.922 0 0);
-      background-color: transparent !important;
-    }
-
-    /* Dark theme - switch to --shiki-dark variable */
-    :root.dark pre.shiki,
-    :root.dark pre.shiki-themes {
-      border-color: oklch(1 0 0 / 10%);
-      background-color: var(--shiki-dark-bg) !important;
-    }
-
-    :root.dark pre.shiki span,
-    :root.dark pre.shiki-themes span {
-      color: var(--shiki-dark) !important;
+      @apply mb-5 rounded-lg overflow-x-auto relative p-4 bg-muted;
     }
 
     pre code {

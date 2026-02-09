@@ -5,7 +5,7 @@ let highlighter: Awaited<ReturnType<typeof createHighlighter>> | null = null
 export async function getShiki() {
   if (!highlighter) {
     highlighter = await createHighlighter({
-      themes: ['github-dark', 'github-light'],
+      themes: ['houston'],
       langs: [
         'html',
         'xml',
