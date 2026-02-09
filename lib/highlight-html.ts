@@ -5,11 +5,7 @@ export async function highlightHtml(html: string) {
   console.log('=== Starting HTML highlighting ===')
   console.log('Input HTML length:', html.length)
 
-  const $ = cheerio.load(html, {
-    decodeEntities: false,
-    xmlMode: false,
-    _useHtmlParser2: true
-  })
+  const $ = cheerio.load(html)
   const shiki = await getShiki()
 
   const loadedLangs = shiki.getLoadedLanguages()
@@ -65,7 +61,7 @@ export async function highlightHtml(html: string) {
     }
 
     // Check if language is supported
-    if (!loadedLangs.includes(lang as any)) {
+    if (!loadedLangs.includes(lang)) {
       console.warn(`  ✗ Language "${lang}" not supported, keeping original`)
       return
     }
@@ -73,7 +69,7 @@ export async function highlightHtml(html: string) {
     try {
       // Generate HTML with dual themes (light and dark)
       const highlighted = shiki.codeToHtml(code, {
-        lang: lang as any,
+        lang: lang,
         themes: {
           light: 'github-light',
           dark: 'github-dark'
