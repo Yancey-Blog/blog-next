@@ -1,3 +1,4 @@
+import { Pagination } from '@/components/ui/pagination'
 import { BlogService } from '@/lib/services/blog.service'
 import Link from 'next/link'
 
@@ -24,13 +25,21 @@ export default async function BlogsPage({
 
       {/* Search */}
       <form className="mb-8">
-        <input
-          type="text"
-          name="search"
-          placeholder="搜索Blogs..."
-          defaultValue={search}
-          className="w-full max-w-md rounded-md border px-4 py-2"
-        />
+        <div className="relative max-w-md">
+          <input
+            type="text"
+            name="search"
+            placeholder="搜索博客标题或内容..."
+            defaultValue={search}
+            className="w-full rounded-md border bg-background px-4 py-2 pr-20 focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          <button
+            type="submit"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground transition hover:bg-primary/90"
+          >
+            搜索
+          </button>
+        </div>
       </form>
 
       {/* Blogs列表 */}
@@ -43,7 +52,7 @@ export default async function BlogsPage({
               key={blog.id}
               className="rounded-lg border p-6 transition hover:shadow-lg"
             >
-              <Link href={`/blogs/${blog.id}`}>
+              <Link href={`/post/${blog.id}`}>
                 <h2 className="mb-2 text-2xl font-semibold">{blog.title}</h2>
               </Link>
               {blog.summary && (
@@ -58,29 +67,13 @@ export default async function BlogsPage({
       )}
 
       {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="mt-8 flex justify-center gap-2">
-          {page > 1 && (
-            <Link
-              href={`/blogs?page=${page - 1}${search ? `&search=${search}` : ''}`}
-              className="rounded-md border px-4 py-2"
-            >
-              Previous
-            </Link>
-          )}
-          <span className="px-4 py-2">
-            Page {page} of {pagination.totalPages}
-          </span>
-          {page < pagination.totalPages && (
-            <Link
-              href={`/blogs?page=${page + 1}${search ? `&search=${search}` : ''}`}
-              className="rounded-md border px-4 py-2"
-            >
-              Next
-            </Link>
-          )}
-        </div>
-      )}
+      <div className="mt-8">
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          useUrlQuery
+        />
+      </div>
     </div>
   )
 }

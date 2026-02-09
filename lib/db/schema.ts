@@ -106,6 +106,9 @@ export const blogs = pgTable('blogs', {
   summary: text('summary').notNull(),
   coverImage: text('cover_image').notNull(),
   published: boolean('published').default(false).notNull(),
+  tags: text('tags').array().default([]).notNull(), // Array of tags
+  like: integer('like').default(0).notNull(), // Like count
+  pv: integer('pv').default(0).notNull(), // Page view count
   authorId: text('author_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),

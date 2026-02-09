@@ -1,5 +1,7 @@
 'use client'
 
+import { useTRPC } from '@/lib/trpc/client'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -24,32 +26,31 @@ interface DeleteBlogDialogProps {
 
 export function DeleteBlogDialog({ blogId, blogTitle }: DeleteBlogDialogProps) {
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const trpc = useTRPC()
+  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
 
-  const handleDelete = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/blogs/${blogId}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to delete blog')
-      }
-
+  const deleteMutation = useMutation({
+    ...trpc.blog.delete.mutationOptions(),
+    onSuccess: () => {
       toast.success('Blog deleted successfully')
       setOpen(false)
+      // Invalidate and refetch blog list
+      queryClient.invalidateQueries({
+        queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
+      })
       router.refresh()
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error('Delete error:', error)
       toast.error(
         error instanceof Error ? error.message : 'Failed to delete blog'
       )
-    } finally {
-      setLoading(false)
     }
+  })
+
+  const handleDelete = () => {
+    deleteMutation.mutate({ id: blogId })
   }
 
   return (
@@ -70,13 +71,15 @@ export function DeleteBlogDialog({ blogId, blogTitle }: DeleteBlogDialogProps) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={deleteMutation.isPending}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            disabled={loading}
+            disabled={deleteMutation.isPending}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {loading ? 'Deleting...' : 'Delete'}
+            {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

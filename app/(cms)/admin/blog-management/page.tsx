@@ -3,21 +3,67 @@
 import { BlogListTable } from '@/components/blog-list-table'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useDebounce } from '@/lib/hooks/use-debounce'
 import { useTRPC } from '@/lib/trpc/client'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+
+type StatusFilter = 'all' | 'published' | 'draft'
 
 export default function BlogManagementPage() {
   const trpc = useTRPC()
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Get initial values from URL
+  const initialPage = Number(searchParams.get('page')) || 1
+  const initialSearch = searchParams.get('search') || ''
+  const initialStatus =
+    (searchParams.get('status') as StatusFilter) || 'all'
+
+  // Pagination and filter state
+  const [page, setPage] = useState(initialPage)
+  const [pageSize] = useState(10)
+  const [searchQuery, setSearchQuery] = useState(initialSearch)
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialStatus)
+
+  // Debounce search query to avoid too many requests
+  const debouncedSearchQuery = useDebounce(searchQuery, 500)
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams()
+
+    if (page > 1) params.set('page', page.toString())
+    if (debouncedSearchQuery) params.set('search', debouncedSearchQuery)
+    if (statusFilter !== 'all') params.set('status', statusFilter)
+
+    const newUrl = params.toString()
+      ? `${pathname}?${params.toString()}`
+      : pathname
+
+    router.replace(newUrl, { scroll: false })
+  }, [page, debouncedSearchQuery, statusFilter, pathname, router])
 
   const { data, isLoading } = useQuery(
     trpc.blog.list.queryOptions({
-      page: 1,
-      pageSize: 100 // Increased to show more results for client-side filtering
+      page,
+      pageSize,
+      search: debouncedSearchQuery || undefined,
+      published:
+        statusFilter === 'all'
+          ? undefined
+          : statusFilter === 'published'
+            ? true
+            : false
     })
   )
 
   const blogs = data?.data || []
+  const pagination = data?.pagination
 
   if (isLoading) {
     return (
@@ -74,16 +120,16 @@ export default function BlogManagementPage() {
         </Link>
       </div>
 
-      {blogs.length === 0 ? (
-        <div className="text-center py-12 border rounded-lg">
-          <p className="text-muted-foreground mb-4">No blog posts yet</p>
-          <Link href="/admin/blog-management/create">
-            <Button>Create Your First Blog</Button>
-          </Link>
-        </div>
-      ) : (
-        <BlogListTable blogs={blogs} />
-      )}
+      <BlogListTable
+        blogs={blogs}
+        pagination={pagination}
+        searchQuery={searchQuery}
+        statusFilter={statusFilter}
+        onSearchChange={setSearchQuery}
+        onStatusFilterChange={setStatusFilter}
+        onPageChange={setPage}
+        isLoading={isLoading}
+      />
     </div>
   )
 }

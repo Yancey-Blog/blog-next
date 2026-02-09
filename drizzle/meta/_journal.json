@@ -50,6 +50,13 @@
       "when": 1769854850374,
       "tag": "0006_yellow_ultragirl",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1770613810984,
+      "tag": "0007_glossy_chamber",
+      "breakpoints": true
     }
   ]
 }
