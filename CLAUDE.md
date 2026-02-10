@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Next.js 16 blog CMS with admin dashboard, OAuth authentication, dynamic theming, and version control for blog posts. Built with App Router, Server Components, and PostgreSQL (Neon).
+A Next.js 16 blog CMS with admin dashboard, OAuth authentication, dynamic theming, full-text search, analytics tracking, and version control for blog posts. Built with App Router, Server Components, and PostgreSQL (Neon).
 
 ## Development Commands
 
@@ -144,14 +144,79 @@ All database operations go through service classes in `lib/services/`:
 - **Dynamic CSS variables**: Themes stored in `settings` table, applied via `ThemeProvider`
 - **Preset themes**: 5 themes defined in `lib/themes/index.ts` (Default, Neo Brutalism, Vibrant Purple, Ocean Breeze, Sunset Glow)
 - **Real-time switching**: `ThemeProvider` component listens for theme changes and injects CSS variables
-- **Dark mode support**: Each theme has light and dark variants
+- **Dark mode support**: Each theme has light and dark variants (light/dark mode toggle in footer)
 - **Color space**: Uses OKLCH for perceptually uniform colors
+- **UI Location**: Theme mode switcher (light/dark/system) is located in the footer
 
 Key files:
 
 - `lib/themes/index.ts` - Theme definitions
 - `components/theme-provider.tsx` - Client component for CSS variable injection
-- `components/theme-settings.tsx` - Theme selector UI
+- `components/theme-settings.tsx` - Theme selector UI (admin)
+- `components/theme-mode-switcher.tsx` - Light/dark/system mode switcher (frontend footer)
+- `components/frontend-footer.tsx` - Footer with theme switcher
+
+### Search Integration (Algolia)
+
+- **Full-text search**: Powered by Algolia InstantSearch for real-time results
+- **Search UI**: Slide-out drawer from right side with results preview
+- **Features**:
+  - Instant search as you type
+  - Content snippets with highlighting
+  - Tag filtering
+  - Auto-close on navigation
+  - Keyboard shortcuts (ESC to close)
+- **Analytics integration**: Search queries automatically tracked via analytics
+
+Key files:
+
+- `components/algolia-search.tsx` - Search box and results drawer component
+- `components/frontend-header.tsx` - Header with search box integration
+
+Environment variables:
+
+```bash
+NEXT_PUBLIC_ALGOLIA_SEARCH_APP_ID=       # Algolia application ID
+NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY=      # Search-only API key (public)
+NEXT_PUBLIC_ALGOLIA_SEARCH_INDEX_NAME=   # Index name
+ALGOLIA_ADMIN_API_KEY=                   # Admin API key (server-side only)
+```
+
+### Analytics Integration (Google Analytics / Tag Manager)
+
+- **Optimized integration**: Uses `@next/third-parties/google` for better performance
+- **Dual support**: Google Analytics 4 (GA4) or Google Tag Manager (GTM)
+- **Type-safe tracking**: Event tracking utilities in `lib/analytics.ts`
+- **Auto-tracking**: Page views, searches, and custom events
+
+Key files:
+
+- `app/google-analytics.tsx` - GA4/GTM component integration
+- `lib/analytics.ts` - Type-safe event tracking utilities
+
+**Common tracking functions**:
+
+```typescript
+import { analytics } from '@/lib/analytics'
+
+analytics.trackPageView('/blog/post-slug')
+analytics.trackBlogView('post-id', 'Post Title')
+analytics.trackSearch('search query', 42)
+analytics.trackButtonClick('button-name', 'location')
+analytics.trackThemeChange('dark')
+```
+
+Environment variables (choose one):
+
+```bash
+# Option 1: Direct GA4 integration (simple)
+NEXT_PUBLIC_GA_KEY=G-XXXXXXXXXX
+
+# Option 2: Google Tag Manager (recommended for multiple tags)
+NEXT_PUBLIC_GTM_ID=GTM-XXXXXX
+```
+
+See `GOOGLE_ANALYTICS_MIGRATION.md` for migration guide from Universal Analytics.
 
 ### Image Upload (AWS S3)
 
@@ -214,20 +279,52 @@ Every blog update automatically creates a version snapshot via `BlogVersionServi
 
 Required in `.env.local`:
 
+```bash
+# Database
+DATABASE_URL=                                # Neon PostgreSQL connection string
+REDIS_URL=                                   # Redis connection string (optional)
+
+# Application
+NEXT_PUBLIC_APP_URL=                         # App URL for OAuth callbacks
+
+# Authentication
+BETTER_AUTH_SECRET=                          # Random secret for better-auth (openssl rand -base64 32)
+ADMIN_EMAILS=                                # Comma-separated admin emails
+
+# OAuth Providers
+GOOGLE_CLIENT_ID=                            # Google OAuth credentials
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=                            # GitHub OAuth credentials
+GITHUB_CLIENT_SECRET=
+
+# Content Editor
+NEXT_PUBLIC_TINYMCE_API_KEY=                 # TinyMCE API key
+
+# AWS S3 (Image uploads)
+AWS_REGION=                                  # S3 region (e.g., us-east-1)
+AWS_ACCESS_KEY_ID=                           # S3 credentials
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_BUCKET_NAME=                          # S3 bucket name
+
+# Search (Algolia)
+NEXT_PUBLIC_ALGOLIA_SEARCH_APP_ID=           # Algolia application ID
+ALGOLIA_APPLICATION_ID=                      # Same as above (for server-side)
+NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY=          # Search-only API key (public)
+ALGOLIA_ADMIN_API_KEY=                       # Admin API key (server-side indexing)
+NEXT_PUBLIC_ALGOLIA_SEARCH_INDEX_NAME=       # Index name
+ALGOLIA_SEARCH_INDEX=                        # Same as above (for server-side)
+
+# Analytics (choose one)
+NEXT_PUBLIC_GA_KEY=                          # Google Analytics 4 measurement ID (G-XXXXXXXXXX)
+# OR
+NEXT_PUBLIC_GTM_ID=                          # Google Tag Manager container ID (GTM-XXXXXX)
+
+# Monitoring
+NEXT_PUBLIC_SENTRY_DSN=                      # Sentry error tracking DSN
+NEXT_PUBLIC_DISCUSSION_KEY=                  # Discussion system key (optional)
 ```
-DATABASE_URL=                    # Neon PostgreSQL connection string
-BETTER_AUTH_SECRET=              # Random secret for better-auth
-GOOGLE_CLIENT_ID=                # OAuth
-GOOGLE_CLIENT_SECRET=            # OAuth
-GITHUB_CLIENT_ID=                # OAuth
-GITHUB_CLIENT_SECRET=            # OAuth
-ADMIN_EMAILS=                    # Comma-separated super admin emails
-AWS_REGION=                      # S3 for image uploads
-AWS_ACCESS_KEY_ID=               # S3 credentials
-AWS_SECRET_ACCESS_KEY=           # S3 credentials
-AWS_S3_BUCKET_NAME=              # S3 bucket
-NEXT_PUBLIC_APP_URL=             # App URL for OAuth callbacks
-```
+
+See `.env.example` for detailed documentation on each variable.
 
 ## Tech Stack
 
@@ -235,9 +332,13 @@ NEXT_PUBLIC_APP_URL=             # App URL for OAuth callbacks
 - **API**: tRPC 11 with React Server Components support
 - **Data Fetching**: TanStack Query (React Query) via @trpc/tanstack-react-query
 - **Database**: PostgreSQL (Neon) + Drizzle ORM
+- **Cache**: Redis (optional, for caching)
 - **Auth**: better-auth with OAuth (Google, GitHub)
 - **UI**: shadcn/ui + Radix UI + Tailwind CSS
 - **Editor**: TinyMCE (WYSIWYG for blog content)
+- **Search**: Algolia InstantSearch (full-text search)
+- **Analytics**: Google Analytics 4 / Google Tag Manager via @next/third-parties
+- **Monitoring**: Sentry (error tracking)
 - **Storage**: AWS S3 (images)
 - **Validation**: Zod schemas
 - **Serialization**: SuperJSON (for Date, Map, Set, etc.)
@@ -259,3 +360,9 @@ NEXT_PUBLIC_APP_URL=             # App URL for OAuth callbacks
 7. **Blog versions are immutable** - Every update creates a new version. Never edit existing versions.
 
 8. **tRPC context in Server Components** - When using `trpc` or `serverClient` in Server Components, they automatically use Next.js `headers()` for context. No need to pass request objects manually.
+
+9. **Algolia search state preservation** - InstantSearch uses `future.preserveSharedStateOnUnmount: true` to preserve widget state when components unmount. This ensures consistent search experience across navigation.
+
+10. **Analytics privacy** - All analytics tracking respects user privacy. Implement proper cookie consent before enabling tracking in production.
+
+11. **Environment variable naming** - Some services require both `NEXT_PUBLIC_*` (client-side) and non-prefixed (server-side) versions of the same variable (e.g., Algolia). Always check `.env.example` for the complete list.
