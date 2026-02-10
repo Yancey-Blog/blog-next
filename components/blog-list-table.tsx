@@ -165,7 +165,7 @@ export function BlogListTable({
 
           {/* Pagination */}
           {pagination && (
-            <div className='flex items-center justify-between'>
+            <div className="flex items-center justify-between">
               {/* Results count */}
               <p className="text-sm text-muted-foreground">
                 Showing{' '}

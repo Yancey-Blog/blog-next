@@ -21,7 +21,9 @@ export default function BlogManagementPage() {
   // Read values directly from URL (single source of truth)
   const page = Number(searchParams.get('page')) || 1
   const pageSize = 10
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get('search') || ''
+  )
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(
     (searchParams.get('status') as StatusFilter) || 'all'
   )

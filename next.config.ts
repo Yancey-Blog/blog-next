@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.s3.amazonaws.com',
         pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'edge.yancey.app',
+        pathname: '/**'
       }
     ],
     unoptimized: true

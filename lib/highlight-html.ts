@@ -15,7 +15,9 @@ export async function highlightHtml(html: string) {
   // Support both formats:
   // 1. <pre class="language-*"><code>...</code></pre>
   // 2. <pre><code class="language-*">...</code></pre> (TinyMCE format)
-  const preElements = $('pre[class*="language-"], pre:has(code[class*="language-"])')
+  const preElements = $(
+    'pre[class*="language-"], pre:has(code[class*="language-"])'
+  )
   console.log(`Found ${preElements.length} code blocks to highlight`)
 
   if (preElements.length === 0) {
