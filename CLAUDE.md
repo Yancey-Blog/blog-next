@@ -224,6 +224,98 @@ See `GOOGLE_ANALYTICS_MIGRATION.md` for migration guide from Universal Analytics
 - Direct upload to S3 with presigned URLs
 - Used by TinyMCE editor and image upload components
 
+### PWA Support (Progressive Web App)
+
+- **App-like experience**: Full PWA support with manifest and service worker capabilities
+- **Multi-size icons**: Comprehensive icon set (16x16 to 512x512) for various devices
+- **Install prompt**: Users can install the blog as a standalone app on mobile/desktop
+- **Offline capabilities**: Service worker files (sw.js, workbox) are git-ignored and generated at build time
+
+Key files:
+
+- `public/manifest.json` - PWA manifest with app metadata, theme colors, and icons
+- `public/icon-*.png` - App icons in multiple sizes (72, 96, 128, 144, 152, 192, 384, 512)
+- `public/apple-icon.png` - iOS-specific icon
+- `public/favicon.ico`, `favicon-16x16.png`, `favicon-32x32.png` - Browser favicons
+- `.gitignore` - Excludes generated service worker files (sw.js, workbox-*.js, worker-*.js)
+
+**Manifest configuration**:
+
+```json
+{
+  "name": "Yancey Blog",
+  "short_name": "Yancey",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "icons": [...]
+}
+```
+
+### Error Monitoring (Sentry)
+
+- **Full-stack tracking**: Error monitoring across client, edge, and server environments
+- **Automatic error capture**: Unhandled exceptions and promise rejections
+- **Performance monitoring**: Track API latency, page load times, and user interactions
+- **Release tracking**: Correlate errors with deployments via source maps
+- **Environment separation**: Different DSN for dev/staging/production
+
+Key files:
+
+- `sentry.client.config.ts` - Client-side Sentry configuration (browser errors, user interactions)
+- `sentry.edge.config.ts` - Edge runtime Sentry configuration (middleware, edge functions)
+- `sentry.server.config.ts` - Server-side Sentry configuration (API routes, SSR errors)
+
+Environment variables:
+
+```bash
+NEXT_PUBLIC_SENTRY_DSN=                      # Sentry project DSN (client-visible)
+SENTRY_AUTH_TOKEN=                           # Auth token for source map upload (optional)
+SENTRY_ORG=                                  # Sentry organization slug (optional)
+SENTRY_PROJECT=                              # Sentry project slug (optional)
+```
+
+**Sentry features enabled**:
+- Automatic error boundaries for React components
+- API route error tracking
+- Performance tracing for database queries
+- User context (authenticated user info)
+- Breadcrumbs for debugging user flows
+
+### Frontend Design System
+
+**Homepage** (`app/(frontend)/page.tsx`):
+- **Hero section**: Full-viewport hero with background image and glitch text animation
+- **Latest articles grid**: 3-column responsive grid showcasing newest published posts
+- **Card layout**: Each article card displays cover image, tags, title, summary, author, and stats
+- **Glitch effect**: Custom CSS animation for hero text (data-attribute driven)
+
+**Blog listing** (`app/(frontend)/post/page.tsx`):
+- **Search functionality**: Full-text search with enhanced UI (rounded search bar)
+- **Grid layout**: 3-column responsive grid (12 posts per page)
+- **Rich cards**: Cover images, tags (max 2 visible), author avatar, date, view/like stats
+- **Pagination**: Bottom pagination for navigating through articles
+
+**Shared components**:
+- `LazyLoadImage` - Optimized image loading with lazy loading and blur placeholder
+- `FrontendHeader` - Header with Algolia search integration
+- `FrontendFooter` - Footer with theme mode switcher (light/dark/system)
+
+**SEO enhancements**:
+- Comprehensive Open Graph tags for social sharing
+- Twitter card metadata
+- Structured metadata with templates (title, description)
+- Apple web app meta tags for iOS
+- Robots.txt for search engine crawlers
+- Sitemap XML for better indexing
+
+Key files:
+- `components/lazy-load-image.tsx` - Image component with lazy loading and optimization
+- `app/(frontend)/layout.tsx` - Layout with SEO metadata, Analytics, and Footer
+- `app/globals.css` - Global styles including glitch animation keyframes
+- `public/robots.txt` - Search engine crawler directives
+- `public/sitemap-index.xml` - XML sitemap for search engines
+
 ## Important Patterns
 
 ### Admin Access Control
