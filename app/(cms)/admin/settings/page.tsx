@@ -1,8 +1,12 @@
 import { ThemeSettings } from '@/components/theme-settings'
-import { SettingsService } from '@/lib/services/settings.service'
+import { getQueryClient, trpc } from '@/lib/trpc/server'
 
 export default async function SettingsPage() {
-  const currentTheme = await SettingsService.getCurrentTheme()
+  const queryClient = getQueryClient()
+  const theme = await queryClient.ensureQueryData(
+    trpc.admin.theme.get.queryOptions()
+  )
+  const currentTheme = theme.id
 
   return (
     <div className="container mx-auto">

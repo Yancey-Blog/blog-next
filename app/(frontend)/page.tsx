@@ -1,9 +1,6 @@
 import { LazyLoadImage } from '@/components/lazy-load-image'
 import { Badge } from '@/components/ui/badge'
-import { db } from '@/lib/db'
-import { users } from '@/lib/db/schema'
-import { BlogService } from '@/lib/services/blog.service'
-import { eq } from 'drizzle-orm'
+import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { ArrowRight, Eye, Heart } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -15,39 +12,27 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  // Fetch latest 6 published blogs for homepage
-  const { data: latestBlogs } = await BlogService.getBlogs({
-    page: 1,
-    pageSize: 9,
-    published: true
-  })
+  const queryClient = getQueryClient()
 
-  // Fetch author information
+  // Fetch latest 9 published blogs for homepage via tRPC
+  const { data: latestBlogs } = await queryClient.ensureQueryData(
+    trpc.blog.list.queryOptions({
+      page: 1,
+      pageSize: 9,
+      published: true
+    })
+  )
+
+  // Fetch author information via tRPC
   const authorIds = [...new Set(latestBlogs.map((blog) => blog.authorId))]
   const authors =
     authorIds.length > 0
-      ? await db
-          .select()
-          .from(users)
-          .where(eq(users.id, authorIds[0]))
-          .limit(authorIds.length)
+      ? await queryClient.ensureQueryData(
+          trpc.admin.users.byIds.queryOptions({ ids: authorIds })
+        )
       : []
 
   const authorMap = new Map(authors.map((author) => [author.id, author]))
-
-  // Fetch remaining authors if needed
-  if (authorIds.length > 1) {
-    for (let i = 1; i < authorIds.length; i++) {
-      const [author] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, authorIds[i]))
-        .limit(1)
-      if (author) {
-        authorMap.set(author.id, author)
-      }
-    }
-  }
 
   return (
     <div className="min-h-screen">

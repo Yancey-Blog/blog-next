@@ -1,10 +1,7 @@
 import { LazyLoadImage } from '@/components/lazy-load-image'
 import { Badge } from '@/components/ui/badge'
 import { Pagination } from '@/components/ui/pagination'
-import { db } from '@/lib/db'
-import { users } from '@/lib/db/schema'
-import { BlogService } from '@/lib/services/blog.service'
-import { eq } from 'drizzle-orm'
+import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { Calendar, Eye, Heart, Search } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -23,40 +20,27 @@ export default async function BlogsPage({
   const params = await searchParams
   const page = Number(params.page) || 1
   const search = params.search || ''
+  const queryClient = getQueryClient()
 
-  // Only show published blogs
-  const { data: blogs, pagination } = await BlogService.getBlogs({
-    page,
-    pageSize: 12,
-    published: true,
-    search
-  })
+  // Fetch published blogs via tRPC
+  const { data: blogs, pagination } = await queryClient.ensureQueryData(
+    trpc.blog.list.queryOptions({
+      page,
+      pageSize: 12,
+      published: true,
+      search
+    })
+  )
 
-  // Fetch author information for all blogs
+  // Fetch author information via tRPC
   const authorIds = [...new Set(blogs.map((blog) => blog.authorId))]
-  const authors = await db
-    .select()
-    .from(users)
-    .where(
-      authorIds.length > 0
-        ? eq(users.id, authorIds[0])
-        : eq(users.id, 'non-existent')
-    )
+  const authors =
+    authorIds.length > 0
+      ? await queryClient.ensureQueryData(
+          trpc.admin.users.byIds.queryOptions({ ids: authorIds })
+        )
+      : []
   const authorMap = new Map(authors.map((author) => [author.id, author]))
-
-  // Fetch remaining authors if there are more
-  if (authorIds.length > 1) {
-    for (let i = 1; i < authorIds.length; i++) {
-      const [author] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, authorIds[i]))
-        .limit(1)
-      if (author) {
-        authorMap.set(author.id, author)
-      }
-    }
-  }
 
   return (
     <div className="container mx-auto px-4 py-12">

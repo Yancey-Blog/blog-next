@@ -5,7 +5,7 @@ import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { requireAuth } from '@/lib/auth/session'
-import { SettingsService } from '@/lib/services/settings.service'
+import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { TRPCReactProvider } from '@/lib/trpc/client'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Metadata } from 'next'
@@ -34,8 +34,12 @@ export default async function AdminLayout({
   // Require authentication (only admin emails can login)
   await requireAuth()
 
-  // Get current theme
-  const currentTheme = await SettingsService.getCurrentTheme()
+  // Get current theme via tRPC
+  const queryClient = getQueryClient()
+  const theme = await queryClient.ensureQueryData(
+    trpc.admin.theme.get.queryOptions()
+  )
+  const currentTheme = theme.id
 
   return (
     <html lang="en" suppressHydrationWarning>

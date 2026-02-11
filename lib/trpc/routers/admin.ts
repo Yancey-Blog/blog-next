@@ -2,9 +2,9 @@ import { db } from '@/lib/db'
 import { sessions, users } from '@/lib/db/schema'
 import { SettingsService } from '@/lib/services/settings.service'
 import { PRESET_THEMES } from '@/lib/themes'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { z } from 'zod'
-import { adminProcedure } from '../init'
+import { adminProcedure, publicProcedure } from '../init'
 
 export const adminRouter = {
   // User management
@@ -12,6 +12,16 @@ export const adminRouter = {
     list: adminProcedure.query(async () => {
       return await db.select().from(users).orderBy(users.createdAt)
     }),
+
+    byIds: publicProcedure
+      .input(z.object({ ids: z.array(z.string()) }))
+      .query(async ({ input }) => {
+        if (input.ids.length === 0) return []
+        return await db
+          .select()
+          .from(users)
+          .where(inArray(users.id, input.ids))
+      }),
 
     delete: adminProcedure
       .input(z.object({ userId: z.string() }))

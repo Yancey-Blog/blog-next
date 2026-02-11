@@ -1,7 +1,7 @@
 import { BlogToc } from '@/components/blog-toc'
 import { Badge } from '@/components/ui/badge'
 import { highlightHtml } from '@/lib/highlight-html'
-import { BlogService } from '@/lib/services/blog.service'
+import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { Calendar, Clock, Eye, Heart } from 'lucide-react'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
@@ -12,7 +12,10 @@ export default async function BlogDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const blog = await BlogService.getBlogById(id)
+  const queryClient = getQueryClient()
+  const blog = await queryClient.ensureQueryData(
+    trpc.blog.byId.queryOptions({ id })
+  )
 
   if (!blog || !blog.published) {
     notFound()
@@ -120,7 +123,10 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const blog = await BlogService.getBlogById(id)
+  const queryClient = getQueryClient()
+  const blog = await queryClient.ensureQueryData(
+    trpc.blog.byId.queryOptions({ id })
+  )
 
   if (!blog) {
     return {
