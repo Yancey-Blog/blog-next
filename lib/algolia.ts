@@ -1,5 +1,5 @@
 import { algoliasearch } from 'algoliasearch'
-import { Blog } from './db/schema'
+import type { Blog } from './db/schema'
 
 const client = algoliasearch(
   process.env.ALGOLIA_APPLICATION_ID!,

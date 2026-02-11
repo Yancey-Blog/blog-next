@@ -1,7 +1,8 @@
 import { BlogToc } from '@/components/blog-toc'
 import { Badge } from '@/components/ui/badge'
-import { highlightHtml } from '@/lib/highlight-html'
+import { highlightHtml } from '@/lib/shiki'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Calendar, Clock, Eye, Heart } from 'lucide-react'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
@@ -13,9 +14,8 @@ export default async function BlogDetailPage({
 }) {
   const { id } = await params
   const queryClient = getQueryClient()
-  const blog = await queryClient.ensureQueryData(
-    trpc.blog.byId.queryOptions({ id })
-  )
+  
+  const blog = await queryClient.fetchQuery(trpc.blog.byId.queryOptions({ id }))
 
   if (!blog || !blog.published) {
     notFound()
@@ -24,7 +24,7 @@ export default async function BlogDetailPage({
   const content = await highlightHtml(blog.content)
 
   return (
-    <>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="container mx-auto px-4 py-8">
         <div className="relative">
           <article className="mx-auto max-w-4xl xl:mr-72">
@@ -43,9 +43,7 @@ export default async function BlogDetailPage({
               {blog.title}
             </h1>
 
-            {/* Metadata */}
             <div className="mb-8 flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-y border-border py-4">
-              {/* Created Date */}
               <div className="flex items-center gap-1.5">
                 <Calendar className="h-4 w-4" />
                 <time>
@@ -57,7 +55,6 @@ export default async function BlogDetailPage({
                 </time>
               </div>
 
-              {/* Updated Date (if different from created) */}
               {new Date(blog.updatedAt).getTime() !==
                 new Date(blog.createdAt).getTime() && (
                 <div className="flex items-center gap-1.5">
@@ -73,19 +70,16 @@ export default async function BlogDetailPage({
                 </div>
               )}
 
-              {/* Views */}
               <div className="flex items-center gap-1.5">
                 <Eye className="h-4 w-4" />
                 <span>{blog.pv.toLocaleString()} views</span>
               </div>
 
-              {/* Likes */}
               <div className="flex items-center gap-1.5">
                 <Heart className="h-4 w-4" />
                 <span>{blog.like.toLocaleString()} likes</span>
               </div>
 
-              {/* Tags */}
               {blog.tags && blog.tags.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2 ml-auto">
                   {blog.tags.map((tag) => (
@@ -97,7 +91,6 @@ export default async function BlogDetailPage({
               )}
             </div>
 
-            {/* Summary */}
             <div className="mb-6 border-l-4 border-primary/50 bg-muted/30 p-4 rounded-r-lg">
               <p className="text-lg leading-relaxed text-muted-foreground italic">
                 {blog.summary}
@@ -113,7 +106,7 @@ export default async function BlogDetailPage({
           <BlogToc content={content} />
         </div>
       </div>
-    </>
+    </HydrationBoundary>
   )
 }
 
@@ -124,9 +117,8 @@ export async function generateMetadata({
 }) {
   const { id } = await params
   const queryClient = getQueryClient()
-  const blog = await queryClient.ensureQueryData(
-    trpc.blog.byId.queryOptions({ id })
-  )
+  
+  const blog = await queryClient.fetchQuery(trpc.blog.byId.queryOptions({ id }))
 
   if (!blog) {
     return {

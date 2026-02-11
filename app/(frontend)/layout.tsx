@@ -1,22 +1,9 @@
-import '@/app/globals.css'
-import { GoogleAnalytics } from '@/app/google-analytics'
+import { GoogleAnalytics } from '@/components/google-analytics'
 import { FrontendFooter } from '@/components/frontend-footer'
 import { FrontendHeader } from '@/components/frontend-header'
 import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { Toaster } from '@/components/ui/sonner'
-import { TRPCReactProvider } from '@/lib/trpc/client'
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin']
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin']
-})
 
 export const metadata: Metadata = {
   title: {
@@ -55,26 +42,18 @@ export const metadata: Metadata = {
   }
 }
 
-export default function RootLayout({
+export default function FrontendLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <TRPCReactProvider>
-          <ThemeModeProvider>
-            <GoogleAnalytics />
-            <FrontendHeader />
-            {children}
-            <FrontendFooter />
-            <Toaster />
-          </ThemeModeProvider>
-        </TRPCReactProvider>
-      </body>
-    </html>
+    <ThemeModeProvider>
+      <GoogleAnalytics />
+      <FrontendHeader />
+      {children}
+      <FrontendFooter />
+      <Toaster />
+    </ThemeModeProvider>
   )
 }

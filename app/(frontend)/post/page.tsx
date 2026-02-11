@@ -2,6 +2,7 @@ import { LazyLoadImage } from '@/components/lazy-load-image'
 import { Badge } from '@/components/ui/badge'
 import { Pagination } from '@/components/ui/pagination'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Calendar, Eye, Heart, Search } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -22,8 +23,7 @@ export default async function BlogsPage({
   const search = params.search || ''
   const queryClient = getQueryClient()
 
-  // Fetch published blogs via tRPC
-  const { data: blogs, pagination } = await queryClient.ensureQueryData(
+  const blogsData = await queryClient.fetchQuery(
     trpc.blog.list.queryOptions({
       page,
       pageSize: 12,
@@ -31,173 +31,163 @@ export default async function BlogsPage({
       search
     })
   )
+  const blogs = blogsData.data
+  const pagination = blogsData.pagination
 
-  // Fetch author information via tRPC
   const authorIds = [...new Set(blogs.map((blog) => blog.authorId))]
   const authors =
     authorIds.length > 0
-      ? await queryClient.ensureQueryData(
+      ? await queryClient.fetchQuery(
           trpc.admin.users.byIds.queryOptions({ ids: authorIds })
         )
       : []
   const authorMap = new Map(authors.map((author) => [author.id, author]))
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      {/* Header */}
-      <div className="mb-12 text-center">
-        <h1 className="mb-4 text-5xl font-bold tracking-tight">
-          Discover Stories
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Explore insights, tutorials, and thoughts
-        </p>
-      </div>
-
-      {/* Search */}
-      <form className="mb-12">
-        <div className="relative mx-auto max-w-2xl">
-          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            name="search"
-            placeholder="Search articles by title or content..."
-            defaultValue={search}
-            className="w-full rounded-full border-2 bg-background py-3 pl-12 pr-32 text-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-          <button
-            type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
-          >
-            Search
-          </button>
-        </div>
-      </form>
-
-      {/* Blogs Grid */}
-      {blogs.length === 0 ? (
-        <div className="py-20 text-center">
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="container mx-auto px-4 py-12">
+        <div className="mb-12 text-center">
+          <h1 className="mb-4 text-5xl font-bold tracking-tight">
+            Discover Stories
+          </h1>
           <p className="text-xl text-muted-foreground">
-            No articles found. Try a different search term.
+            Explore insights, tutorials, and thoughts
           </p>
         </div>
-      ) : (
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {blogs.map((blog) => {
-            const author = authorMap.get(blog.authorId)
-            return (
-              <article
-                key={blog.id}
-                className="group overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-xl"
-              >
-                <Link href={`/post/${blog.id}`}>
-                  {/* Cover Image */}
-                  {blog.coverImage && (
-                    <div className="relative aspect-video w-full overflow-hidden bg-muted">
-                      <LazyLoadImage
-                        src={blog.coverImage}
-                        alt={blog.title}
-                        className="transition-transform duration-300 group-hover:scale-105"
-                      />
-                    </div>
-                  )}
 
-                  {/* Content */}
-                  <div className="p-6">
-                    {/* Tags */}
-                    {blog.tags && blog.tags.length > 0 && (
-                      <div className="mb-3 flex flex-wrap gap-2">
-                        {blog.tags.slice(0, 2).map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="text-xs"
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                        {blog.tags.length > 2 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{blog.tags.length - 2}
-                          </Badge>
-                        )}
+        <form className="mb-12">
+          <div className="relative mx-auto max-w-2xl">
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              name="search"
+              placeholder="Search articles by title or content..."
+              defaultValue={search}
+              className="w-full rounded-full border-2 bg-background py-3 pl-12 pr-32 text-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+            <button
+              type="submit"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+            >
+              Search
+            </button>
+          </div>
+        </form>
+
+        {blogs.length === 0 ? (
+          <div className="py-20 text-center">
+            <p className="text-xl text-muted-foreground">
+              No articles found. Try a different search term.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {blogs.map((blog) => {
+              const author = authorMap.get(blog.authorId)
+              return (
+                <article
+                  key={blog.id}
+                  className="group overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-xl"
+                >
+                  <Link href={`/post/${blog.id}`}>
+                    {blog.coverImage && (
+                      <div className="relative aspect-video w-full overflow-hidden bg-muted">
+                        <LazyLoadImage
+                          src={blog.coverImage}
+                          alt={blog.title}
+                          className="transition-transform duration-300 group-hover:scale-105"
+                        />
                       </div>
                     )}
 
-                    {/* Title */}
-                    <h2 className="mb-3 line-clamp-2 text-2xl font-bold tracking-tight group-hover:text-primary">
-                      {blog.title}
-                    </h2>
-
-                    {/* Summary */}
-                    {blog.summary && (
-                      <p className="mb-4 line-clamp-3 text-muted-foreground">
-                        {blog.summary}
-                      </p>
-                    )}
-
-                    {/* Metadata */}
-                    <div className="flex items-center gap-4 border-t pt-4 text-sm text-muted-foreground">
-                      {/* Author */}
-                      {author && (
-                        <div className="flex items-center gap-2">
-                          {author.image && (
-                            <div className="h-6 w-6 overflow-hidden rounded-full">
-                              <LazyLoadImage
-                                src={author.image}
-                                alt={author.name}
-                                className="h-6 w-6"
-                              />
-                            </div>
+                    <div className="p-6">
+                      {blog.tags && blog.tags.length > 0 && (
+                        <div className="mb-3 flex flex-wrap gap-2">
+                          {blog.tags.slice(0, 2).map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                          {blog.tags.length > 2 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{blog.tags.length - 2}
+                            </Badge>
                           )}
-                          <span className="font-medium">{author.name}</span>
                         </div>
                       )}
 
-                      {/* Date */}
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
-                        <time>
-                          {new Date(blog.createdAt).toLocaleDateString(
-                            'en-US',
-                            {
-                              month: 'short',
-                              day: 'numeric'
-                            }
-                          )}
-                        </time>
-                      </div>
+                      <h2 className="mb-3 line-clamp-2 text-2xl font-bold tracking-tight group-hover:text-primary">
+                        {blog.title}
+                      </h2>
 
-                      {/* Stats */}
-                      <div className="ml-auto flex items-center gap-3">
+                      {blog.summary && (
+                        <p className="mb-4 line-clamp-3 text-muted-foreground">
+                          {blog.summary}
+                        </p>
+                      )}
+
+                      <div className="flex items-center gap-4 border-t pt-4 text-sm text-muted-foreground">
+                        {author && (
+                          <div className="flex items-center gap-2">
+                            {author.image && (
+                              <div className="h-6 w-6 overflow-hidden rounded-full">
+                                <LazyLoadImage
+                                  src={author.image}
+                                  alt={author.name}
+                                  className="h-6 w-6"
+                                />
+                              </div>
+                            )}
+                            <span className="font-medium">{author.name}</span>
+                          </div>
+                        )}
+
                         <div className="flex items-center gap-1">
-                          <Eye className="h-3.5 w-3.5" />
-                          <span>{blog.pv}</span>
+                          <Calendar className="h-3.5 w-3.5" />
+                          <time>
+                            {new Date(blog.createdAt).toLocaleDateString(
+                              'en-US',
+                              {
+                                month: 'short',
+                                day: 'numeric'
+                              }
+                            )}
+                          </time>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Heart className="h-3.5 w-3.5" />
-                          <span>{blog.like}</span>
+
+                        <div className="ml-auto flex items-center gap-3">
+                          <div className="flex items-center gap-1">
+                            <Eye className="h-3.5 w-3.5" />
+                            <span>{blog.pv}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Heart className="h-3.5 w-3.5" />
+                            <span>{blog.like}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              </article>
-            )
-          })}
-        </div>
-      )}
+                  </Link>
+                </article>
+              )
+            })}
+          </div>
+        )}
 
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="mt-12 flex justify-center">
-          <Pagination
-            currentPage={pagination.page}
-            totalPages={pagination.totalPages}
-            useUrlQuery
-          />
-        </div>
-      )}
-    </div>
+        {pagination.totalPages > 1 && (
+          <div className="mt-12 flex justify-center">
+            <Pagination
+              currentPage={pagination.page}
+              totalPages={pagination.totalPages}
+              useUrlQuery
+            />
+          </div>
+        )}
+      </div>
+    </HydrationBoundary>
   )
 }

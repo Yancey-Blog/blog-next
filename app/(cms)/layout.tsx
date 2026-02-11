@@ -1,4 +1,3 @@
-import '@/app/globals.css'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SiteHeader } from '@/components/site-header'
 import { ThemeModeProvider } from '@/components/theme-mode-provider'
@@ -6,20 +5,9 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { requireAuth } from '@/lib/auth/session'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
-import { TRPCReactProvider } from '@/lib/trpc/client'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin']
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin']
-})
 
 export const metadata: Metadata = {
   title: 'Blog Admin',
@@ -31,46 +19,38 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Require authentication (only admin emails can login)
   await requireAuth()
 
-  // Get current theme via tRPC
   const queryClient = getQueryClient()
-  const theme = await queryClient.ensureQueryData(
-    trpc.admin.theme.get.queryOptions()
-  )
+  const theme = await queryClient.fetchQuery(trpc.admin.theme.get.queryOptions())
   const currentTheme = theme.id
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-sidebar`}
-      >
-        <TRPCReactProvider>
-          <ReactQueryDevtools />
-          <ThemeModeProvider>
-            <ThemeProvider themeId={currentTheme} />
-            <SidebarProvider
-              style={
-                {
-                  '--sidebar-width': 'calc(var(--spacing) * 72)',
-                  '--header-height': 'calc(var(--spacing) * 12)'
-                } as React.CSSProperties
-              }
-            >
-              <AppSidebar variant="inset" />
-              <SidebarInset>
-                <SiteHeader />
-                <div className="flex flex-1 flex-col">
-                  <div className="@container/main flex flex-1 flex-col gap-2 p-4">
-                    {children}
-                  </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="bg-sidebar">
+        <ReactQueryDevtools />
+        <ThemeModeProvider>
+          <ThemeProvider themeId={currentTheme} />
+          <SidebarProvider
+            style={
+              {
+                '--sidebar-width': 'calc(var(--spacing) * 72)',
+                '--header-height': 'calc(var(--spacing) * 12)'
+              } as React.CSSProperties
+            }
+          >
+            <AppSidebar variant="inset" />
+            <SidebarInset>
+              <SiteHeader />
+              <div className="flex flex-1 flex-col">
+                <div className="@container/main flex flex-1 flex-col gap-2 p-4">
+                  {children}
                 </div>
-              </SidebarInset>
-            </SidebarProvider>
-          </ThemeModeProvider>
-        </TRPCReactProvider>
-      </body>
-    </html>
+              </div>
+            </SidebarInset>
+          </SidebarProvider>
+        </ThemeModeProvider>
+      </div>
+    </HydrationBoundary>
   )
 }

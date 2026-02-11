@@ -5,25 +5,16 @@
  * to Google Analytics (GA4) or Google Tag Manager (GTM)
  */
 
-import { sendGAEvent, sendGTMEvent } from '@next/third-parties/google'
+import { sendGAEvent } from '@next/third-parties/google'
 
 /**
  * Send a custom event to analytics
- * Automatically uses the configured analytics service (GTM or GA4)
  */
 export function trackEvent(
   eventName: string,
-  parameters?: Record<string, any>
+  parameters?: Record<string, unknown>
 ) {
-  const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID
-  const GA4_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
-
-  // Prefer GTM if configured
-  if (GTM_ID) {
-    sendGTMEvent({ event: eventName, ...parameters })
-  } else if (GA4_MEASUREMENT_ID) {
-    sendGAEvent({ event: eventName, ...parameters })
-  }
+  sendGAEvent({ event: eventName, ...parameters })
 }
 
 /**
