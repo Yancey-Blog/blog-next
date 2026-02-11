@@ -4,12 +4,12 @@ import { SettingsService } from '@/lib/services/settings.service'
 import { PRESET_THEMES } from '@/lib/themes'
 import { eq, inArray } from 'drizzle-orm'
 import { z } from 'zod'
-import { adminProcedure, publicProcedure } from '../init'
+import { protectedProcedure, publicProcedure } from '../init'
 
 export const adminRouter = {
   // User management
   users: {
-    list: adminProcedure.query(async () => {
+    list: protectedProcedure.query(async () => {
       return await db.select().from(users).orderBy(users.createdAt)
     }),
 
@@ -20,7 +20,7 @@ export const adminRouter = {
         return await db.select().from(users).where(inArray(users.id, input.ids))
       }),
 
-    delete: adminProcedure
+    delete: protectedProcedure
       .input(z.object({ userId: z.string() }))
       .mutation(async ({ input }) => {
         await db.delete(users).where(eq(users.id, input.userId))
@@ -30,7 +30,7 @@ export const adminRouter = {
 
   // Session management
   sessions: {
-    list: adminProcedure.query(async () => {
+    list: protectedProcedure.query(async () => {
       return await db
         .select({
           id: sessions.id,
@@ -44,7 +44,7 @@ export const adminRouter = {
         .orderBy(sessions.createdAt)
     }),
 
-    revoke: adminProcedure
+    revoke: protectedProcedure
       .input(z.object({ sessionId: z.string() }))
       .mutation(async ({ input }) => {
         await db.delete(sessions).where(eq(sessions.id, input.sessionId))
@@ -53,18 +53,18 @@ export const adminRouter = {
   },
 
   // Theme management
-  getCurrentTheme: adminProcedure.query(async () => {
+  getCurrentTheme: protectedProcedure.query(async () => {
     return await SettingsService.getCurrentTheme()
   }),
 
   theme: {
-    get: adminProcedure.query(async () => {
+    get: protectedProcedure.query(async () => {
       const themeId = await SettingsService.getCurrentTheme()
       const theme = PRESET_THEMES.find((t) => t.id === themeId)
       return theme || PRESET_THEMES[0]
     }),
 
-    update: adminProcedure
+    update: protectedProcedure
       .input(z.object({ themeId: z.string() }))
       .mutation(async ({ input }) => {
         // Validate that theme exists

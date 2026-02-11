@@ -1,5 +1,7 @@
+import { headers } from 'next/headers'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { auth } from './lib/auth'
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -8,34 +10,20 @@ export async function proxy(request: NextRequest) {
   if (pathname.startsWith('/admin')) {
     try {
       // Get session token from cookie
-      const sessionToken = request.cookies.get('better-auth.session_token')
+      const session = await auth.api.getSession({
+        headers: await headers()
+      })
 
-      if (!sessionToken) {
+      if (!session) {
         return NextResponse.redirect(new URL('/login', request.url))
       }
-
-      // Verify session
-      const response = await fetch(
-        new URL('/api/auth/get-session', request.url),
-        {
-          headers: {
-            cookie: request.headers.get('cookie') || ''
-          }
-        }
-      )
-
-      if (!response.ok) {
-        return NextResponse.redirect(new URL('/login', request.url))
-      }
-
-      const session = await response.json()
 
       if (!session || !session.user) {
         return NextResponse.redirect(new URL('/login', request.url))
       }
 
       // Check if user email is in whitelist
-      if (!isAdminEmail(session.user.email)) {
+      if (!isAdminEmail(session.user.email) || !session.user.emailVerified) {
         return NextResponse.redirect(new URL('/unauthorized', request.url))
       }
     } catch (error) {
@@ -50,7 +38,7 @@ export async function proxy(request: NextRequest) {
 /**
  * Check if email is in ADMIN_EMAILS whitelist
  */
-function isAdminEmail(email: string | null | undefined): boolean {
+export function isAdminEmail(email: string | null | undefined): boolean {
   if (!email) return false
 
   const adminEmails = process.env.ADMIN_EMAILS?.split(',').map((e) =>
