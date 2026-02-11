@@ -94,7 +94,13 @@ All API calls use tRPC for end-to-end type safety. Architecture:
 
 **Server-side routers** (`server/routers/`):
 
-- `blog.ts` - Blog CRUD operations (list, create, update, delete)
+- `blog.ts` - Blog CRUD operations
+  - `blog.list` (publicProcedure) - Get published blogs only (for frontend)
+  - `blog.listAdmin` (protectedProcedure) - Get all blogs including drafts (for admin)
+  - `blog.byId` (publicProcedure) - Get single blog by ID
+  - `blog.create` (protectedProcedure) - Create new blog
+  - `blog.update` (protectedProcedure) - Update existing blog
+  - `blog.delete` (protectedProcedure) - Delete blog
 - `version.ts` - Version history (list, get, diff, restore)
 - `upload.ts` - S3 presigned URL generation
 - `admin.ts` - Admin operations (users, sessions, theme)
@@ -116,19 +122,33 @@ All API calls use tRPC for end-to-end type safety. Architecture:
 **Usage patterns**:
 
 ```typescript
-// Client Components
+// Frontend - Get published blogs only
 'use client'
 import { trpc } from '@/_trpc/client'
 const { data } = trpc.blog.list.useQuery({ page: 1 })
 
-// Server Components (prefetch + hydrate)
-import { trpc, HydrateClient } from '@/_trpc/server'
-await trpc.blog.list.prefetch({ page: 1 })
-return <HydrateClient><MyComponent /></HydrateClient>
+// Admin - Get all blogs including drafts
+'use client'
+import { trpc } from '@/_trpc/client'
+const { data } = trpc.blog.listAdmin.useQuery({
+  page: 1,
+  published: true // or false for drafts, or undefined for all
+})
 
-// Server Components (direct call)
-import { serverClient } from '@/_trpc/server'
-const blogs = await (await serverClient()).blog.list({ page: 1 })
+// Server Components (fetchQuery + HydrationBoundary)
+import { getQueryClient, trpc } from '@/_trpc/server'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+
+const queryClient = getQueryClient()
+const blogsData = await queryClient.fetchQuery(
+  trpc.blog.list.queryOptions({ page: 1 })
+)
+
+return (
+  <HydrationBoundary state={dehydrate(queryClient)}>
+    <MyComponent blogs={blogsData.data} />
+  </HydrationBoundary>
+)
 ```
 
 ### Service Layer Pattern
@@ -237,7 +257,7 @@ Key files:
 - `public/icon-*.png` - App icons in multiple sizes (72, 96, 128, 144, 152, 192, 384, 512)
 - `public/apple-icon.png` - iOS-specific icon
 - `public/favicon.ico`, `favicon-16x16.png`, `favicon-32x32.png` - Browser favicons
-- `.gitignore` - Excludes generated service worker files (sw.js, workbox-*.js, worker-*.js)
+- `.gitignore` - Excludes generated service worker files (sw.js, workbox-_.js, worker-_.js)
 
 **Manifest configuration**:
 
@@ -276,6 +296,7 @@ SENTRY_PROJECT=                              # Sentry project slug (optional)
 ```
 
 **Sentry features enabled**:
+
 - Automatic error boundaries for React components
 - API route error tracking
 - Performance tracing for database queries
@@ -285,23 +306,27 @@ SENTRY_PROJECT=                              # Sentry project slug (optional)
 ### Frontend Design System
 
 **Homepage** (`app/(frontend)/page.tsx`):
+
 - **Hero section**: Full-viewport hero with background image and glitch text animation
 - **Latest articles grid**: 3-column responsive grid showcasing newest published posts
 - **Card layout**: Each article card displays cover image, tags, title, summary, author, and stats
 - **Glitch effect**: Custom CSS animation for hero text (data-attribute driven)
 
 **Blog listing** (`app/(frontend)/post/page.tsx`):
+
 - **Search functionality**: Full-text search with enhanced UI (rounded search bar)
 - **Grid layout**: 3-column responsive grid (12 posts per page)
 - **Rich cards**: Cover images, tags (max 2 visible), author avatar, date, view/like stats
 - **Pagination**: Bottom pagination for navigating through articles
 
 **Shared components**:
+
 - `LazyLoadImage` - Optimized image loading with lazy loading and blur placeholder
 - `FrontendHeader` - Header with Algolia search integration
 - `FrontendFooter` - Footer with theme mode switcher (light/dark/system)
 
 **SEO enhancements**:
+
 - Comprehensive Open Graph tags for social sharing
 - Twitter card metadata
 - Structured metadata with templates (title, description)
@@ -310,6 +335,7 @@ SENTRY_PROJECT=                              # Sentry project slug (optional)
 - Sitemap XML for better indexing
 
 Key files:
+
 - `components/lazy-load-image.tsx` - Image component with lazy loading and optimization
 - `app/(frontend)/layout.tsx` - Layout with SEO metadata, Analytics, and Footer
 - `app/globals.css` - Global styles including glitch animation keyframes

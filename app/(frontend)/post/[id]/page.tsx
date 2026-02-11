@@ -14,7 +14,7 @@ export default async function BlogDetailPage({
 }) {
   const { id } = await params
   const queryClient = getQueryClient()
-  
+
   const blog = await queryClient.fetchQuery(trpc.blog.byId.queryOptions({ id }))
 
   if (!blog || !blog.published) {
@@ -117,7 +117,7 @@ export async function generateMetadata({
 }) {
   const { id } = await params
   const queryClient = getQueryClient()
-  
+
   const blog = await queryClient.fetchQuery(trpc.blog.byId.queryOptions({ id }))
 
   if (!blog) {

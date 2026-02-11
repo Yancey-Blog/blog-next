@@ -5,8 +5,8 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { requireAuth } from '@/lib/auth/session'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -22,7 +22,9 @@ export default async function AdminLayout({
   await requireAuth()
 
   const queryClient = getQueryClient()
-  const theme = await queryClient.fetchQuery(trpc.admin.theme.get.queryOptions())
+  const theme = await queryClient.fetchQuery(
+    trpc.admin.theme.get.queryOptions()
+  )
   const currentTheme = theme.id
 
   return (

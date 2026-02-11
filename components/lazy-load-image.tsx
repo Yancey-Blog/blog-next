@@ -61,7 +61,9 @@ export function LazyLoadImage({
             isLoaded ? 'opacity-100' : 'opacity-0',
             className
           )}
-          unoptimized={src.startsWith('http') && !src.includes('edge.yancey.app')}
+          unoptimized={
+            src.startsWith('http') && !src.includes('edge.yancey.app')
+          }
         />
       )}
 

@@ -1,9 +1,21 @@
-import { GoogleAnalytics } from '@/components/google-analytics'
+import '@/app/globals.css'
 import { FrontendFooter } from '@/components/frontend-footer'
 import { FrontendHeader } from '@/components/frontend-header'
+import { GoogleAnalytics } from '@/components/google-analytics'
 import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { Toaster } from '@/components/ui/sonner'
 import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
+
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin']
+})
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin']
+})
 
 export const metadata: Metadata = {
   title: {
@@ -42,7 +54,7 @@ export const metadata: Metadata = {
   }
 }
 
-export default function FrontendLayout({
+export default function Layout({
   children
 }: Readonly<{
   children: React.ReactNode

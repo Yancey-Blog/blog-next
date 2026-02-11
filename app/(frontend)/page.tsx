@@ -7,9 +7,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Home | Blog - Thoughts, Stories & Ideas',
+  title: 'Home | Yancey Blog - Thoughts, Stories & Ideas',
   description:
-    'Welcome to our blog. Discover articles about technology, design, and everything in between. Fresh perspectives and insights from our community.'
+    'Welcome to Yancey blog. Discover articles about technology, design, and everything in between. Fresh perspectives and insights from our community.'
 }
 
 export default async function Home() {
@@ -19,8 +19,7 @@ export default async function Home() {
   const blogsData = await queryClient.fetchQuery(
     trpc.blog.list.queryOptions({
       page: 1,
-      pageSize: 9,
-      published: true
+      pageSize: 9
     })
   )
   const latestBlogs = blogsData.data

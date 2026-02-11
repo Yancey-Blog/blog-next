@@ -71,7 +71,7 @@ export default function BlogManagementPage() {
   }, [debouncedSearchQuery, statusFilter])
 
   const { data, isLoading } = useQuery(
-    trpc.blog.list.queryOptions({
+    trpc.blog.listAdmin.queryOptions({
       page,
       pageSize,
       search: debouncedSearchQuery || undefined,

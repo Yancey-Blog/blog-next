@@ -17,10 +17,7 @@ export const adminRouter = {
       .input(z.object({ ids: z.array(z.string()) }))
       .query(async ({ input }) => {
         if (input.ids.length === 0) return []
-        return await db
-          .select()
-          .from(users)
-          .where(inArray(users.id, input.ids))
+        return await db.select().from(users).where(inArray(users.id, input.ids))
       }),
 
     delete: adminProcedure

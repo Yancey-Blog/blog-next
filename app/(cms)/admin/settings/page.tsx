@@ -4,8 +4,10 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
 export default async function SettingsPage() {
   const queryClient = getQueryClient()
-  
-  const theme = await queryClient.fetchQuery(trpc.admin.theme.get.queryOptions())
+
+  const theme = await queryClient.fetchQuery(
+    trpc.admin.theme.get.queryOptions()
+  )
   const currentTheme = theme.id
 
   return (

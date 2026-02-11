@@ -35,9 +35,12 @@ export function DeleteBlogDialog({ blogId, blogTitle }: DeleteBlogDialogProps) {
     onSuccess: () => {
       toast.success('Blog deleted successfully')
       setOpen(false)
-      // Invalidate and refetch blog list
+      // Invalidate both frontend and admin lists
       queryClient.invalidateQueries({
         queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
+      })
+      queryClient.invalidateQueries({
+        queryKey: trpc.blog.listAdmin.queryOptions({ page: 1 }).queryKey
       })
       router.refresh()
     },

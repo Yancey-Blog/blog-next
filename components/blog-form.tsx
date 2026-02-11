@@ -152,8 +152,12 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
       }
 
       toast.success('Draft saved successfully')
+      // Invalidate both frontend and admin lists
       queryClient.invalidateQueries({
         queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
+      })
+      queryClient.invalidateQueries({
+        queryKey: trpc.blog.listAdmin.queryOptions({ page: 1 }).queryKey
       })
       router.refresh()
     } catch (error) {
@@ -185,8 +189,12 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
       }
 
       toast.success('Blog published successfully')
+      // Invalidate both frontend and admin lists
       queryClient.invalidateQueries({
         queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
+      })
+      queryClient.invalidateQueries({
+        queryKey: trpc.blog.listAdmin.queryOptions({ page: 1 }).queryKey
       })
       router.push('/admin/blog-management')
       router.refresh()

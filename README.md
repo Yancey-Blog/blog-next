@@ -5,6 +5,7 @@ A modern, full-featured blog CMS built with Next.js 16, featuring an admin dashb
 ## ✨ Features
 
 ### 🎨 Frontend
+
 - **Modern Design**: Card-based responsive layout with smooth animations
 - **Hero Section**: Full-viewport hero with glitch text effect
 - **PWA Support**: Install as standalone app on mobile/desktop
@@ -14,6 +15,7 @@ A modern, full-featured blog CMS built with Next.js 16, featuring an admin dashb
 - **Full-text Search**: Algolia-powered instant search with highlights
 
 ### 🛠️ Admin Dashboard
+
 - **Blog Management**: Create, edit, publish/unpublish, delete posts
 - **Rich Editor**: TinyMCE WYSIWYG editor with image upload
 - **Version Control**: Automatic version snapshots on every update
@@ -22,18 +24,21 @@ A modern, full-featured blog CMS built with Next.js 16, featuring an admin dashb
 - **Theme Customization**: 5 preset themes with real-time preview
 
 ### 🔐 Authentication & Security
+
 - **OAuth Only**: Google and GitHub authentication
 - **Whitelist-based**: Only authorized emails can access admin
 - **Session Management**: PostgreSQL-backed secure sessions
 - **Error Monitoring**: Sentry integration for error tracking
 
 ### 📊 Analytics & Monitoring
+
 - **Google Analytics**: GA4 or GTM integration via `@next/third-parties`
 - **Event Tracking**: Page views, searches, blog views, interactions
 - **Error Tracking**: Full-stack Sentry monitoring (client/edge/server)
 - **Performance**: Automatic performance tracing
 
 ### 🎨 Theming System
+
 - **5 Preset Themes**: Default, Neo Brutalism, Vibrant Purple, Ocean Breeze, Sunset Glow
 - **Dynamic Colors**: OKLCH color space for perceptually uniform colors
 - **CSS Variables**: Theme colors injected as CSS custom properties
@@ -41,20 +46,20 @@ A modern, full-featured blog CMS built with Next.js 16, featuring an admin dashb
 
 ## 🚀 Tech Stack
 
-| Category | Technologies |
-|----------|-------------|
-| **Framework** | Next.js 16 (App Router, React 19, Server Components) |
-| **API** | tRPC 11 with RSC support |
-| **Database** | PostgreSQL (Neon) + Drizzle ORM |
-| **Auth** | better-auth (OAuth: Google, GitHub) |
-| **UI** | shadcn/ui, Radix UI, Tailwind CSS |
-| **Editor** | TinyMCE (WYSIWYG) |
-| **Search** | Algolia InstantSearch |
-| **Analytics** | Google Analytics 4 / Tag Manager |
-| **Monitoring** | Sentry (error tracking) |
-| **Storage** | AWS S3 (image uploads) |
-| **Cache** | Redis (optional) |
-| **Validation** | Zod schemas |
+| Category       | Technologies                                         |
+| -------------- | ---------------------------------------------------- |
+| **Framework**  | Next.js 16 (App Router, React 19, Server Components) |
+| **API**        | tRPC 11 with RSC support                             |
+| **Database**   | PostgreSQL (Neon) + Drizzle ORM                      |
+| **Auth**       | better-auth (OAuth: Google, GitHub)                  |
+| **UI**         | shadcn/ui, Radix UI, Tailwind CSS                    |
+| **Editor**     | TinyMCE (WYSIWYG)                                    |
+| **Search**     | Algolia InstantSearch                                |
+| **Analytics**  | Google Analytics 4 / Tag Manager                     |
+| **Monitoring** | Sentry (error tracking)                              |
+| **Storage**    | AWS S3 (image uploads)                               |
+| **Cache**      | Redis (optional)                                     |
+| **Validation** | Zod schemas                                          |
 
 ## 📦 Prerequisites
 
@@ -67,12 +72,14 @@ A modern, full-featured blog CMS built with Next.js 16, featuring an admin dashb
 ## ⚙️ Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd blog-next
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -103,17 +110,20 @@ A modern, full-featured blog CMS built with Next.js 16, featuring an admin dashb
 4. **Set up the database**
 
    Push schema to database:
+
    ```bash
    npm run db:push
    ```
 
    Or generate and run migrations:
+
    ```bash
    npm run db:generate
    npm run db:migrate
    ```
 
 5. **Run the development server**
+
    ```bash
    npm run dev
    ```
@@ -214,6 +224,7 @@ Themes are stored in the database (`settings` table) and applied via CSS variabl
 5. Components use CSS variables for colors
 
 **Available themes**:
+
 - Default
 - Neo Brutalism
 - Vibrant Purple
@@ -258,6 +269,7 @@ analytics.trackThemeChange('dark')
 ## 🐛 Error Monitoring
 
 Sentry automatically captures:
+
 - Unhandled exceptions
 - Promise rejections
 - API errors
@@ -295,6 +307,7 @@ Users can install the blog as a native app:
 See `.env.example` for complete list with descriptions.
 
 **Critical variables**:
+
 - `DATABASE_URL` - PostgreSQL connection
 - `BETTER_AUTH_SECRET` - Auth secret
 - `ADMIN_EMAILS` - Admin whitelist

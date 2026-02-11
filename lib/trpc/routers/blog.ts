@@ -5,8 +5,22 @@ import { z } from 'zod'
 import { protectedProcedure, publicProcedure } from '../init'
 
 export const blogRouter = {
-  // Get all blogs with pagination and filters
+  // Get all published blogs (public access)
   list: publicProcedure
+    .input(
+      z.object({
+        page: z.number().int().positive().default(1),
+        pageSize: z.number().int().positive().max(100).default(10),
+        search: z.string().optional()
+      })
+    )
+    .query(async ({ input }) => {
+      // Force published: true for public access
+      return await BlogService.getBlogs({ ...input, published: true })
+    }),
+
+  // Get all blogs including drafts (admin access)
+  listAdmin: protectedProcedure
     .input(
       z.object({
         page: z.number().int().positive().default(1),

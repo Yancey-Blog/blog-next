@@ -27,7 +27,6 @@ export default async function BlogsPage({
     trpc.blog.list.queryOptions({
       page,
       pageSize: 12,
-      published: true,
       search
     })
   )
