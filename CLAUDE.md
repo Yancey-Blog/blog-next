@@ -108,7 +108,7 @@ All API calls use tRPC for end-to-end type safety. Architecture:
 
 **tRPC Setup**:
 
-- `server/trpc.ts` - Three procedure types (public, protected, admin)
+- `server/trpc.ts` - Two procedure types (public, protected)
 - `server/context.ts` - Request context with session and user
 - `app/api/trpc/[trpc]/route.ts` - Next.js API handler
 
@@ -357,14 +357,7 @@ export const myRouter = router({
     .mutation(async ({ input, ctx }) => {
       // ctx.user is guaranteed to exist
       // ctx.session is guaranteed to exist
-    }),
-
-  // Admin endpoint - alias for protectedProcedure
-  // All authenticated users are admins (whitelist enforced at OAuth)
-  adminEndpoint: adminProcedure
-    .input(z.object({ ... }))
-    .mutation(async ({ input, ctx }) => {
-      // ctx.user is guaranteed to exist and be whitelisted admin
+      // All authenticated users are admins (whitelist enforced at OAuth)
     })
 })
 ```
@@ -471,16 +464,14 @@ See `.env.example` for detailed documentation on each variable.
 
 4. **No role field in users table** - Access control is purely whitelist-based. All authenticated users are admins by definition (since only whitelisted emails can login).
 
-5. **adminProcedure is an alias** - In `lib/trpc/init.ts`, `adminProcedure` is simply an alias of `protectedProcedure` since all authenticated users are admins.
+5. **Theme changes require page refresh** - After updating theme via tRPC, `router.refresh()` is called to reapply CSS variables.
 
-6. **Theme changes require page refresh** - After updating theme via tRPC, `router.refresh()` is called to reapply CSS variables.
+6. **Blog versions are immutable** - Every update creates a new version. Never edit existing versions.
 
-7. **Blog versions are immutable** - Every update creates a new version. Never edit existing versions.
+7. **tRPC context in Server Components** - When using `trpc` or `serverClient` in Server Components, they automatically use Next.js `headers()` for context. No need to pass request objects manually.
 
-8. **tRPC context in Server Components** - When using `trpc` or `serverClient` in Server Components, they automatically use Next.js `headers()` for context. No need to pass request objects manually.
+8. **Algolia search state preservation** - InstantSearch uses `future.preserveSharedStateOnUnmount: true` to preserve widget state when components unmount. This ensures consistent search experience across navigation.
 
-9. **Algolia search state preservation** - InstantSearch uses `future.preserveSharedStateOnUnmount: true` to preserve widget state when components unmount. This ensures consistent search experience across navigation.
+9. **Analytics privacy** - All analytics tracking respects user privacy. Implement proper cookie consent before enabling tracking in production.
 
-10. **Analytics privacy** - All analytics tracking respects user privacy. Implement proper cookie consent before enabling tracking in production.
-
-11. **Environment variable naming** - Some services require both `NEXT_PUBLIC_*` (client-side) and non-prefixed (server-side) versions of the same variable (e.g., Algolia). Always check `.env.example` for the complete list.
+10. **Environment variable naming** - Some services require both `NEXT_PUBLIC_*` (client-side) and non-prefixed (server-side) versions of the same variable (e.g., Algolia). Always check `.env.example` for the complete list.
