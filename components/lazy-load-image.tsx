@@ -2,19 +2,30 @@
 
 import { cn } from '@/lib/utils'
 import { ImageOffIcon } from 'lucide-react'
+import Image from 'next/image'
 import { useState } from 'react'
+
+interface LazyLoadImageProps {
+  src: string
+  alt: string
+  className?: string
+  skeletonClassName?: string
+  width?: number
+  height?: number
+  fill?: boolean
+  priority?: boolean
+}
 
 export function LazyLoadImage({
   src,
   alt,
   className,
-  skeletonClassName
-}: {
-  src: string
-  alt: string
-  className?: string
-  skeletonClassName?: string
-}) {
+  skeletonClassName,
+  width,
+  height,
+  fill = false,
+  priority = false
+}: LazyLoadImageProps) {
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
 
@@ -30,22 +41,27 @@ export function LazyLoadImage({
         />
       )}
 
-      {/* Actual image */}
+      {/* Next.js optimized image */}
       {!hasError && (
-        <img
+        <Image
           src={src}
           alt={alt}
-          loading="lazy"
+          width={fill ? undefined : width || 800}
+          height={fill ? undefined : height || 600}
+          fill={fill}
+          loading={priority ? undefined : 'lazy'}
+          priority={priority}
           onLoad={() => setIsLoaded(true)}
           onError={() => {
             setHasError(true)
             setIsLoaded(true)
           }}
           className={cn(
-            'h-full w-full object-cover transition-opacity duration-500',
+            'object-cover transition-opacity duration-500',
             isLoaded ? 'opacity-100' : 'opacity-0',
             className
           )}
+          unoptimized={src.startsWith('http') && !src.includes('edge.yancey.app')}
         />
       )}
 

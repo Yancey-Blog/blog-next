@@ -1,5 +1,3 @@
-'use client'
-
 import Link from 'next/link'
 import { ThemeModeSwitcher } from './theme-mode-switcher'
 
@@ -14,7 +12,7 @@ export function FrontendFooter() {
       <div className="container mx-auto px-4">
         {/* Main footer content */}
         <div className="flex flex-col items-center space-y-6">
-          {/* Theme Switcher */}
+          {/* Theme Switcher - Client Component */}
           <ThemeModeSwitcher />
 
           {/* Crafted with love */}
