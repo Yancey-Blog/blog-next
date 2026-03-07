@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -136,7 +137,6 @@
 }
 
 @layer components {
-
   /* Blog Content Styles - Medium-inspired spacing */
   .blog-content {
     @apply text-foreground leading-[1.7] text-[1.0625rem];
@@ -197,7 +197,7 @@
       @apply text-primary;
     }
 
-    li>p {
+    li > p {
       @apply mb-1.5;
     }
 

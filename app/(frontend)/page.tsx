@@ -1,8 +1,9 @@
 import { LazyLoadImage } from '@/components/lazy-load-image'
+import { ParallaxHero } from '@/components/parallax-hero'
 import { Badge } from '@/components/ui/badge'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { ArrowRight, Eye, Heart } from 'lucide-react'
+import { ArrowRight, Calendar, Eye, Heart } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
@@ -24,33 +25,11 @@ export default async function Home() {
   )
   const latestBlogs = blogsData.data
 
-  // Fetch author information via tRPC
-  const authorIds = [...new Set(latestBlogs.map((blog) => blog.authorId))]
-  const authors =
-    authorIds.length > 0
-      ? await queryClient.fetchQuery(
-          trpc.admin.users.byIds.queryOptions({ ids: authorIds })
-        )
-      : []
-
-  const authorMap = new Map(authors.map((author) => [author.id, author]))
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="min-h-screen">
         {/* Hero Section */}
-        <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 -z-10">
-            <div
-              className="h-full w-full bg-cover bg-center bg-no-repeat"
-              style={{
-                backgroundImage:
-                  'url(https://edge.yancey.app/beg/ng9bwfv1-1728444113930.jpeg)'
-              }}
-            />
-            <div className="absolute inset-0 bg-black/50" />
-          </div>
-
+        <ParallaxHero imageUrl="https://static.yancey.app/ng9bwfv1-1728444113930.jpeg">
           <div className="container relative z-10 mx-auto px-4 text-center">
             <div className="mx-auto max-w-4xl space-y-8">
               <h1
@@ -60,17 +39,12 @@ export default async function Home() {
                 HI, YANCEY!
               </h1>
 
-              <div className="space-y-3">
-                <p className="text-xl font-medium text-white/90 md:text-2xl">
-                  死は生の対極としてではなく、その一部として存在している。
-                </p>
-                <p className="text-sm text-white/70 md:text-base">
-                  Death is not the opposite of life, but a part of it.
-                </p>
-              </div>
+              <p className="text-xl font-medium text-white/90 md:text-2xl">
+                死は生の対極としてではなく、その一部として存在している。
+              </p>
             </div>
           </div>
-        </section>
+        </ParallaxHero>
 
         {/* Latest Articles Grid */}
         {latestBlogs.length > 0 && (
@@ -94,9 +68,7 @@ export default async function Home() {
               </div>
 
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {latestBlogs.map((blog) => {
-                  const author = authorMap.get(blog.authorId)
-                  return (
+                {latestBlogs.map((blog) => (
                     <article
                       key={blog.id}
                       className="group overflow-hidden rounded-2xl border bg-card transition-all"
@@ -143,23 +115,15 @@ export default async function Home() {
                           )}
 
                           <div className="flex items-center gap-4 border-t pt-4 text-sm text-muted-foreground">
-                            {author && (
-                              <div className="flex items-center gap-2">
-                                {author.image && (
-                                  <div className="h-6 w-6 overflow-hidden rounded-full">
-                                    <LazyLoadImage
-                                      src={author.image}
-                                      alt={author.name}
-                                      className="h-6 w-6"
-                                    />
-                                  </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3.5 w-3.5" />
+                              <time>
+                                {new Date(blog.createdAt).toLocaleDateString(
+                                  'en-US',
+                                  { month: 'short', day: 'numeric' }
                                 )}
-                                <span className="font-medium">
-                                  {author.name}
-                                </span>
-                              </div>
-                            )}
-
+                              </time>
+                            </div>
                             <div className="ml-auto flex items-center gap-3">
                               <div className="flex items-center gap-1">
                                 <Eye className="h-3.5 w-3.5" />
@@ -174,8 +138,7 @@ export default async function Home() {
                         </div>
                       </Link>
                     </article>
-                  )
-                })}
+                  ))}
               </div>
 
               <div className="mt-12 text-center sm:hidden">

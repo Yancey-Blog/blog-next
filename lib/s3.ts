@@ -34,7 +34,7 @@ export async function generatePresignedUploadUrl(
   contentType: string
 ): Promise<{ uploadUrl: string; fileKey: string; publicUrl: string }> {
   const fileExtension = fileName.split('.').pop()
-  const fileKey = `blog-images/${uuidv4()}.${fileExtension}`
+  const fileKey = `${uuidv4()}.${fileExtension}`
 
   const command = new PutObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -46,7 +46,7 @@ export async function generatePresignedUploadUrl(
     expiresIn: 3600 // 1 hour
   })
 
-  const publicUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`
+  const publicUrl = `https://static.yancey.app/${fileKey}`
 
   return {
     uploadUrl,
@@ -64,7 +64,7 @@ export async function uploadFileToS3(
   contentType: string
 ): Promise<string> {
   const fileExtension = fileName.split('.').pop()
-  const fileKey = `blog-images/${uuidv4()}.${fileExtension}`
+  const fileKey = `${uuidv4()}.${fileExtension}`
 
   const command = new PutObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -75,7 +75,7 @@ export async function uploadFileToS3(
 
   await s3Client.send(command)
 
-  const publicUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`
+  const publicUrl = `https://static.yancey.app/${fileKey}`
 
   return publicUrl
 }

@@ -33,15 +33,6 @@ export default async function BlogsPage({
   const blogs = blogsData.data
   const pagination = blogsData.pagination
 
-  const authorIds = [...new Set(blogs.map((blog) => blog.authorId))]
-  const authors =
-    authorIds.length > 0
-      ? await queryClient.fetchQuery(
-          trpc.admin.users.byIds.queryOptions({ ids: authorIds })
-        )
-      : []
-  const authorMap = new Map(authors.map((author) => [author.id, author]))
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="container mx-auto px-4 py-12">
@@ -81,9 +72,7 @@ export default async function BlogsPage({
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {blogs.map((blog) => {
-              const author = authorMap.get(blog.authorId)
-              return (
+            {blogs.map((blog) => (
                 <article
                   key={blog.id}
                   className="group overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-xl"
@@ -130,21 +119,6 @@ export default async function BlogsPage({
                       )}
 
                       <div className="flex items-center gap-4 border-t pt-4 text-sm text-muted-foreground">
-                        {author && (
-                          <div className="flex items-center gap-2">
-                            {author.image && (
-                              <div className="h-6 w-6 overflow-hidden rounded-full">
-                                <LazyLoadImage
-                                  src={author.image}
-                                  alt={author.name}
-                                  className="h-6 w-6"
-                                />
-                              </div>
-                            )}
-                            <span className="font-medium">{author.name}</span>
-                          </div>
-                        )}
-
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3.5 w-3.5" />
                           <time>
@@ -172,8 +146,7 @@ export default async function BlogsPage({
                     </div>
                   </Link>
                 </article>
-              )
-            })}
+              ))}
           </div>
         )}
 

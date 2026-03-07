@@ -4,7 +4,7 @@ import { analytics } from '@/lib/analytics'
 import { liteClient as algoliasearch } from 'algoliasearch/lite'
 import { Search, X } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Configure,
   Highlight,
@@ -26,34 +26,28 @@ function Hit({ hit }: { hit: any }) {
   return (
     <a
       href={`/post/${hit.objectID}`}
-      className="block p-4 transition-colors hover:bg-muted/50"
+      className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
     >
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <div className="font-semibold text-primary">
-          <Highlight attribute="title" hit={hit} />
+      <Search className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+      <div className="min-w-0 flex-1">
+        <div className="truncate font-medium text-foreground">
+          <Highlight attribute="name" hit={hit} />
         </div>
+        {hit.description && (
+          <div className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
+            <Snippet attribute="description" hit={hit} />
+          </div>
+        )}
+        {!hit.description && hit.content && (
+          <div className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
+            <Snippet attribute="content" hit={hit} />
+          </div>
+        )}
       </div>
-      {hit.summary && (
-        <div className="mb-2 text-sm text-muted-foreground">
-          <Highlight attribute="summary" hit={hit} />
-        </div>
-      )}
-      {hit.content && (
-        <div className="line-clamp-2 text-sm text-muted-foreground">
-          <Snippet attribute="content" hit={hit} />
-        </div>
-      )}
-      {hit.tags && hit.tags.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-2">
-          {hit.tags.slice(0, 3).map((tag: string) => (
-            <span
-              key={tag}
-              className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+      {hit.labels && hit.labels.length > 0 && (
+        <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+          {hit.labels[0]}
+        </span>
       )}
     </a>
   )
@@ -61,16 +55,13 @@ function Hit({ hit }: { hit: any }) {
 
 function LoadingIndicator() {
   const { status } = useInstantSearch()
-
   if (status !== 'stalled') return null
-
   return (
     <div className="space-y-4 p-4">
-      {Array.from({ length: 5 }).map((_, i) => (
+      {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="space-y-2">
           <div className="h-5 w-3/4 animate-pulse rounded bg-muted" />
           <div className="h-4 w-full animate-pulse rounded bg-muted" />
-          <div className="h-4 w-5/6 animate-pulse rounded bg-muted" />
         </div>
       ))}
     </div>
@@ -79,173 +70,162 @@ function LoadingIndicator() {
 
 function EmptyState() {
   const { results } = useInstantSearch()
-
-  if (!results || results.nbHits > 0) return null
-
+  const { query } = useSearchBox()
+  if (!query || !results || results.nbHits > 0) return null
   return (
     <div className="p-8 text-center text-muted-foreground">
-      <p>No results found. Try a different search term.</p>
+      No results for <span className="font-medium text-foreground">"{query}"</span>
     </div>
   )
 }
 
-function SearchContent({
-  showDrawer,
-  onClose
-}: {
-  showDrawer: boolean
-  onClose: () => void
-}) {
-  const { refine } = useSearchBox()
-
-  const handleReset = () => {
-    refine('')
-    onClose()
-  }
-
-  return (
-    <>
-      {/* Search Box */}
-      <div className="relative">
-        <SearchBox
-          placeholder="Search articles..."
-          classNames={{
-            root: 'relative',
-            form: 'relative',
-            input:
-              'w-full rounded-full border bg-background/50 py-2 pl-10 pr-10 text-sm transition-all focus:w-64 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 md:w-48',
-            submit: 'absolute left-3 top-1/2 -translate-y-1/2',
-            submitIcon: 'hidden',
-            reset: 'absolute right-3 top-1/2 -translate-y-1/2',
-            resetIcon: 'hidden',
-            loadingIndicator: 'absolute right-3 top-1/2 -translate-y-1/2'
-          }}
-          submitIconComponent={() => (
-            <Search className="h-4 w-4 text-muted-foreground" />
-          )}
-          resetIconComponent={() => (
-            <button
-              type="button"
-              onClick={handleReset}
-              className="flex items-center justify-center"
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4 text-muted-foreground" />
-            </button>
-          )}
-        />
-      </div>
-
-      {/* Results Drawer */}
-      <div
-        className={`fixed right-0 top-0 z-50 h-screen w-full overflow-y-auto border-l bg-background shadow-2xl transition-transform duration-300 md:w-[450px] ${
-          showDrawer ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        {/* Drawer Header */}
-        <div className="sticky top-0 z-10 border-b bg-background/95 p-4 backdrop-blur">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Search Results</h3>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full p-2 transition-colors hover:bg-muted"
-              aria-label="Close search"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Results */}
-        <LoadingIndicator />
-        <EmptyState />
-        <Hits hitComponent={Hit} />
-
-        {/* Powered by Algolia */}
-        <div className="border-t p-4">
-          <PoweredBy
-            classNames={{
-              root: 'flex justify-center items-center gap-2 text-sm text-muted-foreground',
-              logo: 'h-5 w-auto'
-            }}
-          />
-        </div>
-      </div>
-    </>
-  )
-}
-
-function SearchWrapper() {
-  const [showDrawer, setShowDrawer] = useState(false)
-  const pathname = usePathname()
+function ModalContent({ onClose }: { onClose: () => void }) {
   const { query } = useSearchBox()
   const { results } = useInstantSearch()
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  // Show drawer when query has content
+  // Auto-focus the input when modal opens
   useEffect(() => {
-    setShowDrawer(query.trim() !== '')
-  }, [query])
+    const timer = setTimeout(() => {
+      const input = document.querySelector<HTMLInputElement>('.ais-SearchBox-input')
+      input?.focus()
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [])
 
-  // Track search events
+  // Track search analytics
   useEffect(() => {
     if (query && results) {
       analytics.trackSearch(query, results.nbHits)
     }
   }, [query, results])
 
-  const handleClose = () => {
-    setShowDrawer(false)
-  }
+  const hasResults = query && results && results.nbHits > 0
+
+  return (
+    <div className="flex flex-col">
+      {/* Search input row */}
+      <div className="flex items-center gap-3 border-b px-4 py-3">
+        <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
+        <SearchBox
+          placeholder="Search articles..."
+          classNames={{
+            root: 'flex-1',
+            form: 'relative',
+            input:
+              'w-full bg-transparent text-base outline-none placeholder:text-muted-foreground',
+            submit: 'hidden',
+            reset: 'hidden',
+            loadingIndicator: 'hidden'
+          }}
+        />
+      </div>
+
+      {/* Results */}
+      <div className="max-h-[50vh] overflow-y-auto">
+        <LoadingIndicator />
+        <EmptyState />
+        {hasResults && <Hits hitComponent={Hit} classNames={{ list: 'divide-y', item: '' }} />}
+        {!query && (
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            Start typing to search articles...
+          </div>
+        )}
+      </div>
+
+      {/* Footer — always visible */}
+      <div className="border-t px-4 py-3">
+        <PoweredBy
+          classNames={{
+            root: 'flex justify-end items-center gap-2 text-xs text-muted-foreground',
+            logo: 'h-4 w-auto'
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function SearchModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const pathname = usePathname()
 
   // Close on route change
   useEffect(() => {
-    handleClose()
+    onClose()
   }, [pathname])
 
-  // Close on escape key
+  // Close on Escape
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleClose()
-      }
+    if (!open) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
     }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [open, onClose])
 
-    if (showDrawer) {
-      document.addEventListener('keydown', handleEscape)
-      return () => document.removeEventListener('keydown', handleEscape)
-    }
-  }, [showDrawer])
+  // Lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
+  if (!open) return null
 
   return (
-    <>
-      {/* Overlay */}
-      {showDrawer && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
-          onClick={handleClose}
-        />
-      )}
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] px-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
 
-      <SearchContent showDrawer={showDrawer} onClose={handleClose} />
-    </>
+      {/* Modal */}
+      <div className="relative z-10 w-full max-w-xl overflow-hidden rounded-xl border bg-background shadow-2xl">
+        <ModalContent onClose={onClose} />
+      </div>
+    </div>
   )
 }
 
 export function AlgoliaSearch() {
+  const [open, setOpen] = useState(false)
+
+  // ⌘K / Ctrl+K shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        setOpen((v) => !v)
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [])
+
   return (
     <InstantSearch
       searchClient={searchClient}
       indexName={process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_INDEX_NAME!}
-      future={{
-        preserveSharedStateOnUnmount: true
-      }}
+      future={{ preserveSharedStateOnUnmount: true }}
     >
-      <Configure
-        attributesToSnippet={['content:120', 'summary:50']}
-        snippetEllipsisText="..."
-      />
-      <SearchWrapper />
+      <Configure attributesToSnippet={['content:120', 'description:50']} snippetEllipsisText="..." />
+
+      {/* Fake input trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-2 rounded-full border bg-muted/40 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        aria-label="Search"
+      >
+        <Search className="h-4 w-4" />
+        <span className="hidden sm:inline">Search...</span>
+        <kbd className="hidden rounded border bg-background px-1.5 py-0.5 text-xs sm:inline">
+          ⌘K
+        </kbd>
+      </button>
+
+      <SearchModal open={open} onClose={() => setOpen(false)} />
     </InstantSearch>
   )
 }
