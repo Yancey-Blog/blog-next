@@ -12,11 +12,16 @@ export function FrontendFooter() {
           {/* Left: copyright + legal links */}
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-muted-foreground sm:justify-start">
             <span>Copyright &copy; {currentYear} Yancey Inc.</span>
-            <span className="hidden sm:inline">·</span>
-            <Link href="/legal/privacy-policy" className="transition-colors hover:text-foreground">
+            <Link
+              href="/legal/privacy-policy"
+              className="transition-colors hover:text-foreground"
+            >
               Privacy Policy
             </Link>
-            <Link href="/legal/terms-of-use" className="transition-colors hover:text-foreground">
+            <Link
+              href="/legal/terms-of-use"
+              className="transition-colors hover:text-foreground"
+            >
               Terms of Use
             </Link>
           </div>

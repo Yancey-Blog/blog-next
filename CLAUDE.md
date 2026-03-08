@@ -393,7 +393,6 @@ Required in `.env.local`:
 ```bash
 # Database
 DATABASE_URL=                                # Neon PostgreSQL connection string
-REDIS_URL=                                   # Redis connection string (optional)
 
 # Application
 NEXT_PUBLIC_APP_URL=                         # App URL for OAuth callbacks

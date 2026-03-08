@@ -98,6 +98,23 @@ export const blogRouter = {
       return blog
     }),
 
+  // Anonymous view increment (no auth required)
+  view: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      await BlogService.viewBlog(input.id)
+      return { ok: true }
+    }),
+
+  // Anonymous like (no auth required)
+  like: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const blog = await BlogService.likeBlog(input.id)
+      if (!blog) throw new Error('Blog not found')
+      return { like: blog.like }
+    }),
+
   // Delete blog
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))

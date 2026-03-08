@@ -44,6 +44,21 @@ export async function highlightHtml(html: string) {
   const loadedLangs = shiki.getLoadedLanguages()
   console.log('Shiki loaded languages:', loadedLangs.join(', '))
 
+  // Inject id attributes into h2/h3 for TOC
+  $('h2, h3').each((_, el) => {
+    const $el = $(el)
+    if (!$el.attr('id')) {
+      const id = $el
+        .text()
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+      $el.attr('id', id)
+    }
+  })
+
   // Process all pre tags with language- class
   // Support both formats:
   // 1. <pre class="language-*"><code>...</code></pre>

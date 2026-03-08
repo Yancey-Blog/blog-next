@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { sessions, users } from '@/lib/db/schema'
+import { BlogService } from '@/lib/services/blog.service'
 import { SettingsService } from '@/lib/services/settings.service'
 import { PRESET_THEMES } from '@/lib/themes'
 import { eq, inArray } from 'drizzle-orm'
@@ -7,6 +8,16 @@ import { z } from 'zod'
 import { protectedProcedure, publicProcedure } from '../init'
 
 export const adminRouter = {
+  // Dashboard stats
+  dashboard: protectedProcedure.query(async () => {
+    const [stats, byMonth, chartData] = await Promise.all([
+      BlogService.getStats(),
+      BlogService.getBlogsByMonth(),
+      BlogService.getChartData()
+    ])
+    return { stats, byMonth, ...chartData }
+  }),
+
   // User management
   users: {
     list: protectedProcedure.query(async () => {

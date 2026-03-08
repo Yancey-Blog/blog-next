@@ -1,11 +1,14 @@
 import { BlogToc } from '@/components/blog-toc'
+import { PostActions } from '@/components/post-actions'
 import { Badge } from '@/components/ui/badge'
 import { highlightHtml } from '@/lib/shiki'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { Calendar, Clock, Eye, Heart } from 'lucide-react'
+import { Calendar, Clock, Eye } from 'lucide-react'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://yancey.app'
 
 export default async function BlogDetailPage({
   params
@@ -25,7 +28,7 @@ export default async function BlogDetailPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pb-8 pt-24">
         <div className="relative">
           <article className="mx-auto max-w-4xl xl:mr-72">
             {blog.coverImage && (
@@ -43,52 +46,58 @@ export default async function BlogDetailPage({
               {blog.title}
             </h1>
 
-            <div className="mb-8 flex flex-wrap items-center gap-4 text-sm text-muted-foreground border-y border-border py-4">
-              <div className="flex items-center gap-1.5">
-                <Calendar className="h-4 w-4" />
-                <time>
-                  {new Date(blog.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  })}
-                </time>
-              </div>
-
-              {new Date(blog.updatedAt).getTime() !==
-                new Date(blog.createdAt).getTime() && (
+            <div className="mb-8 border-y border-border py-4">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4" />
+                  <Calendar className="h-4 w-4" />
                   <time>
-                    Updated{' '}
-                    {new Date(blog.updatedAt).toLocaleDateString('en-US', {
+                    {new Date(blog.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric'
                     })}
                   </time>
                 </div>
-              )}
 
-              <div className="flex items-center gap-1.5">
-                <Eye className="h-4 w-4" />
-                <span>{blog.pv.toLocaleString()} views</span>
-              </div>
+                {new Date(blog.updatedAt).getTime() !==
+                  new Date(blog.createdAt).getTime() && (
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4" />
+                    <time>
+                      Updated{' '}
+                      {new Date(blog.updatedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </time>
+                  </div>
+                )}
 
-              <div className="flex items-center gap-1.5">
-                <Heart className="h-4 w-4" />
-                <span>{blog.like.toLocaleString()} likes</span>
-              </div>
-
-              {blog.tags && blog.tags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 ml-auto">
-                  {blog.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
+                <div className="flex items-center gap-1.5">
+                  <Eye className="h-4 w-4" />
+                  <span>{blog.pv.toLocaleString()} views</span>
                 </div>
-              )}
+
+                {blog.tags && blog.tags.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {blog.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                <div className="ml-auto">
+                  <PostActions
+                    blogId={blog.id}
+                    initialLikes={blog.like}
+                    title={blog.title}
+                    url={`${APP_URL}/post/${blog.id}`}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="mb-6 border-l-4 border-primary/50 bg-muted/30 p-4 rounded-r-lg">
@@ -126,8 +135,24 @@ export async function generateMetadata({
     }
   }
 
+  const postUrl = `${APP_URL}/post/${blog.id}`
+
   return {
     title: blog.title,
-    description: blog.summary
+    description: blog.summary,
+    openGraph: {
+      title: blog.title,
+      description: blog.summary ?? undefined,
+      url: postUrl,
+      images: blog.coverImage ? [{ url: blog.coverImage }] : []
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@YanceyOfficial',
+      creator: '@YanceyOfficial',
+      title: blog.title,
+      description: blog.summary ?? undefined,
+      images: blog.coverImage ? [blog.coverImage] : []
+    }
   }
 }

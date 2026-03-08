@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Pagination } from '@/components/ui/pagination'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { format } from 'date-fns'
 import { Calendar, Eye, Heart, Search } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -35,7 +36,7 @@ export default async function BlogsPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 pb-12 pt-24">
         <div className="mb-12 text-center">
           <h1 className="mb-4 text-5xl font-bold tracking-tight">
             Discover Stories
@@ -73,80 +74,75 @@ export default async function BlogsPage({
         ) : (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {blogs.map((blog) => (
-                <article
-                  key={blog.id}
-                  className="group overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-xl"
+              <article
+                key={blog.id}
+                className="group flex flex-col overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-xl"
+              >
+                <Link
+                  href={`/post/${blog.id}`}
+                  className="flex flex-1 flex-col"
                 >
-                  <Link href={`/post/${blog.id}`}>
-                    {blog.coverImage && (
-                      <div className="relative aspect-video w-full overflow-hidden bg-muted">
-                        <LazyLoadImage
-                          src={blog.coverImage}
-                          alt={blog.title}
-                          className="transition-transform duration-300 group-hover:scale-105"
-                        />
+                  {blog.coverImage && (
+                    <div className="relative aspect-video w-full overflow-hidden bg-muted">
+                      <LazyLoadImage
+                        src={blog.coverImage}
+                        alt={blog.title}
+                        className="transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex flex-1 flex-col p-6">
+                    {blog.tags && blog.tags.length > 0 && (
+                      <div className="mb-3 flex flex-wrap gap-2">
+                        {blog.tags.slice(0, 2).map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="text-xs"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                        {blog.tags.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{blog.tags.length - 2}
+                          </Badge>
+                        )}
                       </div>
                     )}
 
-                    <div className="p-6">
-                      {blog.tags && blog.tags.length > 0 && (
-                        <div className="mb-3 flex flex-wrap gap-2">
-                          {blog.tags.slice(0, 2).map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant="secondary"
-                              className="text-xs"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                          {blog.tags.length > 2 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{blog.tags.length - 2}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
+                    <h2 className="mb-3 line-clamp-2 text-2xl font-bold tracking-tight group-hover:text-primary">
+                      {blog.title}
+                    </h2>
 
-                      <h2 className="mb-3 line-clamp-2 text-2xl font-bold tracking-tight group-hover:text-primary">
-                        {blog.title}
-                      </h2>
+                    <p className="mb-4 line-clamp-3 flex-1 text-muted-foreground">
+                      {blog.summary ?? ''}
+                    </p>
 
-                      {blog.summary && (
-                        <p className="mb-4 line-clamp-3 text-muted-foreground">
-                          {blog.summary}
-                        </p>
-                      )}
+                    <div className="flex items-center gap-4 border-t pt-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5" />
+                        <time>
+                          {format(new Date(blog.createdAt), 'MMM d, yyyy')}
+                        </time>
+                      </div>
 
-                      <div className="flex items-center gap-4 border-t pt-4 text-sm text-muted-foreground">
+                      <div className="ml-auto flex items-center gap-3">
                         <div className="flex items-center gap-1">
-                          <Calendar className="h-3.5 w-3.5" />
-                          <time>
-                            {new Date(blog.createdAt).toLocaleDateString(
-                              'en-US',
-                              {
-                                month: 'short',
-                                day: 'numeric'
-                              }
-                            )}
-                          </time>
+                          <Eye className="h-3.5 w-3.5" />
+                          <span>{blog.pv}</span>
                         </div>
-
-                        <div className="ml-auto flex items-center gap-3">
-                          <div className="flex items-center gap-1">
-                            <Eye className="h-3.5 w-3.5" />
-                            <span>{blog.pv}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Heart className="h-3.5 w-3.5" />
-                            <span>{blog.like}</span>
-                          </div>
+                        <div className="flex items-center gap-1">
+                          <Heart className="h-3.5 w-3.5" />
+                          <span>{blog.like}</span>
                         </div>
                       </div>
                     </div>
-                  </Link>
-                </article>
-              ))}
+                  </div>
+                </Link>
+              </article>
+            ))}
           </div>
         )}
 

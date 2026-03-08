@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { ChevronRight } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 interface TocItem {
   id: string // Unique ID for React key
@@ -16,17 +16,13 @@ interface BlogTocProps {
 }
 
 export function BlogToc({ content }: BlogTocProps) {
-  const [toc, setToc] = useState<TocItem[]>([])
-  const [activeId, setActiveId] = useState<string>('')
-  const [isOpen, setIsOpen] = useState(false)
-
-  useEffect(() => {
+  const toc = useMemo<TocItem[]>(() => {
     // Parse HTML and extract headings
     const parser = new DOMParser()
     const doc = parser.parseFromString(content, 'text/html')
     const headings = doc.querySelectorAll('h2[id], h3[id]')
 
-    const items: TocItem[] = Array.from(headings).map((heading, index) => {
+    return Array.from(headings).map((heading, index) => {
       const originalId = heading.id || `heading-${index}`
       return {
         id: `toc-${index}-${originalId}`, // Unique key for React
@@ -35,9 +31,10 @@ export function BlogToc({ content }: BlogTocProps) {
         level: parseInt(heading.tagName.substring(1))
       }
     })
-
-    setToc(items)
   }, [content])
+
+  const [activeId, setActiveId] = useState<string>('')
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     // Intersection Observer to track active heading

@@ -20,16 +20,23 @@ export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
   const isHomepage = pathname === '/'
 
   useEffect(() => {
-    // Initial scroll check
-    setIsScrolled(window.scrollY > 10)
-    setMounted(true)
-
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10)
     }
 
+    const handleMount = () => {
+      setMounted(true)
+      handleScroll()
+    }
+
+    // Use rAF to avoid synchronous setState in effect body
+    const rafId = requestAnimationFrame(handleMount)
+
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      cancelAnimationFrame(rafId)
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
   // Determine if dark mode (for logo selection)
@@ -91,7 +98,7 @@ export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
               Articles
             </Link>
             <Link
-              href="/about"
+              href="/post/7891c3aa-c292-4a3a-9e34-9434d69fe21d"
               className={`transition-colors ${
                 isTransparent
                   ? 'text-white/80 hover:text-white'

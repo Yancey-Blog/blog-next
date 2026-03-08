@@ -2,9 +2,9 @@
 
 import { analytics } from '@/lib/analytics'
 import { liteClient as algoliasearch } from 'algoliasearch/lite'
-import { Search, X } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Configure,
   Highlight,
@@ -22,7 +22,16 @@ const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY!
 )
 
-function Hit({ hit }: { hit: any }) {
+interface AlgoliaHit {
+  objectID: string
+  name?: string
+  description?: string
+  content?: string
+  labels?: string[]
+  [key: string]: unknown
+}
+
+function Hit({ hit }: { hit: AlgoliaHit }) {
   return (
     <a
       href={`/post/${hit.objectID}`}
@@ -74,7 +83,8 @@ function EmptyState() {
   if (!query || !results || results.nbHits > 0) return null
   return (
     <div className="p-8 text-center text-muted-foreground">
-      No results for <span className="font-medium text-foreground">"{query}"</span>
+      No results for{' '}
+      <span className="font-medium text-foreground">&quot;{query}&quot;</span>
     </div>
   )
 }
@@ -87,7 +97,9 @@ function ModalContent({ onClose }: { onClose: () => void }) {
   // Auto-focus the input when modal opens
   useEffect(() => {
     const timer = setTimeout(() => {
-      const input = document.querySelector<HTMLInputElement>('.ais-SearchBox-input')
+      const input = document.querySelector<HTMLInputElement>(
+        '.ais-SearchBox-input'
+      )
       input?.focus()
     }, 50)
     return () => clearTimeout(timer)
@@ -125,7 +137,12 @@ function ModalContent({ onClose }: { onClose: () => void }) {
       <div className="max-h-[50vh] overflow-y-auto">
         <LoadingIndicator />
         <EmptyState />
-        {hasResults && <Hits hitComponent={Hit} classNames={{ list: 'divide-y', item: '' }} />}
+        {hasResults && (
+          <Hits
+            hitComponent={Hit}
+            classNames={{ list: 'divide-y', item: '' }}
+          />
+        )}
         {!query && (
           <div className="p-8 text-center text-sm text-muted-foreground">
             Start typing to search articles...
@@ -146,13 +163,19 @@ function ModalContent({ onClose }: { onClose: () => void }) {
   )
 }
 
-function SearchModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+function SearchModal({
+  open,
+  onClose
+}: {
+  open: boolean
+  onClose: () => void
+}) {
   const pathname = usePathname()
 
   // Close on route change
   useEffect(() => {
     onClose()
-  }, [pathname])
+  }, [pathname, onClose])
 
   // Close on Escape
   useEffect(() => {
@@ -167,7 +190,9 @@ function SearchModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    return () => {
+      document.body.style.overflow = ''
+    }
   }, [open])
 
   if (!open) return null
@@ -190,6 +215,7 @@ function SearchModal({ open, onClose }: { open: boolean; onClose: () => void }) 
 
 export function AlgoliaSearch() {
   const [open, setOpen] = useState(false)
+  const handleClose = useCallback(() => setOpen(false), [])
 
   // ⌘K / Ctrl+K shortcut
   useEffect(() => {
@@ -209,7 +235,10 @@ export function AlgoliaSearch() {
       indexName={process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_INDEX_NAME!}
       future={{ preserveSharedStateOnUnmount: true }}
     >
-      <Configure attributesToSnippet={['content:120', 'description:50']} snippetEllipsisText="..." />
+      <Configure
+        attributesToSnippet={['content:120', 'description:50']}
+        snippetEllipsisText="..."
+      />
 
       {/* Fake input trigger */}
       <button
@@ -225,7 +254,7 @@ export function AlgoliaSearch() {
         </kbd>
       </button>
 
-      <SearchModal open={open} onClose={() => setOpen(false)} />
+      <SearchModal open={open} onClose={handleClose} />
     </InstantSearch>
   )
 }

@@ -92,8 +92,9 @@ export function LoginForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By continuing, you agree to our <a href="#">Terms of Service</a> and{' '}
-        <a href="#">Privacy Policy</a>
+        By continuing, you agree to our{' '}
+        <a href="/legal/terms-of-use">Terms of Use</a> and{' '}
+        <a href="/legal/privacy-policy">Privacy Policy</a>
       </FieldDescription>
     </div>
   )
