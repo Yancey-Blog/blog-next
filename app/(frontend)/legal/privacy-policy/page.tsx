@@ -235,9 +235,9 @@ export default function PrivacyPolicyPage() {
         </h2>
         <h3>Legal action</h3>
         <p>
-          The User&apos;s Personal Data may be used for legal purposes by the Owner
-          in Court or in the stages leading to possible legal action arising
-          from improper use of this Application or the related Services.
+          The User&apos;s Personal Data may be used for legal purposes by the
+          Owner in Court or in the stages leading to possible legal action
+          arising from improper use of this Application or the related Services.
         </p>
         <h3>System logs and maintenance</h3>
         <p>
@@ -284,8 +284,8 @@ export default function PrivacyPolicyPage() {
         <p>
           Information collected automatically through this Application, which
           can include: IP addresses, URI addresses, time of the request, browser
-          and operating system details, and other parameters about the User&apos;s IT
-          environment.
+          and operating system details, and other parameters about the
+          User&apos;s IT environment.
         </p>
         <h3>User</h3>
         <p>

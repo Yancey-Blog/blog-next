@@ -1,4 +1,15 @@
 import { AppSidebar } from '@/components/app-sidebar'
+import dynamic from 'next/dynamic'
+
+const ReactQueryDevtools =
+  process.env.NODE_ENV === 'development'
+    ? dynamic(() =>
+        import('@tanstack/react-query-devtools').then(
+          (m) => m.ReactQueryDevtools
+        )
+      )
+    : () => null
+
 import { SiteHeader } from '@/components/site-header'
 import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -6,7 +17,6 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { requireAuth } from '@/lib/auth/session'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -30,7 +40,7 @@ export default async function AdminLayout({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="bg-sidebar">
-        <ReactQueryDevtools />
+        <ReactQueryDevtools initialIsOpen={false} />
         <ThemeModeProvider>
           <ThemeProvider themeId={currentTheme} />
           <SidebarProvider

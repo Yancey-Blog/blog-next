@@ -45,7 +45,7 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 | **Charts**     | Recharts                                             |
 | **Monitoring** | Sentry                                               |
 | **Storage**    | AWS S3 (image uploads, CDN via static.yancey.app)    |
-| **Linting**    | Biome (replaces ESLint + Prettier)                   |
+| **Linting**    | ESLint + Prettier                                    |
 | **Validation** | Zod                                                  |
 
 ## Prerequisites
@@ -92,10 +92,9 @@ pnpm db:generate      # Generate migration files
 pnpm db:migrate       # Run migrations (production)
 pnpm db:studio        # Open Drizzle Studio GUI
 
-# Code quality (Biome)
-pnpm lint             # Lint
-pnpm format           # Format
-pnpm check            # Lint + format together
+# Code quality
+pnpm lint             # ESLint
+pnpm format           # Prettier
 
 # Build
 pnpm build
@@ -143,7 +142,7 @@ blog-next/
 ├── public/
 │   ├── manifest.json        # PWA manifest
 │   └── icon-*.png           # App icons (72–512px)
-├── biome.json               # Biome linter + formatter config
+├── eslint.config.mjs        # ESLint config (Next.js rules)
 ├── drizzle/                 # Migration files
 └── sentry.*.config.ts       # Sentry configurations
 ```

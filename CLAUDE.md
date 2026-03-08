@@ -18,10 +18,9 @@ npm run db:push          # Push schema directly to database (for dev)
 npm run db:migrate       # Run migrations (for production)
 npm run db:studio        # Open Drizzle Studio GUI
 
-# Code Quality (Biome — replaces ESLint + Prettier)
-npm run lint             # Run Biome linter
-npm run format           # Format with Biome
-npm run check            # Lint + format check together
+# Code Quality
+npm run lint             # Run ESLint
+npm run format           # Format with Prettier
 
 # Build
 npm run build            # Production build

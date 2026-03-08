@@ -15,7 +15,9 @@ export default async function Home() {
   const queryClient = getQueryClient()
 
   const [blogsData, heroImage] = await Promise.all([
-    queryClient.fetchQuery(trpc.blog.list.queryOptions({ page: 1, pageSize: 7 })),
+    queryClient.fetchQuery(
+      trpc.blog.list.queryOptions({ page: 1, pageSize: 7 })
+    ),
     SettingsService.getHeroImage()
   ])
 

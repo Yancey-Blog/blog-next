@@ -42,8 +42,8 @@ export default function TermsOfUsePage() {
         <h2 id="acceptance">I. Acceptance of Terms</h2>
         <p>
           By accessing and using this website (yancey.app, hereinafter &quot;the
-          Site&quot;), you accept and agree to be bound by these Terms of Use. If you
-          do not agree to these terms, please do not use the Site.
+          Site&quot;), you accept and agree to be bound by these Terms of Use.
+          If you do not agree to these terms, please do not use the Site.
         </p>
         <p>
           The Owner reserves the right to update or modify these Terms of Use at
@@ -102,8 +102,8 @@ export default function TermsOfUsePage() {
             with any person or entity.
           </li>
           <li>
-            Engage in any conduct that restricts or inhibits anyone&apos;s use or
-            enjoyment of the Site.
+            Engage in any conduct that restricts or inhibits anyone&apos;s use
+            or enjoyment of the Site.
           </li>
         </ul>
 
@@ -126,16 +126,16 @@ export default function TermsOfUsePage() {
 
         <h2 id="disclaimer">V. Disclaimer of Warranties</h2>
         <p>
-          The content on this Site is provided on an &quot;as is&quot; and &quot;as available&quot;
-          basis without warranties of any kind, either express or implied. The
-          Owner makes no representations or warranties regarding the accuracy,
-          completeness, reliability, or suitability of any information on the
-          Site.
+          The content on this Site is provided on an &quot;as is&quot; and
+          &quot;as available&quot; basis without warranties of any kind, either
+          express or implied. The Owner makes no representations or warranties
+          regarding the accuracy, completeness, reliability, or suitability of
+          any information on the Site.
         </p>
         <p>
           Technical articles and code examples are written to the best of the
-          Owner&apos;s knowledge at the time of publication. The technology landscape
-          evolves rapidly; content may become outdated. Always verify
+          Owner&apos;s knowledge at the time of publication. The technology
+          landscape evolves rapidly; content may become outdated. Always verify
           information against official documentation before applying it in
           production environments.
         </p>
@@ -149,9 +149,9 @@ export default function TermsOfUsePage() {
           of profits, or business interruption.
         </p>
         <p>
-          The Owner&apos;s total liability for any claim arising out of or relating
-          to these Terms shall not exceed the amount you paid, if any, to access
-          the Site.
+          The Owner&apos;s total liability for any claim arising out of or
+          relating to these Terms shall not exceed the amount you paid, if any,
+          to access the Site.
         </p>
 
         <h2 id="changes">VII. Changes to These Terms</h2>
@@ -172,7 +172,8 @@ export default function TermsOfUsePage() {
           These Terms of Use shall be governed by and construed in accordance
           with applicable laws, without regard to its conflict of law
           provisions. Any disputes arising under these Terms shall be subject to
-          the exclusive jurisdiction of the courts in the Owner&apos;s jurisdiction.
+          the exclusive jurisdiction of the courts in the Owner&apos;s
+          jurisdiction.
         </p>
 
         <h2 id="contact">IX. Contact</h2>

@@ -11,7 +11,9 @@ export default async function SettingsPage() {
     queryClient.prefetchQuery(trpc.admin.heroImage.get.queryOptions())
   ])
 
-  const theme = await queryClient.fetchQuery(trpc.admin.theme.get.queryOptions())
+  const theme = await queryClient.fetchQuery(
+    trpc.admin.theme.get.queryOptions()
+  )
   const currentTheme = theme.id
 
   return (

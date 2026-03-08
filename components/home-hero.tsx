@@ -6,7 +6,8 @@ import Link from 'next/link'
 import CountUp from 'react-countup'
 import { ParallaxHero } from './parallax-hero'
 
-const DEFAULT_HERO_IMAGE = 'https://static.yancey.app/ng9bwfv1-1728444113930.jpeg'
+const DEFAULT_HERO_IMAGE =
+  'https://static.yancey.app/ng9bwfv1-1728444113930.jpeg'
 const STARTED_YEAR = 2018
 
 const container = {
