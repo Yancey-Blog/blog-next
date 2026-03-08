@@ -4,7 +4,7 @@ import { analytics } from '@/lib/analytics'
 import { liteClient as algoliasearch } from 'algoliasearch/lite'
 import { Search } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Configure,
   Highlight,
@@ -89,10 +89,9 @@ function EmptyState() {
   )
 }
 
-function ModalContent({ onClose }: { onClose: () => void }) {
+function ModalContent() {
   const { query } = useSearchBox()
   const { results } = useInstantSearch()
-  const inputRef = useRef<HTMLInputElement>(null)
 
   // Auto-focus the input when modal opens
   useEffect(() => {
@@ -207,7 +206,7 @@ function SearchModal({
 
       {/* Modal */}
       <div className="relative z-10 w-full max-w-xl overflow-hidden rounded-xl border bg-background shadow-2xl">
-        <ModalContent onClose={onClose} />
+        <ModalContent />
       </div>
     </div>
   )

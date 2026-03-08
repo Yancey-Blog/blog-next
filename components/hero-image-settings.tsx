@@ -22,7 +22,6 @@ export function HeroImageSettings() {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [urlInput, setUrlInput] = useState('')
   const [uploading, setUploading] = useState(false)
 
   const { data } = useQuery(trpc.admin.heroImage.get.queryOptions())
@@ -33,7 +32,6 @@ export function HeroImageSettings() {
       onSuccess: () => {
         queryClient.invalidateQueries(trpc.admin.heroImage.get.queryFilter())
         toast.success('Hero image updated')
-        setUrlInput('')
       },
       onError: () => toast.error('Failed to save image URL')
     })
