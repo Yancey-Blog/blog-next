@@ -22,8 +22,11 @@ const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY!
 )
 
+// Must include __position and __queryID which react-instantsearch injects at runtime
 interface AlgoliaHit {
   objectID: string
+  __position: number
+  __queryID?: string
   name?: string
   description?: string
   content?: string
