@@ -1,348 +1,227 @@
-# Blog Next
+# Yancey Blog
 
-A modern, full-featured blog CMS built with Next.js 16, featuring an admin dashboard, OAuth authentication, dynamic theming, full-text search, analytics, and PWA support.
+A modern, full-featured personal blog CMS built with Next.js 16. Features a public frontend with parallax hero, full-text search, and animated article cards, plus a protected admin dashboard with rich post editing, real-time analytics charts, and dynamic theming.
 
-## ✨ Features
+## Features
 
-### 🎨 Frontend
+### Frontend
 
-- **Modern Design**: Card-based responsive layout with smooth animations
-- **Hero Section**: Full-viewport hero with glitch text effect
-- **PWA Support**: Install as standalone app on mobile/desktop
-- **Dark Mode**: System-aware theme with light/dark/system modes
-- **SEO Optimized**: Open Graph, Twitter Cards, sitemap, robots.txt
-- **Lazy Loading**: Optimized image loading for better performance
-- **Full-text Search**: Algolia-powered instant search with highlights
+- **Parallax hero** — full-viewport background with scroll effect, framer-motion animations, CountUp stats
+- **Article cards** — featured post + responsive grid, equal-height flex layout
+- **Post detail** — syntax-highlighted code blocks, auto-generated TOC, optimistic like button, Twitter share, PV auto-increment
+- **Algolia search** — ⌘K modal with instant results, snippet highlights, always-visible PoweredBy
+- **Dark mode** — light / dark / system toggle in footer
+- **PWA** — installable as standalone app with multi-size icons
+- **SEO** — Open Graph, Twitter Cards, sitemap, robots.txt
 
-### 🛠️ Admin Dashboard
+### Admin Dashboard
 
-- **Blog Management**: Create, edit, publish/unpublish, delete posts
-- **Rich Editor**: TinyMCE WYSIWYG editor with image upload
-- **Version Control**: Automatic version snapshots on every update
-- **User Management**: View and manage authenticated users
-- **Session Monitoring**: Track active sessions with IP/user agent
-- **Theme Customization**: 5 preset themes with real-time preview
+- **Blog management** — create, edit, publish/unpublish, delete with TinyMCE WYSIWYG editor
+- **Version control** — automatic snapshots on every save, diff viewer, restore
+- **Real-time analytics** — posts per month, published/draft ratio, top posts by views & likes, tag distribution
+- **Settings** — homepage hero image upload (S3) or URL paste, 5 preset themes
+- **User management** — view users, revoke sessions
+- **Error monitoring** — Sentry integration (client / edge / server)
 
-### 🔐 Authentication & Security
+### Auth & Security
 
-- **OAuth Only**: Google and GitHub authentication
-- **Whitelist-based**: Only authorized emails can access admin
-- **Session Management**: PostgreSQL-backed secure sessions
-- **Error Monitoring**: Sentry integration for error tracking
+- **OAuth only** — Google and GitHub (no password)
+- **Whitelist-based** — only `ADMIN_EMAILS` can log in; others are rejected at callback
+- **Session storage** — PostgreSQL via better-auth + Drizzle adapter
 
-### 📊 Analytics & Monitoring
+## Tech Stack
 
-- **Google Analytics**: GA4 or GTM integration via `@next/third-parties`
-- **Event Tracking**: Page views, searches, blog views, interactions
-- **Error Tracking**: Full-stack Sentry monitoring (client/edge/server)
-- **Performance**: Automatic performance tracing
-
-### 🎨 Theming System
-
-- **5 Preset Themes**: Default, Neo Brutalism, Vibrant Purple, Ocean Breeze, Sunset Glow
-- **Dynamic Colors**: OKLCH color space for perceptually uniform colors
-- **CSS Variables**: Theme colors injected as CSS custom properties
-- **Real-time Preview**: Instant theme switching without reload
-
-## 🚀 Tech Stack
-
-| Category       | Technologies                                         |
+| Category       | Technology                                           |
 | -------------- | ---------------------------------------------------- |
 | **Framework**  | Next.js 16 (App Router, React 19, Server Components) |
-| **API**        | tRPC 11 with RSC support                             |
+| **API**        | tRPC 11 with RSC support + SuperJSON                 |
 | **Database**   | PostgreSQL (Neon) + Drizzle ORM                      |
 | **Auth**       | better-auth (OAuth: Google, GitHub)                  |
-| **UI**         | shadcn/ui, Radix UI, Tailwind CSS                    |
+| **UI**         | shadcn/ui + Radix UI + Tailwind CSS v4               |
+| **Animation**  | Framer Motion + react-countup                        |
 | **Editor**     | TinyMCE (WYSIWYG)                                    |
 | **Search**     | Algolia InstantSearch                                |
 | **Analytics**  | Google Analytics 4 / Tag Manager                     |
-| **Monitoring** | Sentry (error tracking)                              |
-| **Storage**    | AWS S3 (image uploads)                               |
-| **Cache**      | Redis (optional)                                     |
-| **Validation** | Zod schemas                                          |
+| **Charts**     | Recharts                                             |
+| **Monitoring** | Sentry                                               |
+| **Storage**    | AWS S3 (image uploads, CDN via static.yancey.app)    |
+| **Linting**    | Biome (replaces ESLint + Prettier)                   |
+| **Validation** | Zod                                                  |
 
-## 📦 Prerequisites
+## Prerequisites
 
-- Node.js 18+ or Bun
-- PostgreSQL database (recommend [Neon](https://neon.tech))
-- AWS S3 bucket (for image uploads)
-- Algolia account (for search)
-- OAuth apps (Google and/or GitHub)
+- Node.js 20+ (or pnpm / bun)
+- PostgreSQL database — [Neon](https://neon.tech) recommended
+- AWS S3 bucket for image uploads
+- Algolia account for search
+- OAuth apps — Google and/or GitHub
 
-## ⚙️ Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd blog-next
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   # or
-   pnpm install
-   # or
-   bun install
-   ```
-
-3. **Set up environment variables**
-
-   Copy `.env.example` to `.env.local` and fill in the values:
-
-   ```bash
-   cp .env.example .env.local
-   ```
-
-   Required variables:
-   - `DATABASE_URL` - PostgreSQL connection string
-   - `BETTER_AUTH_SECRET` - Random secret (generate with `openssl rand -base64 32`)
-   - `ADMIN_EMAILS` - Comma-separated list of authorized admin emails
-   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - OAuth credentials
-   - `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` - OAuth credentials
-   - `AWS_*` - S3 credentials for image uploads
-   - `NEXT_PUBLIC_ALGOLIA_*` - Algolia search credentials
-   - `NEXT_PUBLIC_GA_KEY` or `NEXT_PUBLIC_GTM_ID` - Analytics
-   - `NEXT_PUBLIC_SENTRY_DSN` - Error monitoring (optional)
-
-4. **Set up the database**
-
-   Push schema to database:
-
-   ```bash
-   npm run db:push
-   ```
-
-   Or generate and run migrations:
-
-   ```bash
-   npm run db:generate
-   npm run db:migrate
-   ```
-
-5. **Run the development server**
-
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000) to see the frontend.
-   Admin dashboard is at [http://localhost:3000/admin](http://localhost:3000/admin).
-
-## 🎯 Development Commands
+## Installation
 
 ```bash
-# Development
-npm run dev              # Start dev server (localhost:3000)
+# 1. Clone
+git clone <repository-url>
+cd blog-next
 
-# Database (Drizzle ORM)
-npm run db:generate      # Generate migrations from schema
-npm run db:push          # Push schema to database (dev)
-npm run db:migrate       # Run migrations (production)
-npm run db:studio        # Open Drizzle Studio GUI
+# 2. Install dependencies
+pnpm install
 
-# Code Quality
-npm run lint             # Run ESLint
-npm run format           # Format with Prettier
+# 3. Configure environment
+cp .env.example .env.local
+# Fill in all required variables (see below)
 
-# Build & Deploy
-npm run build            # Production build
-npm start                # Start production server
+# 4. Push database schema
+pnpm db:push
+
+# 5. Start dev server
+pnpm dev
 ```
 
-## 📁 Project Structure
+Frontend: http://localhost:3000
+Admin: http://localhost:3000/admin
+
+## Development Commands
+
+```bash
+# Dev server
+pnpm dev
+
+# Database
+pnpm db:push          # Push schema to DB (dev)
+pnpm db:generate      # Generate migration files
+pnpm db:migrate       # Run migrations (production)
+pnpm db:studio        # Open Drizzle Studio GUI
+
+# Code quality (Biome)
+pnpm lint             # Lint
+pnpm format           # Format
+pnpm check            # Lint + format together
+
+# Build
+pnpm build
+pnpm start
+```
+
+## Project Structure
 
 ```
 blog-next/
 ├── app/
-│   ├── (auth)/              # Authentication pages (login, register)
-│   ├── (cms)/admin/         # Admin dashboard (protected routes)
+│   ├── (auth)/              # Login, register, unauthorized
+│   ├── (cms)/admin/         # Protected admin dashboard
+│   │   ├── page.tsx         # Dashboard with charts
 │   │   ├── blog-management/ # Blog CRUD
 │   │   ├── users/           # User management
 │   │   ├── sessions/        # Session monitoring
-│   │   └── settings/        # Theme settings
-│   ├── (frontend)/          # Public frontend
-│   │   ├── page.tsx         # Homepage with hero & latest posts
-│   │   ├── post/            # Blog listing & detail pages
-│   │   └── layout.tsx       # Frontend layout (SEO, Analytics)
-│   ├── api/
-│   │   ├── auth/[...all]/   # better-auth API handlers
-│   │   └── trpc/[trpc]/     # tRPC API endpoint
-│   ├── globals.css          # Global styles + animations
-│   └── google-analytics.tsx # GA4/GTM integration
+│   │   └── settings/        # Hero image + theme settings
+│   ├── (frontend)/          # Public blog
+│   │   ├── page.tsx         # Homepage (hero + articles)
+│   │   ├── post/            # Listing + detail
+│   │   └── legal/           # Privacy policy, terms of use
+│   └── api/
+│       ├── auth/[...all]/   # better-auth handlers
+│       └── trpc/[trpc]/     # tRPC endpoint
 ├── components/
-│   ├── ui/                  # shadcn/ui components
-│   ├── algolia-search.tsx   # Search drawer
+│   ├── ui/                  # shadcn/ui primitives
+│   ├── home-hero.tsx        # Parallax hero with animations
+│   ├── home-articles.tsx    # Featured + grid article cards
+│   ├── post-actions.tsx     # Like + share (optimistic UI)
+│   ├── blog-toc.tsx         # Auto-generated table of contents
+│   ├── algolia-search.tsx   # ⌘K search modal
+│   ├── chart-*.tsx          # Dashboard chart components
 │   ├── frontend-header.tsx  # Public header
 │   ├── frontend-footer.tsx  # Footer with theme switcher
-│   ├── lazy-load-image.tsx  # Optimized image component
-│   ├── theme-provider.tsx   # Dynamic theme injection
-│   └── theme-settings.tsx   # Theme selector UI
+│   └── theme-provider.tsx   # Dynamic CSS variable injection
 ├── lib/
-│   ├── auth.ts              # better-auth config
-│   ├── auth-utils.ts        # Admin email helpers
-│   ├── db/
-│   │   ├── index.ts         # Drizzle client
-│   │   └── schema.ts        # Database schema
-│   ├── services/            # Service layer (blog, version, settings)
-│   ├── themes/              # Theme definitions
-│   ├── trpc/                # tRPC client/server setup
-│   ├── analytics.ts         # Analytics tracking utilities
-│   └── algolia.ts           # Algolia search utilities
-├── server/
-│   ├── routers/             # tRPC routers (blog, admin, upload)
-│   ├── context.ts           # Request context
-│   └── trpc.ts              # tRPC procedures
+│   ├── auth/                # better-auth config + session helpers
+│   ├── db/                  # Drizzle client + schema
+│   ├── services/            # BlogService, SettingsService, etc.
+│   ├── trpc/                # Client + server helpers, routers
+│   ├── themes/              # 5 preset theme definitions
+│   ├── shiki.ts             # Code highlighting + TOC ID injection
+│   └── s3.ts                # S3 presigned URL generation
 ├── public/
 │   ├── manifest.json        # PWA manifest
-│   ├── icon-*.png           # PWA icons (72-512px)
-│   ├── robots.txt           # SEO crawler rules
-│   └── sitemap-index.xml    # XML sitemap
-├── sentry.*.config.ts       # Sentry configurations
-├── CLAUDE.md                # AI assistant instructions
-└── README.md                # This file
+│   └── icon-*.png           # App icons (72–512px)
+├── biome.json               # Biome linter + formatter config
+├── drizzle/                 # Migration files
+└── sentry.*.config.ts       # Sentry configurations
 ```
 
-## 🔐 Authentication Flow
+## Environment Variables
 
-1. User clicks "Sign in with Google" or "Sign in with GitHub"
-2. OAuth provider handles authentication
-3. better-auth `after` hook checks if email is in `ADMIN_EMAILS`
-4. ✅ **Whitelisted**: Session created, user redirected to admin dashboard
-5. ❌ **Not whitelisted**: Session/user deleted, redirected to `/unauthorized`
+Copy `.env.example` and fill in all values:
 
-## 🎨 Theme System
+```bash
+# Database
+DATABASE_URL=                    # Neon PostgreSQL connection string
 
-Themes are stored in the database (`settings` table) and applied via CSS variables:
+# App
+NEXT_PUBLIC_APP_URL=             # e.g. https://yancey.app
 
-1. Admin selects theme from `/admin/settings`
-2. Theme saved to database via tRPC
-3. `ThemeProvider` component reads theme from database
-4. CSS variables injected into `:root`
-5. Components use CSS variables for colors
+# Auth
+BETTER_AUTH_SECRET=              # openssl rand -base64 32
+ADMIN_EMAILS=                    # comma-separated admin emails
 
-**Available themes**:
+# OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
 
-- Default
-- Neo Brutalism
-- Vibrant Purple
-- Ocean Breeze
-- Sunset Glow
+# TinyMCE editor
+NEXT_PUBLIC_TINYMCE_API_KEY=
 
-## 🔍 Search Integration
+# AWS S3 (image uploads)
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_BUCKET_NAME=
 
-Algolia powers the full-text search:
+# Algolia search
+NEXT_PUBLIC_ALGOLIA_SEARCH_APP_ID=
+NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY=
+NEXT_PUBLIC_ALGOLIA_SEARCH_INDEX_NAME=
+ALGOLIA_APPLICATION_ID=
+ALGOLIA_ADMIN_API_KEY=
+ALGOLIA_SEARCH_INDEX=
 
-1. User types in search box (header)
-2. Algolia InstantSearch queries index in real-time
-3. Results displayed in slide-out drawer
-4. Highlights matching text in title/content
-5. Click result to navigate to post
+# Analytics (one of)
+NEXT_PUBLIC_GA_KEY=              # GA4 measurement ID  (G-XXXXXXXXXX)
+NEXT_PUBLIC_GTM_ID=              # GTM container ID    (GTM-XXXXXX)
 
-**Indexing**: Use Algolia dashboard or API to index blog posts.
-
-## 📊 Analytics Events
-
-Track custom events using the `analytics` utility:
-
-```typescript
-import { analytics } from '@/lib/analytics'
-
-// Track page views
-analytics.trackPageView('/blog/post-slug')
-
-// Track blog interactions
-analytics.trackBlogView('post-id', 'Post Title')
-
-// Track searches
-analytics.trackSearch('search query', 42)
-
-// Track button clicks
-analytics.trackButtonClick('button-name', 'location')
-
-// Track theme changes
-analytics.trackThemeChange('dark')
+# Monitoring
+NEXT_PUBLIC_SENTRY_DSN=
+SENTRY_AUTH_TOKEN=               # optional, for source maps
+SENTRY_ORG=
+SENTRY_PROJECT=
 ```
 
-## 🐛 Error Monitoring
+## Authentication Flow
 
-Sentry automatically captures:
+1. User signs in via Google or GitHub
+2. better-auth `after` hook checks email against `ADMIN_EMAILS`
+3. ✅ Whitelisted → session created, redirected to `/admin`
+4. ❌ Not whitelisted → session + user record deleted, redirected to `/unauthorized`
 
-- Unhandled exceptions
-- Promise rejections
-- API errors
-- Performance issues
+## Deployment
 
-Configure in `sentry.*.config.ts` files.
+### Vercel (recommended)
 
-## 📱 PWA Installation
+1. Push to GitHub
+2. Import in Vercel
+3. Add all environment variables
+4. Deploy — Vercel handles `next build` automatically
 
-Users can install the blog as a native app:
+### Self-hosted
 
-1. Visit site on mobile device
-2. Browser shows "Add to Home Screen" prompt
-3. Icon appears on home screen
-4. Opens in standalone mode (no browser UI)
+```bash
+pnpm build
+pnpm start
+```
 
-## 🚢 Deployment
+Ensure `DATABASE_URL` and all required env vars are set in the production environment.
 
-### Vercel (Recommended)
+## License
 
-1. Push code to GitHub
-2. Import project in Vercel
-3. Add environment variables
-4. Deploy
-
-### Other Platforms
-
-1. Build the project: `npm run build`
-2. Start server: `npm start`
-3. Set environment variables
-4. Ensure PostgreSQL and Redis are accessible
-
-## 📝 Environment Variables
-
-See `.env.example` for complete list with descriptions.
-
-**Critical variables**:
-
-- `DATABASE_URL` - PostgreSQL connection
-- `BETTER_AUTH_SECRET` - Auth secret
-- `ADMIN_EMAILS` - Admin whitelist
-- `NEXT_PUBLIC_APP_URL` - App URL
-- OAuth credentials (Google/GitHub)
-- AWS S3 credentials
-- Algolia credentials
-- Analytics ID (GA4 or GTM)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org) - React framework
-- [better-auth](https://better-auth.com) - Authentication
-- [tRPC](https://trpc.io) - End-to-end type safety
-- [Drizzle ORM](https://orm.drizzle.team) - TypeScript ORM
-- [shadcn/ui](https://ui.shadcn.com) - UI components
-- [Algolia](https://algolia.com) - Search platform
-- [Sentry](https://sentry.io) - Error monitoring
-
-## 📧 Support
-
-For issues and questions, please open an issue on GitHub.
-
----
-
-**Built with ❤️ using Next.js 16 and modern web technologies**
+MIT
