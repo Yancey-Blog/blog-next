@@ -5,7 +5,7 @@ import { SettingsService } from '@/lib/services/settings.service'
 import { PRESET_THEMES } from '@/lib/themes'
 import { eq, inArray } from 'drizzle-orm'
 import { z } from 'zod'
-import { protectedProcedure, publicProcedure } from '../init'
+import { protectedProcedure } from '../init'
 
 export const adminRouter = {
   // Dashboard stats
@@ -24,7 +24,7 @@ export const adminRouter = {
       return await db.select().from(users).orderBy(users.createdAt)
     }),
 
-    byIds: publicProcedure
+    byIds: protectedProcedure
       .input(z.object({ ids: z.array(z.string()) }))
       .query(async ({ input }) => {
         if (input.ids.length === 0) return []
@@ -78,10 +78,6 @@ export const adminRouter = {
   },
 
   // Theme management
-  getCurrentTheme: protectedProcedure.query(async () => {
-    return await SettingsService.getCurrentTheme()
-  }),
-
   theme: {
     get: protectedProcedure.query(async () => {
       const themeId = await SettingsService.getCurrentTheme()

@@ -14,11 +14,7 @@ export async function proxy(request: NextRequest) {
         headers: await headers()
       })
 
-      if (!session) {
-        return NextResponse.redirect(new URL('/login', request.url))
-      }
-
-      if (!session || !session.user) {
+      if (!session?.user) {
         return NextResponse.redirect(new URL('/login', request.url))
       }
 

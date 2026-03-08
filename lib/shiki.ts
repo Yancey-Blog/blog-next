@@ -35,14 +35,10 @@ export async function getShiki() {
 }
 
 export async function highlightHtml(html: string) {
-  console.log('=== Starting HTML highlighting ===')
-  console.log('Input HTML length:', html.length)
-
   const $ = cheerio.load(html)
   const shiki = await getShiki()
 
   const loadedLangs = shiki.getLoadedLanguages()
-  console.log('Shiki loaded languages:', loadedLangs.join(', '))
 
   // Inject id attributes into h2/h3 for TOC
   $('h2, h3').each((_, el) => {
@@ -66,19 +62,6 @@ export async function highlightHtml(html: string) {
   const preElements = $(
     'pre[class*="language-"], pre:has(code[class*="language-"])'
   )
-  console.log(`Found ${preElements.length} code blocks to highlight`)
-
-  if (preElements.length === 0) {
-    console.log('No code blocks found with language- class')
-    console.log('Available pre tags:', $('pre').length)
-    $('pre').each((i, el) => {
-      const preClass = $(el).attr('class') || 'no class'
-      const codeClass = $(el).find('code').attr('class') || 'no class'
-      console.log(`  Pre tag ${i}: pre="${preClass}", code="${codeClass}"`)
-    })
-  }
-
-  let highlightedCount = 0
 
   preElements.each((_, pre) => {
     const $pre = $(pre)
@@ -90,21 +73,10 @@ export async function highlightHtml(html: string) {
     const className = preClass || codeClass
 
     const langMatch = className.match(/language-(\w+)/)
-    if (!langMatch) {
-      console.log('No language match for classes:', { preClass, codeClass })
-      return
-    }
+    if (!langMatch) return
 
     let lang = langMatch[1]
-    // Get code content from code element if exists, otherwise from pre
     const code = $code.length > 0 ? $code.text() : $pre.text()
-
-    console.log(`\nProcessing code block #${highlightedCount + 1}:`)
-    console.log(`  - Pre class: "${preClass}"`)
-    console.log(`  - Code class: "${codeClass}"`)
-    console.log(`  - Detected language: ${lang}`)
-    console.log(`  - Code length: ${code.length} chars`)
-    console.log(`  - Code preview: ${code.substring(0, 50)}...`)
 
     // Map common language aliases
     const langMap: Record<string, string> = {
@@ -118,21 +90,11 @@ export async function highlightHtml(html: string) {
       sh: 'bash'
     }
 
-    const originalLang = lang
     lang = langMap[lang] || lang
 
-    if (originalLang !== lang) {
-      console.log(`  - Mapped to: ${lang}`)
-    }
-
-    // Check if language is supported
-    if (!loadedLangs.includes(lang)) {
-      console.warn(`  ✗ Language "${lang}" not supported, keeping original`)
-      return
-    }
+    if (!loadedLangs.includes(lang)) return
 
     try {
-      // Generate HTML with dual themes (light and dark)
       const highlighted = shiki.codeToHtml(code, {
         lang: lang,
         themes: {
@@ -141,22 +103,11 @@ export async function highlightHtml(html: string) {
         }
       })
 
-      console.log(`  ✓ Successfully highlighted ${lang} code block`)
-      console.log(`  - Output length: ${highlighted.length} chars`)
-      console.log(`  - Output preview: ${highlighted.substring(0, 100)}...`)
-
       $(pre).replaceWith(highlighted)
-      highlightedCount++
-    } catch (error) {
-      console.error(`  ✗ Shiki highlighting error for "${lang}":`, error)
+    } catch {
+      // Keep original if highlighting fails
     }
   })
 
-  const result = $.html()
-  console.log(`\n=== Highlighting complete ===`)
-  console.log(`Processed ${highlightedCount}/${preElements.length} code blocks`)
-  console.log(`Output HTML length: ${result.length}`)
-  console.log('=================================\n')
-
-  return result
+  return $.html()
 }

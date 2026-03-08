@@ -15,6 +15,7 @@ function getAdminEmails(): string[] {
 }
 
 export const auth = betterAuth({
+  secret: process.env.BETTER_AUTH_SECRET!,
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema: {
@@ -49,24 +50,15 @@ export const auth = betterAuth({
         const adminEmails = getAdminEmails()
         const userEmail = newSession.user.email.toLowerCase()
 
-        // If user email is not in admin list, delete the session
+        // If user email is not in admin list, revoke session and delete user
         if (!adminEmails.includes(userEmail)) {
-          console.log(
-            `Unauthorized login attempt by ${userEmail}. Allowed emails:`,
-            adminEmails
-          )
+          await db
+            .delete(schema.sessions)
+            .where(eq(schema.sessions.id, newSession.session.id))
 
-          // Delete the session to prevent unauthorized access
-          if (newSession) {
-            await db
-              .delete(schema.sessions)
-              .where(eq(schema.sessions.id, newSession.session.id))
-          }
-
-          // Delete the user account if it was just created
           await db
             .delete(schema.users)
-            .where(eq(schema.users.id, newSession.session.id))
+            .where(eq(schema.users.id, newSession.user.id))
 
           throw new Error(
             'Access denied. Only authorized administrators can access this system.'

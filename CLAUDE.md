@@ -19,8 +19,10 @@ npm run db:migrate       # Run migrations (for production)
 npm run db:studio        # Open Drizzle Studio GUI
 
 # Code Quality
-npm run lint             # Run ESLint
-npm run format           # Format with Prettier
+npm run lint             # ESLint
+npm run format           # Prettier
+npm run test             # Vitest unit tests
+npm run test:watch       # Vitest watch mode
 
 # Build
 npm run build            # Production build
@@ -418,20 +420,15 @@ AWS_S3_BUCKET_NAME=                          # S3 bucket name
 
 # Search (Algolia)
 NEXT_PUBLIC_ALGOLIA_SEARCH_APP_ID=           # Algolia application ID
-ALGOLIA_APPLICATION_ID=                      # Same as above (for server-side)
 NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY=          # Search-only API key (public)
-ALGOLIA_ADMIN_API_KEY=                       # Admin API key (server-side indexing)
 NEXT_PUBLIC_ALGOLIA_SEARCH_INDEX_NAME=       # Index name
-ALGOLIA_SEARCH_INDEX=                        # Same as above (for server-side)
+ALGOLIA_ADMIN_API_KEY=                       # Admin API key (server-side indexing)
 
-# Analytics (choose one)
+# Analytic
 NEXT_PUBLIC_GA_KEY=                          # Google Analytics 4 measurement ID (G-XXXXXXXXXX)
-# OR
-NEXT_PUBLIC_GTM_ID=                          # Google Tag Manager container ID (GTM-XXXXXX)
 
 # Monitoring
 NEXT_PUBLIC_SENTRY_DSN=                      # Sentry error tracking DSN
-NEXT_PUBLIC_DISCUSSION_KEY=                  # Discussion system key (optional)
 ```
 
 See `.env.example` for detailed documentation on each variable.

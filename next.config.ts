@@ -10,17 +10,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'beg-bucket.s3.us-east-1.amazonaws.com',
+        hostname: 'static.yancey.app',
         pathname: '/**'
       },
       {
         protocol: 'https',
         hostname: '*.s3.amazonaws.com',
-        pathname: '/**'
-      },
-      {
-        protocol: 'https',
-        hostname: 'edge.yancey.app',
         pathname: '/**'
       }
     ],

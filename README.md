@@ -45,6 +45,7 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 | **Charts**     | Recharts                                             |
 | **Monitoring** | Sentry                                               |
 | **Storage**    | AWS S3 (image uploads, CDN via static.yancey.app)    |
+| **Testing**    | Vitest                                               |
 | **Linting**    | ESLint + Prettier                                    |
 | **Validation** | Zod                                                  |
 
@@ -95,6 +96,9 @@ pnpm db:studio        # Open Drizzle Studio GUI
 # Code quality
 pnpm lint             # ESLint
 pnpm format           # Prettier
+pnpm test             # Vitest (single run)
+pnpm test:watch       # Vitest watch mode
+pnpm test:coverage    # Coverage report
 
 # Build
 pnpm build
