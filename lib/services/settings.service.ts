@@ -99,4 +99,18 @@ export class SettingsService {
   static async setCurrentTheme(themeId: string): Promise<void> {
     await this.set('theme', themeId, 'Current active theme')
   }
+
+  /**
+   * Get hero image URL
+   */
+  static async getHeroImage(): Promise<string | null> {
+    return this.get<string>('hero_image')
+  }
+
+  /**
+   * Set hero image URL
+   */
+  static async setHeroImage(url: string): Promise<void> {
+    await this.set('hero_image', url, 'Homepage hero background image URL')
+  }
 }

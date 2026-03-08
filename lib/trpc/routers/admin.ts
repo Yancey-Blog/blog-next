@@ -63,6 +63,20 @@ export const adminRouter = {
       })
   },
 
+  // Hero image setting
+  heroImage: {
+    get: protectedProcedure.query(async () => {
+      return { url: await SettingsService.getHeroImage() }
+    }),
+
+    set: protectedProcedure
+      .input(z.object({ url: z.string().url() }))
+      .mutation(async ({ input }) => {
+        await SettingsService.setHeroImage(input.url)
+        return { ok: true }
+      })
+  },
+
   // Theme management
   getCurrentTheme: protectedProcedure.query(async () => {
     return await SettingsService.getCurrentTheme()

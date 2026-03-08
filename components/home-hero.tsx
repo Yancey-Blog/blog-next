@@ -6,7 +6,7 @@ import Link from 'next/link'
 import CountUp from 'react-countup'
 import { ParallaxHero } from './parallax-hero'
 
-const HERO_IMAGE = 'https://static.yancey.app/ng9bwfv1-1728444113930.jpeg'
+const DEFAULT_HERO_IMAGE = 'https://static.yancey.app/ng9bwfv1-1728444113930.jpeg'
 const STARTED_YEAR = 2018
 
 const container = {
@@ -23,11 +23,17 @@ const item = {
   }
 }
 
-export function HomeHero({ totalArticles }: { totalArticles: number }) {
+export function HomeHero({
+  totalArticles,
+  heroImage
+}: {
+  totalArticles: number
+  heroImage?: string | null
+}) {
   const years = new Date().getFullYear() - STARTED_YEAR
 
   return (
-    <ParallaxHero imageUrl={HERO_IMAGE}>
+    <ParallaxHero imageUrl={heroImage ?? DEFAULT_HERO_IMAGE}>
       {/* Centered content */}
       <div className="container relative z-10 mx-auto px-4 text-center">
         <motion.div
