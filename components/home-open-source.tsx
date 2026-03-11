@@ -15,7 +15,9 @@ export function HomeOpenSource({ projects }: Props) {
       <div className="container mx-auto px-4">
         <div className="mb-10 flex items-center gap-3">
           <Star className="h-6 w-6 text-yellow-500" />
-          <h2 className="text-2xl font-bold tracking-tight">Latest Open Sources</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Latest Open Sources
+          </h2>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
