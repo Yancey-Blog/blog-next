@@ -1,4 +1,5 @@
 import { HeroImageSettings } from '@/components/hero-image-settings'
+import { OpenSourceSettings } from '@/components/open-source-settings'
 import { ThemeSettings } from '@/components/theme-settings'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
@@ -8,7 +9,8 @@ export default async function SettingsPage() {
 
   await Promise.all([
     queryClient.prefetchQuery(trpc.admin.theme.get.queryOptions()),
-    queryClient.prefetchQuery(trpc.admin.heroImage.get.queryOptions())
+    queryClient.prefetchQuery(trpc.admin.heroImage.get.queryOptions()),
+    queryClient.prefetchQuery(trpc.admin.openSource.get.queryOptions())
   ])
 
   const theme = await queryClient.fetchQuery(
@@ -28,6 +30,7 @@ export default async function SettingsPage() {
 
         <div className="space-y-8">
           <HeroImageSettings />
+          <OpenSourceSettings />
           <ThemeSettings currentTheme={currentTheme} />
         </div>
       </div>

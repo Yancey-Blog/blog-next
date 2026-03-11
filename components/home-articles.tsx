@@ -216,7 +216,7 @@ export function HomeArticles({ blogs }: { blogs: Blog[] }) {
   const [featured, ...rest] = blogs
 
   return (
-    <section className="py-20 md:py-28">
+    <section className="mb-20 md:mb-28">
       <div className="container mx-auto px-4">
         <FeaturedPost blog={featured} />
         <SectionHeader />

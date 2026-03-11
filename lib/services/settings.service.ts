@@ -113,4 +113,31 @@ export class SettingsService {
   static async setHeroImage(url: string): Promise<void> {
     await this.set('hero_image', url, 'Homepage hero background image URL')
   }
+
+  /**
+   * Get open source projects
+   */
+  static async getOpenSourceProjects(): Promise<OpenSourceProject[]> {
+    return (await this.get<OpenSourceProject[]>('open_source_projects')) ?? []
+  }
+
+  /**
+   * Set open source projects
+   */
+  static async setOpenSourceProjects(
+    projects: OpenSourceProject[]
+  ): Promise<void> {
+    await this.set(
+      'open_source_projects',
+      projects,
+      'Homepage open source projects'
+    )
+  }
+}
+
+export interface OpenSourceProject {
+  name: string
+  logo: string
+  githubUrl: string
+  description: string
 }

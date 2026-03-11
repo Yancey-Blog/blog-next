@@ -1,5 +1,6 @@
 import { HomeArticles } from '@/components/home-articles'
 import { HomeHero } from '@/components/home-hero'
+import { HomeOpenSource } from '@/components/home-open-source'
 import { SettingsService } from '@/lib/services/settings.service'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
@@ -14,11 +15,12 @@ export const metadata: Metadata = {
 export default async function Home() {
   const queryClient = getQueryClient()
 
-  const [blogsData, heroImage] = await Promise.all([
+  const [blogsData, heroImage, openSourceProjects] = await Promise.all([
     queryClient.fetchQuery(
       trpc.blog.list.queryOptions({ page: 1, pageSize: 7 })
     ),
-    SettingsService.getHeroImage()
+    SettingsService.getHeroImage(),
+    SettingsService.getOpenSourceProjects()
   ])
 
   return (
@@ -28,6 +30,7 @@ export default async function Home() {
           totalArticles={blogsData.pagination.total}
           heroImage={heroImage}
         />
+        <HomeOpenSource projects={openSourceProjects} />
         <HomeArticles blogs={blogsData.data} />
       </div>
     </HydrationBoundary>

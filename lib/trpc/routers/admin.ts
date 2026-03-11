@@ -7,6 +7,13 @@ import { eq, inArray } from 'drizzle-orm'
 import { z } from 'zod'
 import { protectedProcedure } from '../init'
 
+const openSourceProjectSchema = z.object({
+  name: z.string().min(1),
+  logo: z.string().url(),
+  githubUrl: z.string().url(),
+  description: z.string()
+})
+
 export const adminRouter = {
   // Dashboard stats
   dashboard: protectedProcedure.query(async () => {
@@ -73,6 +80,20 @@ export const adminRouter = {
       .input(z.object({ url: z.string().url() }))
       .mutation(async ({ input }) => {
         await SettingsService.setHeroImage(input.url)
+        return { ok: true }
+      })
+  },
+
+  // Open source projects
+  openSource: {
+    get: protectedProcedure.query(async () => {
+      return await SettingsService.getOpenSourceProjects()
+    }),
+
+    set: protectedProcedure
+      .input(z.array(openSourceProjectSchema).max(3))
+      .mutation(async ({ input }) => {
+        await SettingsService.setOpenSourceProjects(input)
         return { ok: true }
       })
   },
