@@ -1,7 +1,7 @@
 import '@/app/globals.css'
 import { TRPCReactProvider } from '@/lib/trpc/client'
-import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
