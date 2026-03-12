@@ -41,7 +41,7 @@ export function HomeOpenSource({ projects }: Props) {
                 </div>
                 <div className="flex min-w-0 flex-1 items-center justify-between">
                   <span className="truncate font-semibold">{project.name}</span>
-                  <Github className="ml-2 h-4 w-4 flex-shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+                  <Github className="ml-2 h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
                 </div>
               </div>
 

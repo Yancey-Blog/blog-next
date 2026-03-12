@@ -8,7 +8,7 @@ import { Calendar, Clock, Eye } from 'lucide-react'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://yancey.app'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL
 
 export default async function BlogDetailPage({
   params
