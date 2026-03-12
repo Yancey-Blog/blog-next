@@ -10,7 +10,7 @@ import { protectedProcedure } from '../init'
 const openSourceProjectSchema = z.object({
   name: z.string().min(1),
   logo: z.string().url(),
-  githubUrl: z.string().url(),
+  link: z.string().url(),
   description: z.string()
 })
 

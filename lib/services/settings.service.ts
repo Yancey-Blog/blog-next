@@ -138,6 +138,6 @@ export class SettingsService {
 export interface OpenSourceProject {
   name: string
   logo: string
-  githubUrl: string
+  link: string
   description: string
 }

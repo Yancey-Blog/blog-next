@@ -1,5 +1,5 @@
 import type { OpenSourceProject } from '@/lib/services/settings.service'
-import { Github, Star } from 'lucide-react'
+import { ExternalLink, Star } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -23,8 +23,8 @@ export function HomeOpenSource({ projects }: Props) {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
             <Link
-              key={project.githubUrl}
-              href={project.githubUrl}
+              key={project.link}
+              href={project.link}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex flex-col gap-4 rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
@@ -41,7 +41,7 @@ export function HomeOpenSource({ projects }: Props) {
                 </div>
                 <div className="flex min-w-0 flex-1 items-center justify-between">
                   <span className="truncate font-semibold">{project.name}</span>
-                  <Github className="ml-2 h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+                  <ExternalLink className="ml-2 h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
                 </div>
               </div>
 

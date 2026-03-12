@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useTRPC } from '@/lib/trpc/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Github, ImageIcon, Loader2, Plus, Trash2, Upload } from 'lucide-react'
+import { ImageIcon, Loader2, Plus, Trash2, Upload } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -21,14 +21,14 @@ import { toast } from 'sonner'
 interface Project {
   name: string
   logo: string
-  githubUrl: string
+  link: string
   description: string
 }
 
 const emptyProject = (): Project => ({
   name: '',
   logo: '',
-  githubUrl: '',
+  link: '',
   description: ''
 })
 
@@ -97,9 +97,9 @@ export function OpenSourceSettings() {
   }
 
   function handleSave() {
-    const invalid = projects.some((p) => !p.name || !p.logo || !p.githubUrl)
+    const invalid = projects.some((p) => !p.name || !p.logo || !p.link)
     if (invalid) {
-      toast.error('Please fill in name, logo, and GitHub URL for all projects')
+      toast.error('Please fill in name, logo, and link for all projects')
       return
     }
     saveMutation.mutate(projects)
@@ -121,7 +121,7 @@ export function OpenSourceSettings() {
         <CardTitle>Open Source Projects</CardTitle>
         <CardDescription>
           Showcase up to 3 open source projects on the homepage. Each project
-          needs a name, logo, GitHub link, and description.
+          needs a name, logo, link, and description.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -203,15 +203,12 @@ export function OpenSourceSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label>
-                <Github className="mr-1 inline h-3.5 w-3.5" />
-                GitHub URL
-              </Label>
+              <Label>Link</Label>
               <Input
-                placeholder="https://github.com/..."
-                value={project.githubUrl}
+                placeholder="https://..."
+                value={project.link}
                 onChange={(e) =>
-                  updateProject(index, 'githubUrl', e.target.value)
+                  updateProject(index, 'link', e.target.value)
                 }
               />
             </div>
