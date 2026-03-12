@@ -207,9 +207,7 @@ export function OpenSourceSettings() {
               <Input
                 placeholder="https://..."
                 value={project.link}
-                onChange={(e) =>
-                  updateProject(index, 'link', e.target.value)
-                }
+                onChange={(e) => updateProject(index, 'link', e.target.value)}
               />
             </div>
 
