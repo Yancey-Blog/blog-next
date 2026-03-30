@@ -1,4 +1,5 @@
 import { getSession } from '@/lib/auth/session'
+import { isAdminEmail } from '@/proxy'
 import { initTRPC } from '@trpc/server'
 import { cache } from 'react'
 import superjson from 'superjson'
@@ -11,13 +12,17 @@ export const createTRPCContext = cache(async () => {
 
   return {
     session,
-    user: session?.user
+    user: session?.user // User from session (all logged-in users are admins)
   }
 })
 
 // Infer context type from the context function
 type Context = Awaited<ReturnType<typeof createTRPCContext>>
 
+// Avoid exporting the entire t-object
+// since it's not very descriptive.
+// For instance, the use of a t variable
+// is common in i18n libraries.
 const t = initTRPC.context<Context>().create({
   /**
    * @see https://trpc.io/docs/server/data-transformers
@@ -32,15 +37,21 @@ export const publicProcedure = t.procedure
 
 /**
  * Protected procedure that requires authentication
+ * Since only admin emails can login, all authenticated users are admins
  */
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session || !ctx.user) {
+  if (
+    !ctx.session ||
+    !ctx.user ||
+    !isAdminEmail(ctx.user.email) ||
+    !ctx.user.emailVerified
+  ) {
     throw new Error('UNAUTHORIZED')
   }
   return next({
     ctx: {
       ...ctx,
-      user: ctx.user
+      user: ctx.user // User is guaranteed to exist and be an admin
     }
   })
 })
