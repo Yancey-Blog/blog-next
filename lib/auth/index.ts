@@ -2,17 +2,7 @@ import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { createAuthMiddleware } from 'better-auth/api'
-import { eq } from 'drizzle-orm'
-
-// Get admin emails from environment variable
-function getAdminEmails(): string[] {
-  const emails = process.env.ADMIN_EMAILS || ''
-  return emails
-    .split(',')
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean)
-}
+import { genericOAuth, keycloak } from 'better-auth/plugins/generic-oauth'
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET!,
@@ -25,21 +15,17 @@ export const auth = betterAuth({
       verification: schema.verifications
     }
   }),
-  emailAndPassword: {
-    enabled: false // We only use OAuth
-  },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      accessType: 'offline',
-      prompt: 'select_account consent'
-    },
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!
-    }
-  },
+  plugins: [
+    genericOAuth({
+      config: [
+        keycloak({
+          clientId: process.env.KEYCLOAK_CLIENT_ID!,
+          clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
+          issuer: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`
+        })
+      ]
+    })
+  ],
   trustedOrigins: [
     process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     ...(process.env.NEXT_PUBLIC_APP_URL
@@ -48,33 +34,7 @@ export const auth = betterAuth({
           process.env.NEXT_PUBLIC_APP_URL.replace('://', '://www.')
         ]
       : [])
-  ],
-  // Hook to restrict access to admin emails only
-  hooks: {
-    after: createAuthMiddleware(async (ctx) => {
-      const newSession = ctx.context.newSession
-      // Check if this is an OAuth sign-in
-      if (ctx.path === '/sign-in/social' && newSession?.user) {
-        const adminEmails = getAdminEmails()
-        const userEmail = newSession.user.email.toLowerCase()
-
-        // If user email is not in admin list, revoke session and delete user
-        if (!adminEmails.includes(userEmail)) {
-          await db
-            .delete(schema.sessions)
-            .where(eq(schema.sessions.id, newSession.session.id))
-
-          await db
-            .delete(schema.users)
-            .where(eq(schema.users.id, newSession.user.id))
-
-          throw new Error(
-            'Access denied. Only authorized administrators can access this system.'
-          )
-        }
-      }
-    })
-  }
+  ]
 })
 
 export type Session = typeof auth.$Infer.Session
