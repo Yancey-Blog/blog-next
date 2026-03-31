@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { blogs, type Blog, type InsertBlog } from '@/lib/db/schema'
+import { highlightHtml } from '@/lib/shiki'
 import { and, count, desc, eq, ilike, or, sql, sum } from 'drizzle-orm'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -42,7 +43,19 @@ export class BlogService {
 
     const [items, totalCount] = await Promise.all([
       db
-        .select()
+        .select({
+          id: blogs.id,
+          title: blogs.title,
+          summary: blogs.summary,
+          coverImage: blogs.coverImage,
+          published: blogs.published,
+          tags: blogs.tags,
+          like: blogs.like,
+          pv: blogs.pv,
+          authorId: blogs.authorId,
+          createdAt: blogs.createdAt,
+          updatedAt: blogs.updatedAt
+        })
         .from(blogs)
         .where(whereClause)
         .orderBy(desc(blogs.createdAt))
@@ -85,9 +98,11 @@ export class BlogService {
   static async createBlog(
     data: Omit<InsertBlog, 'id'> & { id?: string }
   ): Promise<Blog> {
+    const highlighted = await highlightHtml(data.content)
     const blogData = {
       ...data,
-      id: data.id || uuidv4()
+      id: data.id || uuidv4(),
+      highlightedContent: highlighted
     }
     const [newBlog] = await db
       .insert(blogs)
@@ -104,12 +119,18 @@ export class BlogService {
     id: string,
     data: Partial<InsertBlog>
   ): Promise<Blog | null> {
+    const updateData: Record<string, unknown> = {
+      ...data,
+      updatedAt: new Date()
+    }
+
+    if (data.content) {
+      updateData.highlightedContent = await highlightHtml(data.content)
+    }
+
     const [updatedBlog] = await db
       .update(blogs)
-      .set({
-        ...data,
-        updatedAt: new Date()
-      })
+      .set(updateData)
       .where(eq(blogs.id, id))
       .returning()
 

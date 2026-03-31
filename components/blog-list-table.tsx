@@ -1,6 +1,6 @@
 'use client'
 
-import type { Blog } from '@/lib/db/schema'
+import type { BlogListItem } from '@/lib/db/schema'
 import { Edit, ExternalLink, Search } from 'lucide-react'
 import Link from 'next/link'
 import { DeleteBlogDialog } from './delete-blog-dialog'
@@ -19,7 +19,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs'
 
 interface BlogListTableProps {
-  blogs: Blog[]
+  blogs: BlogListItem[]
   pagination?: {
     page: number
     pageSize: number
@@ -44,7 +44,7 @@ export function BlogListTable({
   onPageChange,
   isLoading
 }: BlogListTableProps) {
-  const getStatusBadge = (blog: Blog) => {
+  const getStatusBadge = (blog: BlogListItem) => {
     if (blog.published) {
       return (
         <Badge className="bg-green-500 hover:bg-green-600">Published</Badge>

@@ -1,7 +1,6 @@
 import { BlogToc } from '@/components/blog-toc'
 import { PostActions } from '@/components/post-actions'
 import { Badge } from '@/components/ui/badge'
-import { highlightHtml } from '@/lib/shiki'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Calendar, Clock, Eye } from 'lucide-react'
@@ -24,7 +23,7 @@ export default async function BlogDetailPage({
     notFound()
   }
 
-  const content = await highlightHtml(blog.content)
+  const content = blog.highlightedContent || blog.content
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

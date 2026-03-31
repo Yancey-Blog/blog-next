@@ -35,7 +35,7 @@ export async function getShiki() {
 }
 
 export async function highlightHtml(html: string) {
-  const $ = cheerio.load(html)
+  const $ = cheerio.load(html, null, false)
   const shiki = await getShiki()
 
   const loadedLangs = shiki.getLoadedLanguages()

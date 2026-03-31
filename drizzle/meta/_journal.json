@@ -57,6 +57,13 @@
       "when": 1770613810984,
       "tag": "0007_glossy_chamber",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1774947509462,
+      "tag": "0008_wooden_whirlwind",
+      "breakpoints": true
     }
   ]
 }
