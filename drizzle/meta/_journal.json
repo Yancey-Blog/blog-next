@@ -64,6 +64,13 @@
       "when": 1774947509462,
       "tag": "0008_wooden_whirlwind",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1776326400000,
+      "tag": "0009_enable_rls",
+      "breakpoints": true
     }
   ]
 }

@@ -35,7 +35,7 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 | -------------- | ---------------------------------------------------- |
 | **Framework**  | Next.js 16 (App Router, React 19, Server Components) |
 | **API**        | tRPC 11 with RSC support + SuperJSON                 |
-| **Database**   | PostgreSQL (Neon) + Drizzle ORM                      |
+| **Database**   | PostgreSQL (Supabase) + Drizzle ORM                      |
 | **Auth**       | better-auth (OAuth: Google, GitHub)                  |
 | **UI**         | shadcn/ui + Radix UI + Tailwind CSS v4               |
 | **Animation**  | Framer Motion + react-countup                        |
@@ -52,7 +52,7 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 ## Prerequisites
 
 - Node.js 20+ (or pnpm / bun)
-- PostgreSQL database — [Neon](https://neon.tech) recommended
+- PostgreSQL database — [Supabase](https://neon.tech) recommended
 - AWS S3 bucket for image uploads
 - Algolia account for search
 - OAuth apps — Google and/or GitHub
@@ -157,7 +157,7 @@ Copy `.env.example` and fill in all values:
 
 ```bash
 # Database
-DATABASE_URL=                    # Neon PostgreSQL connection string
+DATABASE_URL=                    # Supabase PostgreSQL connection string
 
 # App
 NEXT_PUBLIC_APP_URL=             # e.g. https://yancey.app
@@ -185,9 +185,7 @@ AWS_S3_BUCKET_NAME=
 NEXT_PUBLIC_ALGOLIA_SEARCH_APP_ID=
 NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY=
 NEXT_PUBLIC_ALGOLIA_SEARCH_INDEX_NAME=
-ALGOLIA_APPLICATION_ID=
 ALGOLIA_ADMIN_API_KEY=
-ALGOLIA_SEARCH_INDEX=
 
 # Analytics (one of)
 NEXT_PUBLIC_GA_KEY=              # GA4 measurement ID  (G-XXXXXXXXXX)

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Next.js 16 blog CMS with admin dashboard, OAuth authentication, dynamic theming, full-text search, analytics tracking, and version control for blog posts. Built with App Router, Server Components, and PostgreSQL (Neon).
+A Next.js 16 blog CMS with admin dashboard, OAuth authentication, dynamic theming, full-text search, analytics tracking, and version control for blog posts. Built with App Router, Server Components, and PostgreSQL (Supabase).
 
 ## Development Commands
 
@@ -394,7 +394,7 @@ Required in `.env.local`:
 
 ```bash
 # Database
-DATABASE_URL=                                # Neon PostgreSQL connection string
+DATABASE_URL=                                # Supabase PostgreSQL connection string
 
 # Application
 NEXT_PUBLIC_APP_URL=                         # App URL for OAuth callbacks
@@ -438,7 +438,7 @@ See `.env.example` for detailed documentation on each variable.
 - **Framework**: Next.js 16 (App Router, Server Components, React 19)
 - **API**: tRPC 11 with React Server Components support
 - **Data Fetching**: TanStack Query (React Query) via @trpc/tanstack-react-query
-- **Database**: PostgreSQL (Neon) + Drizzle ORM
+- **Database**: PostgreSQL (Supabase) + Drizzle ORM
 - **Cache**: Redis (optional, for caching)
 - **Auth**: better-auth with OAuth (Google, GitHub)
 - **UI**: shadcn/ui + Radix UI + Tailwind CSS
