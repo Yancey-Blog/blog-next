@@ -35,7 +35,7 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 | -------------- | ---------------------------------------------------- |
 | **Framework**  | Next.js 16 (App Router, React 19, Server Components) |
 | **API**        | tRPC 11 with RSC support + SuperJSON                 |
-| **Database**   | PostgreSQL (Supabase) + Drizzle ORM                      |
+| **Database**   | PostgreSQL (Supabase) + Drizzle ORM                  |
 | **Auth**       | better-auth (OAuth: Google, GitHub)                  |
 | **UI**         | shadcn/ui + Radix UI + Tailwind CSS v4               |
 | **Animation**  | Framer Motion + react-countup                        |
