@@ -2,8 +2,9 @@
 
 import { useTRPC } from '@/lib/trpc/client'
 import { useMutation } from '@tanstack/react-query'
-import { Heart, Twitter } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { TwitterIcon } from './brand-icons'
 
 interface PostActionsProps {
   blogId: string
@@ -95,7 +96,7 @@ export function PostActions({
         className="flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:border-sky-500/40 hover:bg-sky-500/10 hover:text-sky-500"
         aria-label="Share on Twitter"
       >
-        <Twitter className="h-4 w-4" />
+        <TwitterIcon className="h-4 w-4" />
         <span>Share</span>
       </button>
     </div>

@@ -1,5 +1,6 @@
-import { Github, Mail, Twitter } from 'lucide-react'
+import { Mail } from 'lucide-react'
 import Link from 'next/link'
+import { GithubIcon, TwitterIcon } from './brand-icons'
 import { ThemeModeSwitcher } from './theme-mode-switcher'
 
 export function FrontendFooter() {
@@ -42,7 +43,7 @@ export function FrontendFooter() {
               aria-label="GitHub"
               className="text-muted-foreground transition-colors hover:text-foreground"
             >
-              <Github className="h-4 w-4" />
+              <GithubIcon className="h-4 w-4" />
             </a>
             <a
               href="https://x.com/YanceyOfficial"
@@ -51,7 +52,7 @@ export function FrontendFooter() {
               aria-label="Twitter / X"
               className="text-muted-foreground transition-colors hover:text-foreground"
             >
-              <Twitter className="h-4 w-4" />
+              <TwitterIcon className="h-4 w-4" />
             </a>
             <div className="h-4 w-px bg-border" />
             <ThemeModeSwitcher />
