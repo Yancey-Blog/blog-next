@@ -26,7 +26,11 @@ export async function getShiki() {
         'bash',
         'json',
         'yaml',
-        'markdown'
+        'markdown',
+        'graphql',
+        'tsx',
+        'jsx',
+        'scss'
       ]
     })
   }
@@ -87,7 +91,9 @@ export async function highlightHtml(html: string) {
       rs: 'rust',
       py: 'python',
       rb: 'ruby',
-      sh: 'bash'
+      sh: 'bash',
+      shell: 'bash',
+      yml: 'yaml'
     }
 
     lang = langMap[lang] || lang
