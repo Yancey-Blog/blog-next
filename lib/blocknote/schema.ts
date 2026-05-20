@@ -5,6 +5,7 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs
 } from '@blocknote/core'
+import { Superscript } from './superscript'
 
 /**
  * Shared BlockNote schema used by BOTH the client editor (useCreateBlockNote)
@@ -12,7 +13,8 @@ import {
  * same schema so HTML<->blocks conversion is identical on both sides.
  *
  * Headings are pinned to levels 1-6 because existing posts use h4.
- * Custom specs (superscript, divider) are added in a later task.
+ * A custom `superscript` inline spec restores `<sup>` (used by ~2 posts);
+ * `<hr>` needs no custom spec because the native `divider` block handles it.
  */
 export const blogSchema = BlockNoteSchema.create({
   blockSpecs: {
@@ -20,7 +22,8 @@ export const blogSchema = BlockNoteSchema.create({
     heading: createHeadingBlockSpec({ levels: [1, 2, 3, 4, 5, 6] })
   },
   inlineContentSpecs: {
-    ...defaultInlineContentSpecs
+    ...defaultInlineContentSpecs,
+    superscript: Superscript
   },
   styleSpecs: {
     ...defaultStyleSpecs

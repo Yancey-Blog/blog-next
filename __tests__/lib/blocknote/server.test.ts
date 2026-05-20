@@ -1,9 +1,5 @@
 // @vitest-environment node
-import {
-  blocksToContentHtml,
-  htmlToBlocks,
-  normalizeHtmlViaBlocks
-} from '@/lib/blocknote/server'
+import { htmlToBlocks, normalizeHtmlViaBlocks } from '@/lib/blocknote/server'
 import { describe, expect, it } from 'vitest'
 
 const SAMPLE = `
@@ -49,5 +45,14 @@ describe('blocknote server conversion', () => {
     expect(html).toMatch(
       /language-typescript|lang="typescript"|data-language="typescript"/
     )
+  })
+})
+
+describe('fidelity specs', () => {
+  it('round-trips <sup> and <hr>', async () => {
+    const html = '<p>E = mc<sup>2</sup></p><hr><p>after</p>'
+    const { html: out } = await normalizeHtmlViaBlocks(html)
+    expect(out).toContain('<sup')
+    expect(out).toContain('<hr')
   })
 })
