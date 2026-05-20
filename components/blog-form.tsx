@@ -55,7 +55,7 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
     resolver: zodResolver(blogFormSchema),
     defaultValues: {
       title: blog?.title ?? '',
-      content: blog?.content ?? '',
+      contentBlocks: blog?.contentBlocks ?? '',
       summary: blog?.summary ?? '',
       coverImage: blog?.coverImage ?? ''
     }
@@ -70,9 +70,9 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
       formData?.title.trim() !== '' &&
       formData?.summary.trim() !== '' &&
       formData?.coverImage.trim() !== '' &&
-      formData?.content?.trim() !== '',
+      formData?.contentBlocks?.trim() !== '',
     [
-      formData?.content,
+      formData?.contentBlocks,
       formData?.coverImage,
       formData?.summary,
       formData?.title
@@ -305,19 +305,19 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
         </CardHeader>
         <CardContent>
           <Controller
-            name="content"
+            name="contentBlocks"
             control={control}
             render={({ field }) => (
               <BlogEditor
-                value={field.value}
+                initialContent={blog?.contentBlocks ?? undefined}
                 onChange={field.onChange}
                 disabled={loading}
               />
             )}
           />
-          {errors.content && (
+          {errors.contentBlocks && (
             <p className="text-sm text-destructive mt-2">
-              {errors.content.message}
+              {errors.contentBlocks.message}
             </p>
           )}
         </CardContent>
