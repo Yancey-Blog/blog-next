@@ -21,16 +21,16 @@
 
 实际使用的元素（决定功能裁剪）：
 
-| 类别 | 用量 | 结论 |
-|---|---|---|
-| 段落 / h2 / h3 | 全量、高频 | 必须 |
-| 代码块 `pre`+`code`（59 篇）| 852 块，约 18 种语言 | 核心，必须 + Shiki 高亮 |
-| 图片（53 篇）| 606 张 | 核心，必须 |
-| 列表 ul/ol（52 篇）、链接（51 篇）、bold/italic/strike/`code`/mark/sup | 高频 | 必须 |
-| 表格（9 篇）、blockquote（14 篇）| 中等 | 保留 |
-| h4（15 篇）、video（1 篇）、hr（1 篇）| 长尾 | 保真保留 |
-| iframe / 媒体嵌入 / 脚注 / emoji 组件 | 0 篇 | 砍掉 |
-| 内联 `style` | 仅 2 处 | 忽略 |
+| 类别                                                                   | 用量                 | 结论                    |
+| ---------------------------------------------------------------------- | -------------------- | ----------------------- |
+| 段落 / h2 / h3                                                         | 全量、高频           | 必须                    |
+| 代码块 `pre`+`code`（59 篇）                                           | 852 块，约 18 种语言 | 核心，必须 + Shiki 高亮 |
+| 图片（53 篇）                                                          | 606 张               | 核心，必须              |
+| 列表 ul/ol（52 篇）、链接（51 篇）、bold/italic/strike/`code`/mark/sup | 高频                 | 必须                    |
+| 表格（9 篇）、blockquote（14 篇）                                      | 中等                 | 保留                    |
+| h4（15 篇）、video（1 篇）、hr（1 篇）                                 | 长尾                 | 保真保留                |
+| iframe / 媒体嵌入 / 脚注 / emoji 组件                                  | 0 篇                 | 砍掉                    |
+| 内联 `style`                                                           | 仅 2 处              | 忽略                    |
 
 代码语言（`language-*`）：ts、js、shell、bash、html、css、javascript、c、graphql、yaml、json、rust、python、tsx、cpp、yml、scss、jsx。
 
@@ -47,11 +47,11 @@
 
 `blogs` 表新增一列，语义重新划分：
 
-| 列 | 类型 | 角色 |
-|---|---|---|
-| `contentBlocks` 🆕 | text（blocks JSON 字符串）| **编辑真源**，BlockNote 直接加载/保存，无损 |
-| `content` | text（HTML）| **派生**：由 blocks 生成的干净语义 HTML。供 Algolia / 版本 diff / 全文搜索 / 渲染兜底 |
-| `highlightedContent` | text（HTML）| **派生**：对 `content` 跑 Shiki 后的成品，前台渲染用 |
+| 列                   | 类型                       | 角色                                                                                  |
+| -------------------- | -------------------------- | ------------------------------------------------------------------------------------- |
+| `contentBlocks` 🆕   | text（blocks JSON 字符串） | **编辑真源**，BlockNote 直接加载/保存，无损                                           |
+| `content`            | text（HTML）               | **派生**：由 blocks 生成的干净语义 HTML。供 Algolia / 版本 diff / 全文搜索 / 渲染兜底 |
+| `highlightedContent` | text（HTML）               | **派生**：对 `content` 跑 Shiki 后的成品，前台渲染用                                  |
 
 `blog_versions` 表同样新增 `contentBlocks`（该表当前 0 行，零迁移成本），使版本恢复也无损。
 

@@ -17,6 +17,7 @@
 ## File Structure
 
 **New files:**
+
 - `lib/blocknote/schema.ts` — Shared `blogSchema` (BlockNoteSchema) used by BOTH client editor and server util. Single source of truth for block/inline types.
 - `lib/blocknote/server.ts` — Server-only helpers: `htmlToBlocks(html)`, `blocksToContentHtml(blocks)` wrapping `ServerBlockNoteEditor`.
 - `lib/blocknote/superscript.tsx` — Custom `<sup>` inline content spec (fidelity task).
@@ -26,6 +27,7 @@
 - `__tests__/lib/shiki.test.ts` — Language/alias coverage test.
 
 **Modified files:**
+
 - `lib/db/schema.ts` — Add `contentBlocks` to `blogs` and `blogVersions`.
 - `lib/validations/blog.ts` — `content` → `contentBlocks`.
 - `lib/trpc/routers/blog.ts` — Input/wiring uses `contentBlocks`.
@@ -42,22 +44,27 @@
 ## Task 1: Install BlockNote dependencies, remove TinyMCE
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Install BlockNote packages**
 
 Run:
+
 ```bash
 npm install @blocknote/core @blocknote/react @blocknote/mantine @blocknote/server-util
 ```
+
 Expected: 4 packages added, no peer-dependency errors (React 19 is supported).
 
 - [ ] **Step 2: Remove TinyMCE packages**
 
 Run:
+
 ```bash
 npm uninstall @tinymce/tinymce-react tinymce
 ```
+
 Expected: both removed from `package.json` dependencies/devDependencies.
 
 - [ ] **Step 3: Verify install builds the type graph**
@@ -77,6 +84,7 @@ git commit -m "build: add BlockNote packages, remove TinyMCE"
 ## Task 2: Shared BlockNote schema
 
 **Files:**
+
 - Create: `lib/blocknote/schema.ts`
 
 Default BlockNote already supports heading levels 1–6, code blocks (with a `language` prop and `language-*` HTML output), images, tables, lists, and quotes. We still define an explicit shared schema so the heading levels are guaranteed and so the client editor and the server util are provably identical. The custom `superscript`/`divider` specs are added later (Task 10); this task wires their extension points but leaves them empty.
@@ -136,6 +144,7 @@ git commit -m "feat: add shared BlockNote schema (heading levels 1-6)"
 This validates the riskiest assumption — that `ServerBlockNoteEditor` can round-trip a representative real post — before anything is built on top of it.
 
 **Files:**
+
 - Create: `lib/blocknote/server.ts`
 - Test: `__tests__/lib/blocknote/server.test.ts`
 
@@ -227,7 +236,9 @@ describe('blocknote server conversion', () => {
   it('emits a language class on code blocks the Shiki step can read', async () => {
     const { html } = await normalizeHtmlViaBlocks(SAMPLE)
     // Used to confirm the regex contract with lib/shiki.ts highlightHtml().
-    expect(html).toMatch(/language-typescript|lang="typescript"|data-language="typescript"/)
+    expect(html).toMatch(
+      /language-typescript|lang="typescript"|data-language="typescript"/
+    )
   })
 })
 ```
@@ -258,6 +269,7 @@ git commit -m "feat: add server-side BlockNote HTML<->blocks conversion + round-
 The 72 posts use `graphql`, `tsx`, `jsx`, `scss`, and the aliases `shell`/`yml`, which the current highlighter does not load — those code blocks would render unhighlighted. Also reconcile the code-block class form with what Task 3 Step 4 recorded.
 
 **Files:**
+
 - Modify: `lib/shiki.ts`
 - Test: `__tests__/lib/shiki.test.ts`
 
@@ -280,8 +292,7 @@ describe('highlightHtml language coverage', () => {
   })
 
   it('resolves shell alias to bash', async () => {
-    const html =
-      '<pre><code class="language-shell">echo hello</code></pre>'
+    const html = '<pre><code class="language-shell">echo hello</code></pre>'
     const out = await highlightHtml(html)
     expect(out).toContain('shiki')
   })
@@ -329,6 +340,7 @@ git commit -m "fix: add graphql/tsx/jsx/scss langs and shell/yml aliases to Shik
 ## Task 5: Database schema — add `contentBlocks`
 
 **Files:**
+
 - Modify: `lib/db/schema.ts:102-136`
 - Create: migration in `drizzle/`
 
@@ -370,6 +382,7 @@ git commit -m "feat: add content_blocks column to blogs and blog_versions"
 ## Task 6: Validation + tRPC input use `contentBlocks`
 
 **Files:**
+
 - Modify: `lib/validations/blog.ts:3-12`
 - Modify: `lib/trpc/routers/blog.ts` (no signature change needed — it spreads `createBlogSchema`/`updateBlogSchema`)
 
@@ -413,6 +426,7 @@ git commit -m "feat: blog input uses contentBlocks instead of content HTML"
 ## Task 7: BlogService derives HTML from blocks
 
 **Files:**
+
 - Modify: `lib/services/blog.service.ts:96-138`
 - Modify: `lib/services/blog-version.service.ts:48-64,113-124`
 
@@ -519,6 +533,7 @@ git commit -m "feat: derive content/highlightedContent from BlockNote blocks on 
 ## Task 8: Rewrite the editor component
 
 **Files:**
+
 - Rewrite: `components/blog-editor.tsx`
 
 - [ ] **Step 1: Replace the component**
@@ -623,11 +638,13 @@ git commit -m "feat: rewrite blog editor with BlockNote (mantine) + S3 uploadFil
 ## Task 9: Wire `blog-form.tsx` to `contentBlocks`
 
 **Files:**
+
 - Modify: `components/blog-form.tsx`
 
 - [ ] **Step 1: Update the form schema and default values**
 
 In `components/blog-form.tsx`:
+
 - The form derives from `createBlogSchema` (now `contentBlocks`). Update `defaultValues` to use `contentBlocks: blog?.contentBlocks ?? ''` (remove the `content` default).
 - Update the `shouldAutoSave` memo: replace `formData?.content?.trim() !== ''` with `formData?.contentBlocks?.trim() !== ''`, and update the dependency array entry from `formData?.content` to `formData?.contentBlocks`.
 
@@ -636,22 +653,24 @@ In `components/blog-form.tsx`:
 Replace the content `Controller` block (currently rendering `<BlogEditor value=... onChange=... />`) with:
 
 ```tsx
-          <Controller
-            name="contentBlocks"
-            control={control}
-            render={({ field }) => (
-              <BlogEditor
-                initialContent={blog?.contentBlocks ?? undefined}
-                onChange={field.onChange}
-                disabled={loading}
-              />
-            )}
-          />
-          {errors.contentBlocks && (
-            <p className="text-sm text-destructive mt-2">
-              {errors.contentBlocks.message}
-            </p>
-          )}
+;<Controller
+  name="contentBlocks"
+  control={control}
+  render={({ field }) => (
+    <BlogEditor
+      initialContent={blog?.contentBlocks ?? undefined}
+      onChange={field.onChange}
+      disabled={loading}
+    />
+  )}
+/>
+{
+  errors.contentBlocks && (
+    <p className="text-sm text-destructive mt-2">
+      {errors.contentBlocks.message}
+    </p>
+  )
+}
 ```
 
 Note: `initialContent` is fed from `blog?.contentBlocks` (read once), NOT from `field.value`, so RHF state updates do not reset the editor.
@@ -675,6 +694,7 @@ git commit -m "feat: wire blog form to contentBlocks field"
 Restores `<sup>` (2 posts) and `<hr>` (1 post). Isolated and late so the core migration is unaffected if these prove problematic server-side.
 
 **Files:**
+
 - Create: `lib/blocknote/superscript.tsx`
 - Create: `lib/blocknote/divider.tsx`
 - Modify: `lib/blocknote/schema.ts`
@@ -695,8 +715,7 @@ export const Superscript = createReactInlineContentSpec(
   {
     render: (props) => <sup ref={props.contentRef} />,
     toExternalHTML: (props) => <sup ref={props.contentRef} />,
-    parse: (element) =>
-      element.tagName === 'SUP' ? {} : undefined
+    parse: (element) => (element.tagName === 'SUP' ? {} : undefined)
   }
 )
 ```
@@ -739,8 +758,7 @@ Append to `__tests__/lib/blocknote/server.test.ts`:
 ```typescript
 describe('fidelity specs', () => {
   it('round-trips <sup> and <hr>', async () => {
-    const html =
-      '<p>E = mc<sup>2</sup></p><hr><p>after</p>'
+    const html = '<p>E = mc<sup>2</sup></p><hr><p>after</p>'
     const { html: out } = await normalizeHtmlViaBlocks(html)
     expect(out).toContain('<sup')
     expect(out).toContain('<hr')
@@ -765,6 +783,7 @@ git commit -m "feat: add superscript/divider BlockNote specs for migration fidel
 ## Task 11: One-off migration script
 
 **Files:**
+
 - Create: `scripts/migrate-to-blocknote.ts`
 
 - [ ] **Step 1: Write the migration script**
@@ -862,9 +881,11 @@ Expected: `ok=72, failed=0`.
 - [ ] **Step 5: Spot-check the database**
 
 Run:
+
 ```bash
 node -e "const p=require('postgres');require('dotenv').config({path:'.env'});const sql=p(process.env.DATABASE_URL,{max:1});(async()=>{const r=await sql\`select count(*) as n from blogs where content_blocks is null\`;console.log('rows still missing blocks:',r[0].n);await sql.end()})()"
 ```
+
 Expected: `rows still missing blocks: 0`.
 
 - [ ] **Step 6: Commit**
@@ -905,6 +926,7 @@ Open a post that used `graphql`/`tsx`/`scss`/`shell` and confirm those code bloc
 ## Task 13: Docs + env cleanup
 
 **Files:**
+
 - Modify: `CLAUDE.md`
 - Modify: `.env.example`
 
