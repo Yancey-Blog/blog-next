@@ -49,3 +49,6 @@ public/worker-*.js
 public/worker-*.js.map
 public/fallback-*.js
 public/fallback-*.js.map
+
+# Local DB backups (contain post content — do not commit)
+backups/
