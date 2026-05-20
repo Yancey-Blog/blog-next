@@ -1,4 +1,3 @@
-import { blocksToContentHtml } from '@/lib/blocknote/server'
 import { db } from '@/lib/db'
 import { blogs, type Blog, type InsertBlog } from '@/lib/db/schema'
 import { highlightHtml } from '@/lib/shiki'
@@ -102,6 +101,11 @@ export class BlogService {
       contentBlocks: string
     }
   ): Promise<Blog> {
+    // Lazy import: `@/lib/blocknote/server` pulls in `@blocknote/server-util`
+    // -> `@blocknote/react` (a client-only module). Importing it statically
+    // would break React Server Components that only READ blogs. Only the
+    // write paths need it, so load it on demand here.
+    const { blocksToContentHtml } = await import('@/lib/blocknote/server')
     const blocks = JSON.parse(data.contentBlocks)
     const content = await blocksToContentHtml(blocks)
     const highlighted = await highlightHtml(content)
@@ -133,6 +137,7 @@ export class BlogService {
     }
 
     if (data.contentBlocks) {
+      const { blocksToContentHtml } = await import('@/lib/blocknote/server')
       const blocks = JSON.parse(data.contentBlocks)
       const content = await blocksToContentHtml(blocks)
       updateData.content = content
