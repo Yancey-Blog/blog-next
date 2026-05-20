@@ -1,3 +1,4 @@
+import { blocksToContentHtml } from '@/lib/blocknote/server'
 import { db } from '@/lib/db'
 import { blogs, type Blog, type InsertBlog } from '@/lib/db/schema'
 import { highlightHtml } from '@/lib/shiki'
@@ -96,12 +97,19 @@ export class BlogService {
    * Create a new blog
    */
   static async createBlog(
-    data: Omit<InsertBlog, 'id'> & { id?: string }
+    data: Omit<InsertBlog, 'id' | 'content' | 'highlightedContent'> & {
+      id?: string
+      contentBlocks: string
+    }
   ): Promise<Blog> {
-    const highlighted = await highlightHtml(data.content)
+    const blocks = JSON.parse(data.contentBlocks)
+    const content = await blocksToContentHtml(blocks)
+    const highlighted = await highlightHtml(content)
     const blogData = {
       ...data,
       id: data.id || uuidv4(),
+      content,
+      contentBlocks: data.contentBlocks,
       highlightedContent: highlighted
     }
     const [newBlog] = await db
@@ -117,15 +125,19 @@ export class BlogService {
    */
   static async updateBlog(
     id: string,
-    data: Partial<InsertBlog>
+    data: Partial<InsertBlog> & { contentBlocks?: string }
   ): Promise<Blog | null> {
     const updateData: Record<string, unknown> = {
       ...data,
       updatedAt: new Date()
     }
 
-    if (data.content) {
-      updateData.highlightedContent = await highlightHtml(data.content)
+    if (data.contentBlocks) {
+      const blocks = JSON.parse(data.contentBlocks)
+      const content = await blocksToContentHtml(blocks)
+      updateData.content = content
+      updateData.contentBlocks = data.contentBlocks
+      updateData.highlightedContent = await highlightHtml(content)
     }
 
     const [updatedBlog] = await db

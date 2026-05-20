@@ -155,7 +155,10 @@ export type InsertUser = typeof users.$inferInsert
 export type Session = typeof sessions.$inferSelect
 export type InsertSession = typeof sessions.$inferInsert
 export type Blog = typeof blogs.$inferSelect
-export type BlogListItem = Omit<Blog, 'content' | 'highlightedContent'>
+export type BlogListItem = Omit<
+  Blog,
+  'content' | 'highlightedContent' | 'contentBlocks'
+>
 export type InsertBlog = typeof blogs.$inferInsert
 export type BlogVersion = typeof blogVersions.$inferSelect
 export type InsertBlogVersion = typeof blogVersions.$inferInsert
