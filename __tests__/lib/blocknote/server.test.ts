@@ -1,5 +1,9 @@
 // @vitest-environment node
-import { htmlToBlocks, normalizeHtmlViaBlocks } from '@/lib/blocknote/server'
+import {
+  htmlToBlocks,
+  normalizeHtmlViaBlocks,
+  promoteBlockImages
+} from '@/lib/blocknote/server'
 import { describe, expect, it } from 'vitest'
 
 const SAMPLE = `
@@ -54,5 +58,32 @@ describe('fidelity specs', () => {
     const { html: out } = await normalizeHtmlViaBlocks(html)
     expect(out).toContain('<sup')
     expect(out).toContain('<hr')
+  })
+})
+
+describe('promoteBlockImages', () => {
+  it('lifts an <img> mixed with text and <br> out of a paragraph', () => {
+    const out = promoteBlockImages(
+      '<p>before<br><img src="x.png" alt="a"><br>after</p>'
+    )
+    // <img> is no longer nested inside a <p>
+    expect(out).not.toMatch(/<p>[^<]*<img/)
+    expect(out).toContain('<img')
+    expect(out).toContain('before')
+    expect(out).toContain('after')
+  })
+
+  it('preserves inline images through a full blocks round-trip', async () => {
+    const html =
+      '<p>text<br><img src="https://e.com/1.png" alt="one"><br>more</p>' +
+      '<p><img src="https://e.com/2.png" alt="two">trailing</p>'
+    const { html: out } = await normalizeHtmlViaBlocks(html)
+    expect(out).toContain('e.com/1.png')
+    expect(out).toContain('e.com/2.png')
+  })
+
+  it('leaves paragraphs without images untouched', () => {
+    const html = '<p>just <strong>text</strong> here</p>'
+    expect(promoteBlockImages(html)).toBe(html)
   })
 })
