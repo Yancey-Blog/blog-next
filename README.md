@@ -31,23 +31,23 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 
 ## Tech Stack
 
-| Category       | Technology                                           |
-| -------------- | ---------------------------------------------------- |
-| **Framework**  | Next.js 16 (App Router, React 19, Server Components) |
-| **API**        | tRPC 11 with RSC support + SuperJSON                 |
-| **Database**   | PostgreSQL (Supabase) + Drizzle ORM                  |
-| **Auth**       | better-auth (OAuth: Google, GitHub)                  |
-| **UI**         | shadcn/ui + Radix UI + Tailwind CSS v4               |
-| **Animation**  | Framer Motion + react-countup                        |
+| Category       | Technology                                              |
+| -------------- | ------------------------------------------------------- |
+| **Framework**  | Next.js 16 (App Router, React 19, Server Components)    |
+| **API**        | tRPC 11 with RSC support + SuperJSON                    |
+| **Database**   | PostgreSQL (Supabase) + Drizzle ORM                     |
+| **Auth**       | better-auth (OAuth: Google, GitHub)                     |
+| **UI**         | shadcn/ui + Radix UI + Tailwind CSS v4                  |
+| **Animation**  | Framer Motion + react-countup                           |
 | **Editor**     | BlockNote.js (block editor, blocks JSON + derived HTML) |
-| **Search**     | Algolia InstantSearch                                |
-| **Analytics**  | Google Analytics 4 / Tag Manager                     |
-| **Charts**     | Recharts                                             |
-| **Monitoring** | Sentry                                               |
-| **Storage**    | AWS S3 (image uploads, CDN via static.yancey.app)    |
-| **Testing**    | Vitest                                               |
-| **Linting**    | ESLint + Prettier                                    |
-| **Validation** | Zod                                                  |
+| **Search**     | Algolia InstantSearch                                   |
+| **Analytics**  | Google Analytics 4 / Tag Manager                        |
+| **Charts**     | Recharts                                                |
+| **Monitoring** | Sentry                                                  |
+| **Storage**    | AWS S3 (image uploads, CDN via static.yancey.app)       |
+| **Testing**    | Vitest                                                  |
+| **Linting**    | ESLint + Prettier                                       |
+| **Validation** | Zod                                                     |
 
 ## Prerequisites
 
