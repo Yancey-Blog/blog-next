@@ -1,6 +1,7 @@
 import { parseTweetId, type FeaturedTweet } from '@/lib/validations/meiji'
 import { Suspense } from 'react'
-import { Tweet } from 'react-tweet'
+import { EmbeddedTweet } from 'react-tweet'
+import { getTweet } from 'react-tweet/api'
 import { MeijiReveal } from './meiji-reveal'
 
 function TweetSkeleton() {
@@ -12,11 +13,43 @@ function TweetSkeleton() {
   )
 }
 
+/** Cute fallback shown when the embed can't be fetched (e.g. offline/dev). */
+function TweetFallback({ url, note }: { url: string; note?: string }) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="meiji-card flex h-full min-h-40 flex-col items-center justify-center gap-2 p-6 text-center transition-transform hover:-translate-y-1"
+    >
+      <span className="text-3xl">🐦</span>
+      <span className="font-extrabold" style={{ color: 'var(--m-ink)' }}>
+        {note || 'A moment from Meiji'}
+      </span>
+      <span className="text-sm font-bold" style={{ color: 'var(--m-lavender-deep)' }}>
+        View on X →
+      </span>
+    </a>
+  )
+}
+
+// Fetch the tweet ourselves so a failed request degrades to a fallback instead
+// of throwing into the RSC stream (which crashes the dev error overlay).
+async function SafeTweet({ id, url, note }: { id: string; url: string; note?: string }) {
+  let tweet
+  try {
+    tweet = await getTweet(id)
+  } catch {
+    tweet = undefined
+  }
+  return tweet ? <EmbeddedTweet tweet={tweet} /> : <TweetFallback url={url} note={note} />
+}
+
 export function MeijiFeaturedTweets({ tweets }: { tweets: FeaturedTweet[] }) {
-  const items: { id: string; note?: string }[] = []
+  const items: { id: string; url: string; note?: string }[] = []
   for (const t of tweets) {
     const id = parseTweetId(t.url)
-    if (id) items.push({ id, note: t.note })
+    if (id) items.push({ id, url: t.url, note: t.note })
   }
 
   // Hide the whole section until there's at least one valid tweet.
@@ -43,7 +76,7 @@ export function MeijiFeaturedTweets({ tweets }: { tweets: FeaturedTweet[] }) {
               </p>
             )}
             <Suspense fallback={<TweetSkeleton />}>
-              <Tweet id={t.id} />
+              <SafeTweet id={t.id} url={t.url} note={t.note} />
             </Suspense>
           </MeijiReveal>
         ))}
