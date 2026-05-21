@@ -10,6 +10,29 @@ interface FrontendHeaderClientProps {
   children: React.ReactNode
 }
 
+// Canonical cat site in prod; the same-origin /meiji route works in dev.
+const MEIJI_HREF =
+  process.env.NODE_ENV === 'production'
+    ? 'https://meiji.yanceyleo.com'
+    : '/meiji'
+
+function PawIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      className={className}
+      fill="currentColor"
+      aria-hidden
+    >
+      <ellipse cx="32" cy="44" rx="15" ry="12" />
+      <ellipse cx="14" cy="30" rx="6" ry="8" />
+      <ellipse cx="26" cy="20" rx="6" ry="8.5" />
+      <ellipse cx="38" cy="20" rx="6" ry="8.5" />
+      <ellipse cx="50" cy="30" rx="6" ry="8" />
+    </svg>
+  )
+}
+
 export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -106,6 +129,17 @@ export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
               }`}
             >
               About
+            </Link>
+            <Link
+              href={MEIJI_HREF}
+              className={`group flex items-center gap-1.5 transition-colors ${
+                isTransparent
+                  ? 'text-white/80 hover:text-white'
+                  : 'text-foreground/60 hover:text-foreground'
+              }`}
+            >
+              <PawIcon className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-125" />
+              Meiji
             </Link>
           </nav>
         </div>

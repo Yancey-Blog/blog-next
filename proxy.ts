@@ -6,6 +6,25 @@ import { auth } from './lib/auth'
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Meiji cat site: meiji.yanceyleo.com (and meiji.localhost in dev) is served
+  // from the same project. Rewrite its requests into the app/meiji/* route
+  // group so the address bar stays clean, and keep the cat host away from the
+  // admin. /api is excluded by the matcher, so tRPC stays shared and unrewritten.
+  const hostname = (request.headers.get('host') ?? '').split(':')[0]
+  const isMeijiHost =
+    hostname === 'meiji.yanceyleo.com' || hostname === 'meiji.localhost'
+  if (isMeijiHost) {
+    if (pathname.startsWith('/admin')) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+    if (!pathname.startsWith('/meiji')) {
+      const url = request.nextUrl.clone()
+      url.pathname = pathname === '/' ? '/meiji' : `/meiji${pathname}`
+      return NextResponse.rewrite(url)
+    }
+    return NextResponse.next()
+  }
+
   // Protect /admin routes - only whitelisted emails can access
   if (pathname.startsWith('/admin')) {
     try {

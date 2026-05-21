@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  IconCat,
   IconDashboard,
   IconFileDescription,
   IconInnerShadowTop,
@@ -39,6 +40,11 @@ const data = {
       title: 'Auth Management',
       url: '/admin/management',
       icon: IconUsers
+    },
+    {
+      title: 'Meiji',
+      url: '/admin/meiji-management',
+      icon: IconCat
     }
   ],
   navSecondary: [

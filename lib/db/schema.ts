@@ -150,6 +150,17 @@ export const settings = pgTable('settings', {
     .notNull()
 })
 
+// Meiji cat-site media feed (photos / videos)
+export const meijiMedia = pgTable('meiji_media', {
+  id: text('id').primaryKey(),
+  type: text('type').notNull(), // 'photo' | 'video'
+  url: text('url').notNull(), // S3 URL
+  caption: text('caption'),
+  milestone: text('milestone'), // optional tag, e.g. 'birthday', 'vaccine'
+  takenAt: timestamp('taken_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+})
+
 export type User = typeof users.$inferSelect
 export type InsertUser = typeof users.$inferInsert
 export type Session = typeof sessions.$inferSelect
@@ -164,3 +175,5 @@ export type BlogVersion = typeof blogVersions.$inferSelect
 export type InsertBlogVersion = typeof blogVersions.$inferInsert
 export type Setting = typeof settings.$inferSelect
 export type InsertSetting = typeof settings.$inferInsert
+export type MeijiMedia = typeof meijiMedia.$inferSelect
+export type InsertMeijiMedia = typeof meijiMedia.$inferInsert
