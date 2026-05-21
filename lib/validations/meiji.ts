@@ -27,10 +27,24 @@ export const featuredTweetSchema = z.object({
 
 export const featuredTweetsSchema = z.array(featuredTweetSchema).max(50)
 
+// Hero scrapbook polaroids — layout (position/rotation/parallax) is a fixed
+// design preset; only the photo + caption of each of the N slots is editable.
+export const SCRAPBOOK_SLOT_COUNT = 6
+
+export const scrapbookItemSchema = z.object({
+  imageUrl: z.string(),
+  caption: z.string().max(60)
+})
+
+export const scrapbookSchema = z
+  .array(scrapbookItemSchema)
+  .max(SCRAPBOOK_SLOT_COUNT)
+
 export type MeijiProfile = z.infer<typeof meijiProfileSchema>
 export type CreateMediaInput = z.infer<typeof createMediaSchema>
 export type UpdateMediaInput = z.infer<typeof updateMediaSchema>
 export type FeaturedTweet = z.infer<typeof featuredTweetSchema>
+export type ScrapbookItem = z.infer<typeof scrapbookItemSchema>
 
 /**
  * Extract the numeric status id from an X/Twitter status URL.
@@ -38,6 +52,8 @@ export type FeaturedTweet = z.infer<typeof featuredTweetSchema>
  * Returns null if no status id is found.
  */
 export function parseTweetId(url: string): string | null {
-  const match = url.match(/(?:twitter\.com|x\.com)\/[^/]+\/status(?:es)?\/(\d+)/)
+  const match = url.match(
+    /(?:twitter\.com|x\.com)\/[^/]+\/status(?:es)?\/(\d+)/
+  )
   return match ? match[1] : null
 }

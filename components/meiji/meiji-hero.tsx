@@ -1,6 +1,6 @@
 'use client'
 
-import type { MeijiProfile } from '@/lib/validations/meiji'
+import type { MeijiProfile, ScrapbookItem } from '@/lib/validations/meiji'
 import { motion, type Variants } from 'framer-motion'
 import Image from 'next/image'
 import { MeijiScrapbook } from './meiji-scrapbook'
@@ -54,7 +54,13 @@ function CatFace() {
   )
 }
 
-export function MeijiHero({ profile }: { profile: MeijiProfile }) {
+export function MeijiHero({
+  profile,
+  scrapbook
+}: {
+  profile: MeijiProfile
+  scrapbook?: ScrapbookItem[]
+}) {
   const facts = [
     { label: profile.gender, bg: 'var(--m-mint)' },
     { label: profile.breed, bg: 'var(--m-lavender)' },
@@ -63,7 +69,7 @@ export function MeijiHero({ profile }: { profile: MeijiProfile }) {
 
   return (
     <section className="relative mx-auto flex min-h-[92dvh] max-w-6xl flex-col items-center justify-center px-6 pt-20 pb-10 text-center">
-      <MeijiScrapbook />
+      <MeijiScrapbook items={scrapbook} />
       <motion.div
         className="relative z-10"
         variants={container}

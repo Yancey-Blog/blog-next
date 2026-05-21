@@ -8,17 +8,18 @@ import { MeijiService } from '@/lib/services/meiji.service'
 export const dynamic = 'force-dynamic'
 
 export default async function MeijiPage() {
-  const [profile, media, tweets] = await Promise.all([
+  const [profile, media, tweets, scrapbook] = await Promise.all([
     MeijiService.getProfile(),
     MeijiService.listMedia(),
-    MeijiService.getFeaturedTweets()
+    MeijiService.getFeaturedTweets(),
+    MeijiService.getScrapbook()
   ])
 
   return (
     <>
       <MeijiBackground />
       <main>
-        <MeijiHero profile={profile} />
+        <MeijiHero profile={profile} scrapbook={scrapbook} />
         <MeijiMediaFeed media={media} />
         <MeijiFeaturedTweets tweets={tweets} />
       </main>

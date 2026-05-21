@@ -5,6 +5,7 @@ import type {
   CreateMediaInput,
   FeaturedTweet,
   MeijiProfile,
+  ScrapbookItem,
   UpdateMediaInput
 } from '@/lib/validations/meiji'
 import { desc, eq } from 'drizzle-orm'
@@ -12,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 const PROFILE_KEY = 'meiji_profile'
 const FEATURED_TWEETS_KEY = 'meiji_featured_tweets'
+const SCRAPBOOK_KEY = 'meiji_scrapbook'
 
 const DEFAULT_PROFILE: MeijiProfile = {
   name: '明治',
@@ -95,5 +97,14 @@ export class MeijiService {
       tweets,
       'Meiji featured tweets'
     )
+  }
+
+  // --- Scrapbook (settings) ---
+  static async getScrapbook(): Promise<ScrapbookItem[]> {
+    return (await SettingsService.get<ScrapbookItem[]>(SCRAPBOOK_KEY)) ?? []
+  }
+
+  static async setScrapbook(items: ScrapbookItem[]): Promise<void> {
+    await SettingsService.set(SCRAPBOOK_KEY, items, 'Meiji hero scrapbook')
   }
 }

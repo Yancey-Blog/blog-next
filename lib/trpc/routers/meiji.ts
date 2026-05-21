@@ -3,6 +3,7 @@ import {
   createMediaSchema,
   featuredTweetsSchema,
   meijiProfileSchema,
+  scrapbookSchema,
   updateMediaSchema
 } from '@/lib/validations/meiji'
 import { z } from 'zod'
@@ -54,6 +55,18 @@ export const meijiRouter = {
     .input(featuredTweetsSchema)
     .mutation(async ({ input }) => {
       await MeijiService.setFeaturedTweets(input)
+      return { ok: true }
+    }),
+
+  // --- Scrapbook ---
+  getScrapbook: publicProcedure.query(async () => {
+    return MeijiService.getScrapbook()
+  }),
+
+  setScrapbook: protectedProcedure
+    .input(scrapbookSchema)
+    .mutation(async ({ input }) => {
+      await MeijiService.setScrapbook(input)
       return { ok: true }
     })
 }
