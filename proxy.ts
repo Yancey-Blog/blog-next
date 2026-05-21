@@ -10,7 +10,10 @@ export async function proxy(request: NextRequest) {
   // from the same project. Rewrite its requests into the app/meiji/* route
   // group so the address bar stays clean, and keep the cat host away from the
   // admin. /api is excluded by the matcher, so tRPC stays shared and unrewritten.
-  const hostname = (request.headers.get('host') ?? '').split(':')[0]
+  const host = request.headers.get('host') ?? ''
+  const hostname = host.split(':')[0]
+  const isLocalHost =
+    hostname === 'localhost' || hostname.endsWith('.localhost')
   const isMeijiHost =
     hostname === 'meiji.yanceyleo.com' || hostname === 'meiji.localhost'
   if (isMeijiHost) {
@@ -23,6 +26,21 @@ export async function proxy(request: NextRequest) {
       return NextResponse.rewrite(url)
     }
     return NextResponse.next()
+  }
+
+  // On the main domain, /meiji* is the cat site — redirect to its own
+  // subdomain (canonical), preserving any sub-path and query.
+  if (pathname === '/meiji' || pathname.startsWith('/meiji/')) {
+    const meijiHost = isLocalHost
+      ? 'meiji.localhost'
+      : `meiji.${hostname.replace(/^www\./, '')}`
+    const port = host.split(':')[1]
+    const proto = isLocalHost ? 'http' : 'https'
+    const rest = pathname.slice('/meiji'.length) || '/'
+    return NextResponse.redirect(
+      `${proto}://${meijiHost}${port ? `:${port}` : ''}${rest}${request.nextUrl.search}`,
+      308
+    )
   }
 
   // Protect /admin routes - only whitelisted emails can access
