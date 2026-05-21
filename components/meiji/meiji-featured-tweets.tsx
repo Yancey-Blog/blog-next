@@ -26,7 +26,10 @@ function TweetFallback({ url, note }: { url: string; note?: string }) {
       <span className="font-extrabold" style={{ color: 'var(--m-ink)' }}>
         {note || 'A moment from Meiji'}
       </span>
-      <span className="text-sm font-bold" style={{ color: 'var(--m-lavender-deep)' }}>
+      <span
+        className="text-sm font-bold"
+        style={{ color: 'var(--m-lavender-deep)' }}
+      >
         View on X →
       </span>
     </a>
@@ -35,14 +38,29 @@ function TweetFallback({ url, note }: { url: string; note?: string }) {
 
 // Fetch the tweet ourselves so a failed request degrades to a fallback instead
 // of throwing into the RSC stream (which crashes the dev error overlay).
-async function SafeTweet({ id, url, note }: { id: string; url: string; note?: string }) {
+async function SafeTweet({
+  id,
+  url,
+  note
+}: {
+  id: string
+  url: string
+  note?: string
+}) {
   let tweet
   try {
-    tweet = await getTweet(id)
+    // Time-box the fetch: if Twitter's CDN is unreachable the request would
+    // otherwise hang and the Suspense boundary would stay stuck on the
+    // skeleton, never reaching this fallback.
+    tweet = await getTweet(id, { signal: AbortSignal.timeout(4000) })
   } catch {
     tweet = undefined
   }
-  return tweet ? <EmbeddedTweet tweet={tweet} /> : <TweetFallback url={url} note={note} />
+  return tweet ? (
+    <EmbeddedTweet tweet={tweet} />
+  ) : (
+    <TweetFallback url={url} note={note} />
+  )
 }
 
 export function MeijiFeaturedTweets({ tweets }: { tweets: FeaturedTweet[] }) {

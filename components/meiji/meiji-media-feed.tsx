@@ -1,5 +1,6 @@
 'use client'
 
+import { LazyLoadImage } from '@/components/lazy-load-image'
 import type { MeijiMedia } from '@/lib/db/schema'
 import { motion } from 'framer-motion'
 
@@ -24,30 +25,38 @@ function MilestoneBadge({ tag }: { tag: string }) {
 function MediaCard({ item, index }: { item: MeijiMedia; index: number }) {
   return (
     <motion.figure
-      className="meiji-card group relative mb-5 overflow-hidden p-0"
+      className="meiji-card group relative overflow-hidden p-0"
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: '-60px' }}
-      transition={{ type: 'spring', stiffness: 120, damping: 16, delay: (index % 6) * 0.06 }}
+      transition={{
+        type: 'spring',
+        stiffness: 120,
+        damping: 16,
+        delay: (index % 6) * 0.06
+      }}
       whileHover={{ y: -6, rotate: index % 2 ? 1.2 : -1.2 }}
     >
       {item.milestone && <MilestoneBadge tag={item.milestone} />}
-      {item.type === 'video' ? (
-        <video
-          src={item.url}
-          controls
-          playsInline
-          className="w-full rounded-[26px] object-cover"
-        />
-      ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={item.url}
-          alt={item.caption ?? 'Meiji'}
-          loading="lazy"
-          className="w-full rounded-[26px] object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-        />
-      )}
+      <div className="relative aspect-[4/5] w-full overflow-hidden">
+        {item.type === 'video' ? (
+          // Lazy: only metadata (first frame) is fetched until the user plays.
+          <video
+            src={item.url}
+            controls
+            playsInline
+            preload="metadata"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <LazyLoadImage
+            src={item.url}
+            alt={item.caption ?? 'Meiji'}
+            fill
+            className="transition-transform duration-500 group-hover:scale-105"
+          />
+        )}
+      </div>
       {item.caption && (
         <figcaption
           className="px-4 py-3 text-sm font-bold"
@@ -97,7 +106,7 @@ export function MeijiMediaFeed({ media }: { media: MeijiMedia[] }) {
       {media.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="columns-1 gap-5 sm:columns-2 lg:columns-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {media.map((item, i) => (
             <MediaCard key={item.id} item={item} index={i} />
           ))}
