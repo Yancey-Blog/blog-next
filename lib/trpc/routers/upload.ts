@@ -14,16 +14,20 @@ export const uploadRouter = {
     .mutation(async ({ input }) => {
       const { fileName, contentType } = input
 
-      // Validate file type
+      // Validate file type (images + videos for the Meiji media feed)
       const allowedTypes = [
         'image/jpeg',
         'image/png',
         'image/gif',
-        'image/webp'
+        'image/webp',
+        'video/mp4',
+        'video/webm',
+        'video/quicktime',
+        'video/ogg'
       ]
       if (!allowedTypes.includes(contentType)) {
         throw new Error(
-          'Unsupported file type. Only JPEG, PNG, GIF, WebP are allowed'
+          'Unsupported file type. Allowed: JPEG, PNG, GIF, WebP, MP4, WebM, MOV, OGG'
         )
       }
 
