@@ -18,7 +18,7 @@ const DEFAULT_PROFILE: MeijiProfile = {
   gender: 'Boy',
   breed: 'Blue Golden Shaded British Shorthair',
   birthday: '2026-03-05',
-  bio: '',
+  bio: 'ぼく、明治。A little British gentleman in a blue-golden coat. Professional napper, part-time zoomie athlete, full-time floof. Follow my tiny adventures (and snack reviews) here and on X.',
   avatarUrl: '',
   xHandle: 'meiji_20260305'
 }

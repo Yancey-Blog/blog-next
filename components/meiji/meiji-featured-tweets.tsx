@@ -1,11 +1,31 @@
 import { parseTweetId, type FeaturedTweet } from '@/lib/validations/meiji'
 import { Tweet } from 'react-tweet'
 
+/** Cute fallback shown when a tweet can't be loaded (deleted / offline / dev). */
+function TweetFallback({ url }: { url: string }) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="meiji-card flex h-full min-h-40 flex-col items-center justify-center gap-2 p-6 text-center transition-transform hover:-translate-y-1"
+    >
+      <span className="text-3xl">🐦</span>
+      <span
+        className="text-sm font-bold"
+        style={{ color: 'var(--m-lavender-deep)' }}
+      >
+        View this moment on X →
+      </span>
+    </a>
+  )
+}
+
 export function MeijiFeaturedTweets({ tweets }: { tweets: FeaturedTweet[] }) {
-  const items: { id: string; note?: string }[] = []
+  const items: { id: string; url: string; note?: string }[] = []
   for (const t of tweets) {
     const id = parseTweetId(t.url)
-    if (id) items.push({ id, note: t.note })
+    if (id) items.push({ id, url: t.url, note: t.note })
   }
 
   // Hide the whole section until there's at least one valid tweet.
@@ -32,15 +52,17 @@ export function MeijiFeaturedTweets({ tweets }: { tweets: FeaturedTweet[] }) {
                 {t.note}
               </p>
             )}
-            {/* Canonical react-tweet usage: <Tweet> brings its own Suspense
-                fallback and internally catches fetch errors -> TweetNotFound.
-                Passing onError suppresses its console.error (which otherwise
-                trips a Next dev-overlay bug); fetchOptions time-boxes the
-                request so an unreachable CDN can't hang the skeleton. */}
+            {/* Canonical react-tweet usage: <Tweet> has its own Suspense
+                fallback and internally catches fetch errors. `onError`
+                suppresses the console.error that otherwise trips a Next
+                dev-overlay crash (frame.join); `fetchOptions` time-boxes the
+                request; and a custom `TweetNotFound` renders our cute fallback
+                card (with a link to the tweet) on any failure. */}
             <Tweet
               id={t.id}
               onError={(err) => err}
               fetchOptions={{ signal: AbortSignal.timeout(5000) }}
+              components={{ TweetNotFound: () => <TweetFallback url={t.url} /> }}
             />
           </div>
         ))}
