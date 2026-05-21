@@ -18,7 +18,12 @@ const MEIJI_HREF =
 
 function PawIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 64 64" className={className} fill="currentColor" aria-hidden>
+    <svg
+      viewBox="0 0 64 64"
+      className={className}
+      fill="currentColor"
+      aria-hidden
+    >
       <ellipse cx="32" cy="44" rx="15" ry="12" />
       <ellipse cx="14" cy="30" rx="6" ry="8" />
       <ellipse cx="26" cy="20" rx="6" ry="8.5" />

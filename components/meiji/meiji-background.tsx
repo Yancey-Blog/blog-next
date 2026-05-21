@@ -3,7 +3,13 @@
 import { motion } from 'framer-motion'
 
 /** A soft paw-print glyph used as a floating decoration. */
-function Paw({ className, style }: { className?: string; style?: React.CSSProperties }) {
+function Paw({
+  className,
+  style
+}: {
+  className?: string
+  style?: React.CSSProperties
+}) {
   return (
     <svg viewBox="0 0 64 64" className={className} style={style} aria-hidden>
       <g fill="currentColor">
@@ -18,16 +24,47 @@ function Paw({ className, style }: { className?: string; style?: React.CSSProper
 }
 
 const BLOBS = [
-  { top: '8%', left: '6%', size: 120, color: 'var(--m-lavender-deep)', dur: 7, r: '-12deg' },
-  { top: '22%', right: '8%', size: 86, color: 'var(--m-mint-deep)', dur: 9, r: '14deg' },
-  { top: '64%', left: '4%', size: 70, color: 'var(--m-gold-soft)', dur: 8, r: '8deg' },
-  { top: '78%', right: '10%', size: 110, color: 'var(--m-pink)', dur: 10, r: '-10deg' }
+  {
+    top: '8%',
+    left: '6%',
+    size: 120,
+    color: 'var(--m-lavender-deep)',
+    dur: 7,
+    r: '-12deg'
+  },
+  {
+    top: '22%',
+    right: '8%',
+    size: 86,
+    color: 'var(--m-mint-deep)',
+    dur: 9,
+    r: '14deg'
+  },
+  {
+    top: '64%',
+    left: '4%',
+    size: 70,
+    color: 'var(--m-gold-soft)',
+    dur: 8,
+    r: '8deg'
+  },
+  {
+    top: '78%',
+    right: '10%',
+    size: 110,
+    color: 'var(--m-pink)',
+    dur: 10,
+    r: '-10deg'
+  }
 ]
 
 /** Floating pastel paw-prints + a slow-spinning sunburst for atmosphere. */
 export function MeijiBackground() {
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+    >
       {BLOBS.map((b, i) => (
         <motion.div
           key={i}
@@ -45,7 +82,12 @@ export function MeijiBackground() {
           }}
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 0.55, scale: 1 }}
-          transition={{ type: 'spring', stiffness: 90, damping: 12, delay: 0.2 + i * 0.12 }}
+          transition={{
+            type: 'spring',
+            stiffness: 90,
+            damping: 12,
+            delay: 0.2 + i * 0.12
+          }}
         >
           <Paw className="h-full w-full" />
         </motion.div>

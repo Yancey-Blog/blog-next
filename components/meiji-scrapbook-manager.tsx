@@ -58,7 +58,9 @@ export function MeijiScrapbookManager() {
 
   function update(index: number, field: keyof ScrapbookItem, value: string) {
     setItems((prev) =>
-      (prev ?? []).map((it, i) => (i === index ? { ...it, [field]: value } : it))
+      (prev ?? []).map((it, i) =>
+        i === index ? { ...it, [field]: value } : it
+      )
     )
   }
 
@@ -104,7 +106,10 @@ export function MeijiScrapbookManager() {
       <CardContent className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2">
           {items.map((it, i) => (
-            <div key={i} className="rounded-lg border bg-muted/30 p-4 space-y-3">
+            <div
+              key={i}
+              className="rounded-lg border bg-muted/30 p-4 space-y-3"
+            >
               <span className="text-sm font-medium text-muted-foreground">
                 Polaroid {i + 1}
               </span>

@@ -82,10 +82,7 @@ export function MeijiTweetsManager() {
       </CardHeader>
       <CardContent className="space-y-4">
         {tweets.map((t, i) => (
-          <div
-            key={i}
-            className="rounded-lg border bg-muted/30 p-4 space-y-3"
-          >
+          <div key={i} className="rounded-lg border bg-muted/30 p-4 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">
                 Tweet {i + 1}
@@ -95,7 +92,9 @@ export function MeijiTweetsManager() {
                 variant="ghost"
                 size="icon"
                 onClick={() =>
-                  setTweets((prev) => (prev ?? []).filter((_, idx) => idx !== i))
+                  setTweets((prev) =>
+                    (prev ?? []).filter((_, idx) => idx !== i)
+                  )
                 }
               >
                 <Trash2 className="h-4 w-4 text-destructive" />

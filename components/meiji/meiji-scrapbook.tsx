@@ -16,12 +16,54 @@ interface Slot {
 // Fixed layout for the 6 scrapbook slots. Only the photo + caption of each
 // slot is editable from the admin; the scatter/rotation/parallax stay preset.
 const LAYOUT: Slot[] = [
-  { pos: { left: '2%', top: '16%' }, rotate: -8, depth: 90, bg: 'linear-gradient(140deg, var(--m-lavender), var(--m-lavender-deep))', emoji: '😺', caption: 'day one 🐾' },
-  { pos: { left: '6%', top: '54%' }, rotate: 6, depth: -70, bg: 'linear-gradient(140deg, var(--m-mint), var(--m-mint-deep))', emoji: '😸', caption: 'nap o’clock' },
-  { pos: { left: '13%', top: '34%' }, rotate: -3, depth: 140, bg: 'linear-gradient(140deg, var(--m-peach), var(--m-gold-soft))', emoji: '🐾', caption: 'tiny beans' },
-  { pos: { right: '3%', top: '20%' }, rotate: 9, depth: -110, bg: 'linear-gradient(140deg, var(--m-pink), var(--m-gold-soft))', emoji: '😻', caption: 'so smol' },
-  { pos: { right: '8%', top: '58%' }, rotate: -7, depth: 100, bg: 'linear-gradient(140deg, var(--m-lavender), var(--m-mint))', emoji: '🐈', caption: 'mlem' },
-  { pos: { right: '14%', top: '36%' }, rotate: 4, depth: -60, bg: 'linear-gradient(140deg, var(--m-gold-soft), var(--m-peach))', emoji: '🐱', caption: 'hello!' }
+  {
+    pos: { left: '2%', top: '16%' },
+    rotate: -8,
+    depth: 90,
+    bg: 'linear-gradient(140deg, var(--m-lavender), var(--m-lavender-deep))',
+    emoji: '😺',
+    caption: 'day one 🐾'
+  },
+  {
+    pos: { left: '6%', top: '54%' },
+    rotate: 6,
+    depth: -70,
+    bg: 'linear-gradient(140deg, var(--m-mint), var(--m-mint-deep))',
+    emoji: '😸',
+    caption: 'nap o’clock'
+  },
+  {
+    pos: { left: '13%', top: '34%' },
+    rotate: -3,
+    depth: 140,
+    bg: 'linear-gradient(140deg, var(--m-peach), var(--m-gold-soft))',
+    emoji: '🐾',
+    caption: 'tiny beans'
+  },
+  {
+    pos: { right: '3%', top: '20%' },
+    rotate: 9,
+    depth: -110,
+    bg: 'linear-gradient(140deg, var(--m-pink), var(--m-gold-soft))',
+    emoji: '😻',
+    caption: 'so smol'
+  },
+  {
+    pos: { right: '8%', top: '58%' },
+    rotate: -7,
+    depth: 100,
+    bg: 'linear-gradient(140deg, var(--m-lavender), var(--m-mint))',
+    emoji: '🐈',
+    caption: 'mlem'
+  },
+  {
+    pos: { right: '14%', top: '36%' },
+    rotate: 4,
+    depth: -60,
+    bg: 'linear-gradient(140deg, var(--m-gold-soft), var(--m-peach))',
+    emoji: '🐱',
+    caption: 'hello!'
+  }
 ]
 
 function Polaroid({

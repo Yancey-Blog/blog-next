@@ -116,7 +116,11 @@ export function MeijiMediaManager() {
             <div className="space-y-3">
               <div className="overflow-hidden rounded-lg border bg-background">
                 {pending.type === 'video' ? (
-                  <video src={pending.url} controls className="max-h-56 w-full" />
+                  <video
+                    src={pending.url}
+                    controls
+                    className="max-h-56 w-full"
+                  />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -197,7 +201,10 @@ export function MeijiMediaManager() {
                 className="group relative overflow-hidden rounded-lg border bg-muted"
               >
                 {m.type === 'video' ? (
-                  <video src={m.url} className="aspect-square w-full object-cover" />
+                  <video
+                    src={m.url}
+                    className="aspect-square w-full object-cover"
+                  />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img

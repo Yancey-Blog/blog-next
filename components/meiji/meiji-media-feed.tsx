@@ -38,7 +38,7 @@ function MediaCard({ item, index }: { item: MeijiMedia; index: number }) {
       whileHover={{ y: -6, rotate: index % 2 ? 1.2 : -1.2 }}
     >
       {item.milestone && <MilestoneBadge tag={item.milestone} />}
-      <div className="relative aspect-[4/5] w-full overflow-hidden">
+      <div className="relative aspect-4/5 w-full overflow-hidden">
         {item.type === 'video' ? (
           // Lazy: only metadata (first frame) is fetched until the user plays.
           <video
@@ -79,10 +79,16 @@ function EmptyState() {
       >
         🐱
       </motion.div>
-      <p className="mt-4 text-lg font-extrabold" style={{ color: 'var(--m-ink)' }}>
+      <p
+        className="mt-4 text-lg font-extrabold"
+        style={{ color: 'var(--m-ink)' }}
+      >
         No photos yet!
       </p>
-      <p className="mt-1 text-sm font-bold" style={{ color: 'var(--m-ink-soft)' }}>
+      <p
+        className="mt-1 text-sm font-bold"
+        style={{ color: 'var(--m-ink-soft)' }}
+      >
         Meiji is busy being adorable. Check back soon 🐾
       </p>
     </div>
