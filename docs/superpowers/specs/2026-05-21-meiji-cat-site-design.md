@@ -28,9 +28,11 @@ Three blocks on the landing page: **Hero/About → Media feed → Featured tweet
 
 Stored in `settings`, key `meiji_profile` (JSON). Initial value:
 
+<!-- name is 明治 (Meiji); "明治です！" is a spoken greeting shown in the hero, not the name. -->
+
 ```json
 {
-  "name": "明治です！",
+  "name": "明治",
   "gender": "Boy",
   "breed": "Blue Golden Shaded British Shorthair",
   "birthday": "2026-03-05",
@@ -44,15 +46,15 @@ Editable from admin.
 
 ### Media feed (`meiji_media` table — new)
 
-| Column        | Type                         | Notes                                  |
-| ------------- | ---------------------------- | -------------------------------------- |
-| `id`          | text (pk)                    | uuid                                   |
-| `type`        | text                         | `'photo' \| 'video'`                   |
-| `url`         | text                         | S3 URL                                 |
-| `caption`     | text (nullable)              | short caption                          |
-| `milestone`   | text (nullable)              | optional tag, e.g. `birthday`, `vaccine` |
-| `takenAt`     | timestamp                    | display/sort date                      |
-| `createdAt`   | timestamp (defaultNow)       |                                        |
+| Column      | Type                   | Notes                                    |
+| ----------- | ---------------------- | ---------------------------------------- |
+| `id`        | text (pk)              | uuid                                     |
+| `type`      | text                   | `'photo' \| 'video'`                     |
+| `url`       | text                   | S3 URL                                   |
+| `caption`   | text (nullable)        | short caption                            |
+| `milestone` | text (nullable)        | optional tag, e.g. `birthday`, `vaccine` |
+| `takenAt`   | timestamp              | display/sort date                        |
+| `createdAt` | timestamp (defaultNow) |                                          |
 
 Admin CRUD; uploads reuse the existing `trpc.upload.getPresignedUrl` → S3 direct-upload flow.
 

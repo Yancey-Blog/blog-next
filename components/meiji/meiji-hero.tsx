@@ -3,6 +3,7 @@
 import type { MeijiProfile } from '@/lib/validations/meiji'
 import { motion, type Variants } from 'framer-motion'
 import Image from 'next/image'
+import { MeijiScrapbook } from './meiji-scrapbook'
 
 const container: Variants = {
   hidden: {},
@@ -61,8 +62,14 @@ export function MeijiHero({ profile }: { profile: MeijiProfile }) {
   ].filter((f) => f.label)
 
   return (
-    <section className="mx-auto flex min-h-[92dvh] max-w-6xl flex-col items-center justify-center px-6 pt-20 pb-10 text-center">
-      <motion.div variants={container} initial="hidden" animate="show">
+    <section className="relative mx-auto flex min-h-[92dvh] max-w-6xl flex-col items-center justify-center px-6 pt-20 pb-10 text-center">
+      <MeijiScrapbook />
+      <motion.div
+        className="relative z-10"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
         {/* floating avatar */}
         <motion.div variants={item} className="mb-6 flex justify-center">
           <motion.div
@@ -90,19 +97,20 @@ export function MeijiHero({ profile }: { profile: MeijiProfile }) {
           className="meiji-display text-[clamp(3.5rem,16vw,11rem)]"
           style={{
             color: 'var(--m-gold)',
-            textShadow: '0 6px 0 rgba(255,255,255,0.9), 0 18px 30px rgba(243,177,58,0.28)'
+            textShadow:
+              '0 6px 0 rgba(255,255,255,0.9), 0 18px 30px rgba(243,177,58,0.28)'
           }}
         >
           MEIJI
         </motion.h1>
 
-        {/* japanese name */}
+        {/* playful greeting in Meiji's own voice (not his name) */}
         <motion.p
           variants={item}
-          className="mt-1 text-2xl font-bold sm:text-3xl"
-          style={{ color: 'var(--m-ink)' }}
+          className="meiji-pill mx-auto mt-1 inline-block px-5 py-2 text-xl font-bold sm:text-2xl"
+          style={{ background: 'var(--m-white)', color: 'var(--m-ink)' }}
         >
-          {profile.name}
+          {profile.name}です！
         </motion.p>
 
         {profile.bio && (
@@ -144,7 +152,11 @@ export function MeijiHero({ profile }: { profile: MeijiProfile }) {
                 boxShadow: '0 12px 24px -8px rgba(75,63,87,0.55)'
               }}
             >
-              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden>
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4 fill-current"
+                aria-hidden
+              >
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
               @{profile.xHandle}

@@ -14,7 +14,7 @@ const PROFILE_KEY = 'meiji_profile'
 const FEATURED_TWEETS_KEY = 'meiji_featured_tweets'
 
 const DEFAULT_PROFILE: MeijiProfile = {
-  name: '明治です！',
+  name: '明治',
   gender: 'Boy',
   breed: 'Blue Golden Shaded British Shorthair',
   birthday: '2026-03-05',
@@ -84,7 +84,9 @@ export class MeijiService {
 
   // --- Featured tweets (settings) ---
   static async getFeaturedTweets(): Promise<FeaturedTweet[]> {
-    return (await SettingsService.get<FeaturedTweet[]>(FEATURED_TWEETS_KEY)) ?? []
+    return (
+      (await SettingsService.get<FeaturedTweet[]>(FEATURED_TWEETS_KEY)) ?? []
+    )
   }
 
   static async setFeaturedTweets(tweets: FeaturedTweet[]): Promise<void> {

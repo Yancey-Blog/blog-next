@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import './meiji.css'
 
 export const metadata: Metadata = {
-  title: '明治です！ · Meiji the Cat',
+  title: '明治 · Meiji the Cat',
   description:
     'Meet Meiji (明治です！) — a Blue Golden Shaded British Shorthair. Photos, videos, and milestones of one very fluffy boy.',
   openGraph: {
-    title: '明治です！ · Meiji the Cat',
+    title: '明治 · Meiji the Cat',
     description:
       'Photos, videos, and milestones of Meiji, a Blue Golden Shaded British Shorthair.',
     type: 'profile'

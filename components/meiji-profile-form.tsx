@@ -85,7 +85,9 @@ export function MeijiProfileForm() {
     <Card>
       <CardHeader>
         <CardTitle>Profile</CardTitle>
-        <CardDescription>Meiji&apos;s basic info, shown in the hero.</CardDescription>
+        <CardDescription>
+          Meiji&apos;s basic info, shown in the hero.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4">
@@ -136,7 +138,7 @@ export function MeijiProfileForm() {
             <Input
               value={profile.name}
               onChange={(e) => set('name', e.target.value)}
-              placeholder="明治です！"
+              placeholder="明治"
             />
           </div>
           <div className="space-y-2">
