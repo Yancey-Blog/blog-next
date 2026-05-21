@@ -6,13 +6,27 @@ import { useTRPC } from '@/lib/trpc/client'
 import { createBlogSchema } from '@/lib/validations/blog'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { BlogEditor } from './blog-editor'
 import { BlogImageUpload } from './blog-image-upload'
+
+// BlockNote's useCreateBlockNote touches `window` at render, so the editor must
+// be client-only (no SSR), otherwise the admin page throws during server render.
+const BlogEditor = dynamic(
+  () => import('./blog-editor').then((m) => m.BlogEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex min-h-96 items-center justify-center rounded-md border bg-muted">
+        <p className="text-sm text-muted-foreground">Loading editor...</p>
+      </div>
+    )
+  }
+)
 import { Button } from './ui/button'
 import {
   Card,

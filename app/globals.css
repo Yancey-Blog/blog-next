@@ -324,6 +324,10 @@
       @apply bg-muted/50;
     }
   }
+
+  .bn-editor {
+    @apply min-h-96 py-4;
+  }
 }
 
 /* Glitch Animation for Hero Slogan */
