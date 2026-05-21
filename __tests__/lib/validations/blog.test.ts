@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 
 const validBlog = {
   title: 'Hello World',
-  content: '<p>Some content</p>',
+  contentBlocks: '[{"type":"paragraph"}]',
   summary: 'A short summary',
   coverImage: 'https://example.com/image.jpg',
   published: false
@@ -38,7 +38,7 @@ describe('createBlogSchema', () => {
 
   it('rejects empty content', () => {
     expect(() =>
-      createBlogSchema.parse({ ...validBlog, content: '' })
+      createBlogSchema.parse({ ...validBlog, contentBlocks: '' })
     ).toThrow()
   })
 

@@ -6,12 +6,12 @@ import { useTRPC } from '@/lib/trpc/client'
 import { createBlogSchema } from '@/lib/validations/blog'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { BlogEditor } from './blog-editor'
 import { BlogImageUpload } from './blog-image-upload'
 import { Button } from './ui/button'
 import {
@@ -24,6 +24,20 @@ import {
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { Textarea } from './ui/textarea'
+
+// BlockNote's useCreateBlockNote touches `window` at render, so the editor must
+// be client-only (no SSR), otherwise the admin page throws during server render.
+const BlogEditor = dynamic(
+  () => import('./blog-editor').then((m) => m.BlogEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex min-h-96 items-center justify-center rounded-md border bg-muted">
+        <p className="text-sm text-muted-foreground">Loading editor...</p>
+      </div>
+    )
+  }
+)
 
 interface BlogFormProps {
   blog?: Blog
@@ -55,7 +69,7 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
     resolver: zodResolver(blogFormSchema),
     defaultValues: {
       title: blog?.title ?? '',
-      content: blog?.content ?? '',
+      contentBlocks: blog?.contentBlocks ?? '',
       summary: blog?.summary ?? '',
       coverImage: blog?.coverImage ?? ''
     }
@@ -70,9 +84,9 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
       formData?.title.trim() !== '' &&
       formData?.summary.trim() !== '' &&
       formData?.coverImage.trim() !== '' &&
-      formData?.content?.trim() !== '',
+      formData?.contentBlocks?.trim() !== '',
     [
-      formData?.content,
+      formData?.contentBlocks,
       formData?.coverImage,
       formData?.summary,
       formData?.title
@@ -305,19 +319,19 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
         </CardHeader>
         <CardContent>
           <Controller
-            name="content"
+            name="contentBlocks"
             control={control}
             render={({ field }) => (
               <BlogEditor
-                value={field.value}
+                initialContent={blog?.contentBlocks ?? undefined}
                 onChange={field.onChange}
                 disabled={loading}
               />
             )}
           />
-          {errors.content && (
+          {errors.contentBlocks && (
             <p className="text-sm text-destructive mt-2">
-              {errors.content.message}
+              {errors.contentBlocks.message}
             </p>
           )}
         </CardContent>

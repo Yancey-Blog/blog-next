@@ -104,6 +104,7 @@ export const blogs = pgTable('blogs', {
   title: text('title').notNull(),
   content: text('content').notNull(),
   highlightedContent: text('highlighted_content'),
+  contentBlocks: text('content_blocks'),
   summary: text('summary').notNull(),
   coverImage: text('cover_image').notNull(),
   published: boolean('published').default(false).notNull(),
@@ -126,6 +127,7 @@ export const blogVersions = pgTable('blog_versions', {
   version: integer('version').notNull(),
   title: text('title').notNull(),
   content: text('content').notNull(),
+  contentBlocks: text('content_blocks'),
   summary: text('summary'),
   coverImage: text('cover_image'),
   changedBy: text('changed_by')
@@ -153,7 +155,10 @@ export type InsertUser = typeof users.$inferInsert
 export type Session = typeof sessions.$inferSelect
 export type InsertSession = typeof sessions.$inferInsert
 export type Blog = typeof blogs.$inferSelect
-export type BlogListItem = Omit<Blog, 'content' | 'highlightedContent'>
+export type BlogListItem = Omit<
+  Blog,
+  'content' | 'highlightedContent' | 'contentBlocks'
+>
 export type InsertBlog = typeof blogs.$inferInsert
 export type BlogVersion = typeof blogVersions.$inferSelect
 export type InsertBlogVersion = typeof blogVersions.$inferInsert

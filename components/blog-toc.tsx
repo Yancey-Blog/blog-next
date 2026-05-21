@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { ChevronRight } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface TocItem {
   id: string // Unique ID for React key
@@ -16,25 +16,35 @@ interface BlogTocProps {
 }
 
 export function BlogToc({ content }: BlogTocProps) {
-  const toc = useMemo<TocItem[]>(() => {
+  // DOMParser is browser-only; parse on the client (useEffect) rather than in
+  // a useMemo, which would also run during SSR and throw "DOMParser is not
+  // defined", 500ing the page.
+  const [toc, setToc] = useState<TocItem[]>([])
+  const [activeId, setActiveId] = useState<string>('')
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
     // Parse HTML and extract headings
     const parser = new DOMParser()
     const doc = parser.parseFromString(content, 'text/html')
     const headings = doc.querySelectorAll('h2[id], h3[id]')
 
-    return Array.from(headings).map((heading, index) => {
-      const originalId = heading.id || `heading-${index}`
-      return {
-        id: `toc-${index}-${originalId}`, // Unique key for React
-        originalId: originalId, // Original ID for scrolling
-        text: heading.textContent || '',
-        level: parseInt(heading.tagName.substring(1))
-      }
-    })
+    // setState-in-effect is intentional: parsing must run client-only (DOMParser
+    // is browser-only) and the empty initial state keeps SSR/first-client render
+    // in sync, avoiding a hydration mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setToc(
+      Array.from(headings).map((heading, index) => {
+        const originalId = heading.id || `heading-${index}`
+        return {
+          id: `toc-${index}-${originalId}`, // Unique key for React
+          originalId: originalId, // Original ID for scrolling
+          text: heading.textContent || '',
+          level: parseInt(heading.tagName.substring(1))
+        }
+      })
+    )
   }, [content])
-
-  const [activeId, setActiveId] = useState<string>('')
-  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     // Intersection Observer to track active heading

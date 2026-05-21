@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { blogVersions, blogs, type BlogVersion } from '@/lib/db/schema'
+import { highlightHtml } from '@/lib/shiki'
 import { desc, eq } from 'drizzle-orm'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -53,6 +54,7 @@ export class BlogVersionService {
         version: nextVersion,
         title: blog.title,
         content: blog.content,
+        contentBlocks: blog.contentBlocks,
         summary: blog.summary,
         coverImage: blog.coverImage,
         changedBy: userId,
@@ -116,6 +118,10 @@ export class BlogVersionService {
       .set({
         title: version.title,
         content: version.content,
+        contentBlocks: version.contentBlocks,
+        highlightedContent: version.content
+          ? await highlightHtml(version.content)
+          : undefined,
         summary: version.summary ?? undefined,
         coverImage: version.coverImage ?? undefined,
         updatedAt: new Date()

@@ -96,12 +96,24 @@ export class BlogService {
    * Create a new blog
    */
   static async createBlog(
-    data: Omit<InsertBlog, 'id'> & { id?: string }
+    data: Omit<InsertBlog, 'id' | 'content' | 'highlightedContent'> & {
+      id?: string
+      contentBlocks: string
+    }
   ): Promise<Blog> {
-    const highlighted = await highlightHtml(data.content)
+    // Lazy import: `@/lib/blocknote/server` pulls in `@blocknote/server-util`
+    // -> `@blocknote/react` (a client-only module). Importing it statically
+    // would break React Server Components that only READ blogs. Only the
+    // write paths need it, so load it on demand here.
+    const { blocksToContentHtml } = await import('@/lib/blocknote/server')
+    const blocks = JSON.parse(data.contentBlocks)
+    const content = await blocksToContentHtml(blocks)
+    const highlighted = await highlightHtml(content)
     const blogData = {
       ...data,
       id: data.id || uuidv4(),
+      content,
+      contentBlocks: data.contentBlocks,
       highlightedContent: highlighted
     }
     const [newBlog] = await db
@@ -117,15 +129,20 @@ export class BlogService {
    */
   static async updateBlog(
     id: string,
-    data: Partial<InsertBlog>
+    data: Partial<InsertBlog> & { contentBlocks?: string }
   ): Promise<Blog | null> {
     const updateData: Record<string, unknown> = {
       ...data,
       updatedAt: new Date()
     }
 
-    if (data.content) {
-      updateData.highlightedContent = await highlightHtml(data.content)
+    if (data.contentBlocks) {
+      const { blocksToContentHtml } = await import('@/lib/blocknote/server')
+      const blocks = JSON.parse(data.contentBlocks)
+      const content = await blocksToContentHtml(blocks)
+      updateData.content = content
+      updateData.contentBlocks = data.contentBlocks
+      updateData.highlightedContent = await highlightHtml(content)
     }
 
     const [updatedBlog] = await db

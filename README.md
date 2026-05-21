@@ -16,7 +16,7 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 
 ### Admin Dashboard
 
-- **Blog management** — create, edit, publish/unpublish, delete with TinyMCE WYSIWYG editor
+- **Blog management** — create, edit, publish/unpublish, delete with the BlockNote block editor
 - **Version control** — automatic snapshots on every save, diff viewer, restore
 - **Real-time analytics** — posts per month, published/draft ratio, top posts by views & likes, tag distribution
 - **Settings** — homepage hero image upload (S3) or URL paste, 5 preset themes
@@ -31,23 +31,23 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 
 ## Tech Stack
 
-| Category       | Technology                                           |
-| -------------- | ---------------------------------------------------- |
-| **Framework**  | Next.js 16 (App Router, React 19, Server Components) |
-| **API**        | tRPC 11 with RSC support + SuperJSON                 |
-| **Database**   | PostgreSQL (Supabase) + Drizzle ORM                  |
-| **Auth**       | better-auth (OAuth: Google, GitHub)                  |
-| **UI**         | shadcn/ui + Radix UI + Tailwind CSS v4               |
-| **Animation**  | Framer Motion + react-countup                        |
-| **Editor**     | TinyMCE (WYSIWYG)                                    |
-| **Search**     | Algolia InstantSearch                                |
-| **Analytics**  | Google Analytics 4 / Tag Manager                     |
-| **Charts**     | Recharts                                             |
-| **Monitoring** | Sentry                                               |
-| **Storage**    | AWS S3 (image uploads, CDN via static.yancey.app)    |
-| **Testing**    | Vitest                                               |
-| **Linting**    | ESLint + Prettier                                    |
-| **Validation** | Zod                                                  |
+| Category       | Technology                                              |
+| -------------- | ------------------------------------------------------- |
+| **Framework**  | Next.js 16 (App Router, React 19, Server Components)    |
+| **API**        | tRPC 11 with RSC support + SuperJSON                    |
+| **Database**   | PostgreSQL (Supabase) + Drizzle ORM                     |
+| **Auth**       | better-auth (OAuth: Google, GitHub)                     |
+| **UI**         | shadcn/ui + Radix UI + Tailwind CSS v4                  |
+| **Animation**  | Framer Motion + react-countup                           |
+| **Editor**     | BlockNote.js (block editor, blocks JSON + derived HTML) |
+| **Search**     | Algolia InstantSearch                                   |
+| **Analytics**  | Google Analytics 4 / Tag Manager                        |
+| **Charts**     | Recharts                                                |
+| **Monitoring** | Sentry                                                  |
+| **Storage**    | AWS S3 (image uploads, CDN via static.yancey.app)       |
+| **Testing**    | Vitest                                                  |
+| **Linting**    | ESLint + Prettier                                       |
+| **Validation** | Zod                                                     |
 
 ## Prerequisites
 
@@ -171,9 +171,6 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
-
-# TinyMCE editor
-NEXT_PUBLIC_TINYMCE_API_KEY=
 
 # AWS S3 (image uploads)
 AWS_REGION=

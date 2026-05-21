@@ -86,6 +86,8 @@ app/
 - `blogs` - Main blog content with slug, title, content, published status
 - `blogVersions` - Version history for every blog update (title, content, publishedAt snapshots)
 
+**Content storage (BlockNote)**: `blogs.contentBlocks` (and `blogVersions.contentBlocks`) holds the BlockNote block JSON — the editing **source of truth**. On save, the server derives `content` (clean semantic HTML via `@blocknote/server-util`) and `highlightedContent` (Shiki-highlighted HTML) from the blocks. The public render/TOC/Algolia/version-diff pipeline consumes the derived HTML, so it is unchanged. See `lib/blocknote/` (shared `schema.ts`, server `server.ts`) and `scripts/migrate-to-blocknote.ts`.
+
 **Config Tables**:
 
 - `settings` - Key-value JSON storage (id, key, value, description)
@@ -244,7 +246,7 @@ See `GOOGLE_ANALYTICS_MIGRATION.md` for migration guide from Universal Analytics
 
 - tRPC endpoint: `trpc.upload.getPresignedUrl`
 - Direct upload to S3 with presigned URLs
-- Used by TinyMCE editor and image upload components
+- Used by the BlockNote editor (via its `uploadFile` handler) and image upload components
 
 ### PWA Support (Progressive Web App)
 
@@ -409,9 +411,6 @@ GOOGLE_CLIENT_SECRET=
 GITHUB_CLIENT_ID=                            # GitHub OAuth credentials
 GITHUB_CLIENT_SECRET=
 
-# Content Editor
-NEXT_PUBLIC_TINYMCE_API_KEY=                 # TinyMCE API key
-
 # AWS S3 (Image uploads)
 AWS_REGION=                                  # S3 region (e.g., us-east-1)
 AWS_ACCESS_KEY_ID=                           # S3 credentials
@@ -442,7 +441,7 @@ See `.env.example` for detailed documentation on each variable.
 - **Cache**: Redis (optional, for caching)
 - **Auth**: better-auth with OAuth (Google, GitHub)
 - **UI**: shadcn/ui + Radix UI + Tailwind CSS
-- **Editor**: TinyMCE (WYSIWYG for blog content)
+- **Editor**: BlockNote.js (block-based; blocks JSON is the editing source of truth, with derived HTML for rendering/search/diff)
 - **Search**: Algolia InstantSearch (full-text search)
 - **Analytics**: Google Analytics 4 / Google Tag Manager via @next/third-parties
 - **Monitoring**: Sentry (error tracking)

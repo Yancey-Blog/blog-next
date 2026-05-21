@@ -26,7 +26,11 @@ export async function getShiki() {
         'bash',
         'json',
         'yaml',
-        'markdown'
+        'markdown',
+        'graphql',
+        'tsx',
+        'jsx',
+        'scss'
       ]
     })
   }
@@ -58,7 +62,7 @@ export async function highlightHtml(html: string) {
   // Process all pre tags with language- class
   // Support both formats:
   // 1. <pre class="language-*"><code>...</code></pre>
-  // 2. <pre><code class="language-*">...</code></pre> (TinyMCE format)
+  // 2. <pre><code class="language-*">...</code></pre> (TinyMCE / BlockNote format)
   const preElements = $(
     'pre[class*="language-"], pre:has(code[class*="language-"])'
   )
@@ -67,7 +71,7 @@ export async function highlightHtml(html: string) {
     const $pre = $(pre)
     const $code = $pre.find('code')
 
-    // Check for language class on pre tag first, then on code tag (TinyMCE format)
+    // Check for language class on pre tag first, then on code tag (TinyMCE / BlockNote format)
     const preClass = $pre.attr('class') || ''
     const codeClass = $code.attr('class') || ''
     const className = preClass || codeClass
@@ -87,7 +91,9 @@ export async function highlightHtml(html: string) {
       rs: 'rust',
       py: 'python',
       rb: 'ruby',
-      sh: 'bash'
+      sh: 'bash',
+      shell: 'bash',
+      yml: 'yaml'
     }
 
     lang = langMap[lang] || lang
