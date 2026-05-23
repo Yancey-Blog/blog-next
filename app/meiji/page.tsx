@@ -1,5 +1,4 @@
 import { MeijiBackground } from '@/components/meiji/meiji-background'
-import { MeijiFeaturedTweets } from '@/components/meiji/meiji-featured-tweets'
 import { MeijiHero } from '@/components/meiji/meiji-hero'
 import { MeijiMediaFeed } from '@/components/meiji/meiji-media-feed'
 import { MeijiService } from '@/lib/services/meiji.service'
@@ -8,10 +7,9 @@ import { MeijiService } from '@/lib/services/meiji.service'
 export const dynamic = 'force-dynamic'
 
 export default async function MeijiPage() {
-  const [profile, media, tweets, scrapbook] = await Promise.all([
+  const [profile, media, scrapbook] = await Promise.all([
     MeijiService.getProfile(),
     MeijiService.listMedia(),
-    MeijiService.getFeaturedTweets(),
     MeijiService.getScrapbook()
   ])
 
@@ -21,7 +19,6 @@ export default async function MeijiPage() {
       <main>
         <MeijiHero profile={profile} scrapbook={scrapbook} />
         <MeijiMediaFeed media={media} />
-        <MeijiFeaturedTweets tweets={tweets} />
       </main>
       <footer className="px-6 pb-12 pt-4 text-center">
         <p className="text-sm font-bold" style={{ color: 'var(--m-ink-soft)' }}>

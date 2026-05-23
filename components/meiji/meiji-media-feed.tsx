@@ -2,7 +2,13 @@
 
 import { LazyLoadImage } from '@/components/lazy-load-image'
 import type { MeijiMedia } from '@/lib/db/schema'
+import { formatDistanceToNow } from 'date-fns'
 import { motion } from 'framer-motion'
+import { Expand } from 'lucide-react'
+import { useState } from 'react'
+import { MeijiMediaLightbox } from './meiji-media-lightbox'
+import { MeijiVideo } from './meiji-video'
+import { MeijiVideoProvider, useMeijiVideo } from './meiji-video-provider'
 
 const MILESTONE_STYLE: Record<string, { bg: string; emoji: string }> = {
   birthday: { bg: 'var(--m-peach)', emoji: '🎂' },
@@ -22,7 +28,15 @@ function MilestoneBadge({ tag }: { tag: string }) {
   )
 }
 
-function MediaCard({ item, index }: { item: MeijiMedia; index: number }) {
+function MediaCard({
+  item,
+  index,
+  onZoom
+}: {
+  item: MeijiMedia
+  index: number
+  onZoom: () => void
+}) {
   return (
     <motion.figure
       className="meiji-card group relative overflow-hidden p-0"
@@ -38,33 +52,55 @@ function MediaCard({ item, index }: { item: MeijiMedia; index: number }) {
       whileHover={{ y: -6, rotate: index % 2 ? 1.2 : -1.2 }}
     >
       {item.milestone && <MilestoneBadge tag={item.milestone} />}
+
+      {/* Zoom affordance — works for both photos and videos (videos keep their
+          own controls, so this button is how you enlarge them). */}
+      <button
+        type="button"
+        onClick={onZoom}
+        aria-label="Zoom in"
+        className="meiji-pill absolute right-3 top-3 z-20 border-2 border-white p-2 opacity-0 shadow-md transition-opacity group-hover:opacity-100"
+        style={{ background: 'var(--m-white)', color: 'var(--m-ink)' }}
+      >
+        <Expand className="h-4 w-4" />
+      </button>
+
       <div className="relative aspect-4/5 w-full overflow-hidden">
         {item.type === 'video' ? (
-          // Lazy: only metadata (first frame) is fetched until the user plays.
-          <video
+          <MeijiVideo
             src={item.url}
-            controls
-            playsInline
-            preload="metadata"
-            className="absolute inset-0 h-full w-full object-cover"
+            containerClassName="absolute inset-0 h-full w-full"
+            videoClassName="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
-          <LazyLoadImage
-            src={item.url}
-            alt={item.caption ?? 'Meiji'}
-            fill
-            className="transition-transform duration-500 group-hover:scale-105"
-          />
+          // Clicking a photo enlarges it; videos use the zoom button instead so
+          // their playback controls stay clickable.
+          <button
+            type="button"
+            onClick={onZoom}
+            aria-label="Zoom in"
+            className="absolute inset-0 h-full w-full cursor-zoom-in"
+          >
+            <LazyLoadImage
+              src={item.url}
+              alt={item.caption ?? 'Meiji'}
+              fill
+              className="transition-transform duration-500 group-hover:scale-105"
+            />
+          </button>
         )}
       </div>
-      {item.caption && (
-        <figcaption
-          className="px-4 py-3 text-sm font-bold"
-          style={{ color: 'var(--m-ink)' }}
-        >
-          {item.caption}
-        </figcaption>
-      )}
+
+      <figcaption className="px-4 py-3">
+        {item.caption && (
+          <p className="text-sm font-bold" style={{ color: 'var(--m-ink)' }}>
+            {item.caption}
+          </p>
+        )}
+        <p className="text-xs font-bold" style={{ color: 'var(--m-ink-soft)' }}>
+          {formatDistanceToNow(new Date(item.takenAt), { addSuffix: true })}
+        </p>
+      </figcaption>
     </motion.figure>
   )
 }
@@ -96,6 +132,36 @@ function EmptyState() {
 }
 
 export function MeijiMediaFeed({ media }: { media: MeijiMedia[] }) {
+  const [zoomIndex, setZoomIndex] = useState<number | null>(null)
+
+  return (
+    <MeijiVideoProvider>
+      <FeedContent media={media} onZoom={setZoomIndex} />
+      <MeijiMediaLightbox
+        media={media}
+        startIndex={zoomIndex}
+        onClose={() => setZoomIndex(null)}
+      />
+    </MeijiVideoProvider>
+  )
+}
+
+// Split out so the zoom button can pause any inline video (via useMeijiVideo)
+// before opening the lightbox — the hook must run under the provider.
+function FeedContent({
+  media,
+  onZoom
+}: {
+  media: MeijiMedia[]
+  onZoom: (index: number) => void
+}) {
+  const { pauseActive } = useMeijiVideo()
+
+  const openZoom = (index: number) => {
+    pauseActive()
+    onZoom(index)
+  }
+
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
       <motion.h2
@@ -114,7 +180,12 @@ export function MeijiMediaFeed({ media }: { media: MeijiMedia[] }) {
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {media.map((item, i) => (
-            <MediaCard key={item.id} item={item} index={i} />
+            <MediaCard
+              key={item.id}
+              item={item}
+              index={i}
+              onZoom={() => openZoom(i)}
+            />
           ))}
         </div>
       )}

@@ -8,17 +8,33 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import type { MeijiMedia } from '@/lib/db/schema'
 import { useTRPC } from '@/lib/trpc/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Loader2, Plus, Trash2, Upload } from 'lucide-react'
+import { Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 interface Pending {
   url: string
   type: 'photo' | 'video'
+}
+
+/** Format a Date for an <input type="datetime-local"> (local time, no tz). */
+function toDateTimeLocal(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+    d.getDate()
+  )}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 export function MeijiMediaManager() {
@@ -29,6 +45,7 @@ export function MeijiMediaManager() {
   const [pending, setPending] = useState<Pending | null>(null)
   const [caption, setCaption] = useState('')
   const [milestone, setMilestone] = useState('')
+  const [editing, setEditing] = useState<MeijiMedia | null>(null)
 
   const { data: media, isLoading } = useQuery(
     trpc.meiji.listMedia.queryOptions()
@@ -94,7 +111,7 @@ export function MeijiMediaManager() {
         <CardTitle>Media feed</CardTitle>
         <CardDescription>
           Upload photos and videos. Optionally tag a milestone (e.g. birthday,
-          vaccine).
+          vaccine). Click the pencil to edit an existing item.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -218,13 +235,22 @@ export function MeijiMediaManager() {
                     {m.milestone}
                   </span>
                 )}
-                <button
-                  onClick={() => deleteMutation.mutate({ id: m.id })}
-                  className="absolute right-1.5 top-1.5 rounded-full bg-background/90 p-1.5 opacity-0 transition-opacity group-hover:opacity-100"
-                  aria-label="Delete"
-                >
-                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                </button>
+                <div className="absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                  <button
+                    onClick={() => setEditing(m)}
+                    className="rounded-full bg-background/90 p-1.5"
+                    aria-label="Edit"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => deleteMutation.mutate({ id: m.id })}
+                    className="rounded-full bg-background/90 p-1.5"
+                    aria-label="Delete"
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                  </button>
+                </div>
                 {m.caption && (
                   <p className="truncate px-2 py-1 text-xs">{m.caption}</p>
                 )}
@@ -237,6 +263,185 @@ export function MeijiMediaManager() {
           </p>
         )}
       </CardContent>
+
+      {editing && (
+        <EditMediaDialog
+          key={editing.id}
+          media={editing}
+          onSaved={invalidate}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </Card>
+  )
+}
+
+function EditMediaDialog({
+  media,
+  onSaved,
+  onClose
+}: {
+  media: MeijiMedia
+  onSaved: () => void
+  onClose: () => void
+}) {
+  const trpc = useTRPC()
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [caption, setCaption] = useState(media.caption ?? '')
+  const [milestone, setMilestone] = useState(media.milestone ?? '')
+  const [takenAt, setTakenAt] = useState(
+    toDateTimeLocal(new Date(media.takenAt))
+  )
+  const [url, setUrl] = useState(media.url)
+  const [type, setType] = useState<'photo' | 'video'>(
+    media.type === 'video' ? 'video' : 'photo'
+  )
+  const [uploading, setUploading] = useState(false)
+
+  const getPresignedUrl = useMutation(
+    trpc.upload.getPresignedUrl.mutationOptions()
+  )
+
+  const updateMutation = useMutation(
+    trpc.meiji.updateMedia.mutationOptions({
+      onSuccess: () => {
+        onSaved()
+        toast.success('Saved')
+        onClose()
+      },
+      onError: (e) => toast.error(e.message || 'Failed to save')
+    })
+  )
+
+  async function handleReplace(file: File) {
+    setUploading(true)
+    try {
+      const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
+        fileName: file.name,
+        contentType: file.type
+      })
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type }
+      })
+      setUrl(publicUrl)
+      setType(file.type.startsWith('video') ? 'video' : 'photo')
+      toast.success('Replaced — save to apply')
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Upload failed')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  function handleSave() {
+    const parsed = new Date(takenAt)
+    updateMutation.mutate({
+      id: media.id,
+      data: {
+        url,
+        type,
+        caption: caption || null,
+        milestone: milestone || null,
+        ...(takenAt && !Number.isNaN(parsed.getTime()) && { takenAt: parsed })
+      }
+    })
+  }
+
+  return (
+    <Dialog
+      open
+      onOpenChange={(next) => {
+        if (!next) onClose()
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit media</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              if (f) handleReplace(f)
+              e.target.value = ''
+            }}
+          />
+
+          <div className="overflow-hidden rounded-lg border bg-muted">
+            {type === 'video' ? (
+              <video src={url} controls className="max-h-56 w-full" />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={url}
+                alt="preview"
+                className="max-h-56 w-full object-contain"
+              />
+            )}
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={uploading}
+            onClick={() => fileRef.current?.click()}
+          >
+            {uploading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="mr-2 h-4 w-4" />
+            )}
+            {uploading ? 'Uploading...' : 'Replace media'}
+          </Button>
+
+          <div className="space-y-2">
+            <Label>Caption</Label>
+            <Input
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Sleepy Sunday 😴"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Milestone (optional)</Label>
+            <Input
+              value={milestone}
+              onChange={(e) => setMilestone(e.target.value)}
+              placeholder="birthday / vaccine / ..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Date</Label>
+            <Input
+              type="datetime-local"
+              value={takenAt}
+              onChange={(e) => setTakenAt(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={updateMutation.isPending || uploading}
+          >
+            {updateMutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

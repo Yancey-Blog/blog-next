@@ -3,7 +3,6 @@ import { meijiMedia, type MeijiMedia } from '@/lib/db/schema'
 import { SettingsService } from '@/lib/services/settings.service'
 import type {
   CreateMediaInput,
-  FeaturedTweet,
   MeijiProfile,
   ScrapbookItem,
   UpdateMediaInput
@@ -12,7 +11,6 @@ import { desc, eq } from 'drizzle-orm'
 import { v4 as uuidv4 } from 'uuid'
 
 const PROFILE_KEY = 'meiji_profile'
-const FEATURED_TWEETS_KEY = 'meiji_featured_tweets'
 const SCRAPBOOK_KEY = 'meiji_scrapbook'
 
 const DEFAULT_PROFILE: MeijiProfile = {
@@ -82,21 +80,6 @@ export class MeijiService {
       .where(eq(meijiMedia.id, id))
       .returning()
     return result.length > 0
-  }
-
-  // --- Featured tweets (settings) ---
-  static async getFeaturedTweets(): Promise<FeaturedTweet[]> {
-    return (
-      (await SettingsService.get<FeaturedTweet[]>(FEATURED_TWEETS_KEY)) ?? []
-    )
-  }
-
-  static async setFeaturedTweets(tweets: FeaturedTweet[]): Promise<void> {
-    await SettingsService.set(
-      FEATURED_TWEETS_KEY,
-      tweets,
-      'Meiji featured tweets'
-    )
   }
 
   // --- Scrapbook (settings) ---
