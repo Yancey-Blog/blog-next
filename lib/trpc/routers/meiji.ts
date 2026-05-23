@@ -1,7 +1,6 @@
 import { MeijiService } from '@/lib/services/meiji.service'
 import {
   createMediaSchema,
-  featuredTweetsSchema,
   meijiProfileSchema,
   scrapbookSchema,
   updateMediaSchema
@@ -43,18 +42,6 @@ export const meijiRouter = {
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       await MeijiService.deleteMedia(input.id)
-      return { ok: true }
-    }),
-
-  // --- Featured tweets ---
-  getFeaturedTweets: publicProcedure.query(async () => {
-    return MeijiService.getFeaturedTweets()
-  }),
-
-  setFeaturedTweets: protectedProcedure
-    .input(featuredTweetsSchema)
-    .mutation(async ({ input }) => {
-      await MeijiService.setFeaturedTweets(input)
       return { ok: true }
     }),
 

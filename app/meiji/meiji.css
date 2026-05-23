@@ -1,7 +1,10 @@
 /* Meiji cat site — scoped "kawaii sticker book" theme.
    All rules are namespaced under .meiji-root so they never touch the blog. */
 
-.meiji-root {
+/* Palette + fonts. Shared with .meiji-portal so dialogs/popovers that React
+   portals to <body> (outside .meiji-root) keep the kawaii theme. */
+.meiji-root,
+.meiji-portal {
   --m-cream: #fff6ec;
   --m-cream-2: #fdeede;
   --m-peach: #ffe0c4;
@@ -17,7 +20,9 @@
   --m-white: #fffdfa;
   --m-display: 'Baloo 2', system-ui, sans-serif;
   --m-body: 'M PLUS Rounded 1c', system-ui, sans-serif;
+}
 
+.meiji-root {
   position: relative;
   min-height: 100dvh;
   width: 100%;
@@ -31,6 +36,11 @@
     radial-gradient(50% 40% at 78% 88%, var(--m-peach) 0%, transparent 62%),
     radial-gradient(45% 38% at 20% 92%, var(--m-pink) 0%, transparent 60%);
   background-attachment: fixed;
+}
+
+.meiji-portal {
+  color: var(--m-ink);
+  font-family: var(--m-body);
 }
 
 /* Fine grain overlay for a printed-sticker texture */
