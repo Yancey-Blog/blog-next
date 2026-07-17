@@ -1,3 +1,4 @@
+import { BlogComments } from '@/components/blog-comments'
 import { BlogToc } from '@/components/blog-toc'
 import { PostActions } from '@/components/post-actions'
 import { Badge } from '@/components/ui/badge'
@@ -28,8 +29,8 @@ export default async function BlogDetailPage({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="container mx-auto px-4 pb-8 pt-24">
-        <div className="relative">
-          <article className="mx-auto max-w-4xl xl:mr-72">
+        <div className="relative grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_16rem] xl:items-start">
+          <article className="mx-auto w-full min-w-0 max-w-4xl">
             {blog.coverImage && (
               <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-lg shadow-lg">
                 <Image
@@ -108,6 +109,12 @@ export default async function BlogDetailPage({
             <div
               className="blog-content"
               dangerouslySetInnerHTML={{ __html: content }}
+            />
+
+            <BlogComments
+              identifier={blog.id}
+              title={blog.title}
+              url={`${APP_URL}/post/${blog.id}`}
             />
           </article>
 

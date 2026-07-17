@@ -61,6 +61,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "diff": "^9.0.0",
+    "disqus-react": "^1.1.7",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
