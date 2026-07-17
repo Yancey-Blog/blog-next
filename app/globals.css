@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
@@ -139,7 +139,16 @@
 @layer components {
   /* Blog Content Styles - Medium-inspired spacing */
   .blog-content {
-    @apply text-foreground leading-[1.7] text-[1.0625rem];
+    @apply text-foreground/90 leading-[1.75] text-[1.0625rem];
+
+    /* Flow tight to the container - no stray outer margins */
+    > :first-child {
+      @apply mt-0;
+    }
+
+    > :last-child {
+      @apply mb-0;
+    }
 
     /* Headings */
     h2 {
@@ -215,13 +224,13 @@
       list-style-type: square;
     }
 
-    /* Inline Code */
+    /* Inline Code - bordered "chip" (fumadocs-style) */
     code {
-      @apply px-1.5 py-0.5 rounded bg-muted text-sm font-mono text-foreground;
+      @apply rounded-[5px] border border-border bg-muted px-1 py-0.5 font-mono text-[0.85em] font-normal text-foreground;
     }
 
     a code {
-      @apply text-primary;
+      @apply text-inherit;
     }
 
     pre {
@@ -229,7 +238,7 @@
     }
 
     pre code {
-      @apply leading-6 font-mono block;
+      @apply block border-0 font-mono leading-6;
       font-size: 0.9rem;
       background: transparent !important;
       padding: 0;
@@ -257,14 +266,21 @@
       @apply mb-0 text-muted-foreground;
     }
 
-    /* Links */
+    /* Links - refined underline (fumadocs-style) */
     a {
-      @apply text-primary underline underline-offset-2 hover:text-primary/80 transition-colors;
+      @apply font-medium text-primary underline decoration-primary underline-offset-[3px] transition-opacity hover:opacity-80;
+      text-decoration-thickness: 1.5px;
     }
 
     /* Strong/Bold */
     strong {
       @apply font-semibold text-foreground;
+    }
+
+    /* Keyboard keys - physical key look */
+    kbd {
+      @apply rounded-[5px] border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.8em] font-medium text-foreground;
+      box-shadow: 0 2px 0 var(--color-border);
     }
 
     /* Images & Figures - responsive and tighter spacing */
@@ -327,6 +343,17 @@
 
   .bn-editor {
     @apply min-h-96 py-4;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
