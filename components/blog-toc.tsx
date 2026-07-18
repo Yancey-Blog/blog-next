@@ -19,6 +19,12 @@ interface ComputedSvg {
 
 interface BlogTocProps {
   content: string
+  /**
+   * Headings extracted on the server (see lib/blocknote/extract-toc). When
+   * provided, the outline renders during SSR; otherwise it falls back to
+   * client-side parsing of `content`.
+   */
+  items?: TocItem[]
 }
 
 // Horizontal offsets (px) mirror fumadocs' `default` TOC variant.
@@ -28,11 +34,10 @@ const getItemOffset = (depth: number) => (depth <= 2 ? 20 : 32)
 // Fixed header height the smooth-scroll target should clear.
 const SCROLL_OFFSET = 96
 
-export function BlogToc({ content }: BlogTocProps) {
-  // DOMParser is browser-only; parse on the client (useEffect) rather than in
-  // a useMemo, which would also run during SSR and throw "DOMParser is not
-  // defined", 500ing the page.
-  const [toc, setToc] = useState<TocItem[]>([])
+export function BlogToc({ content, items }: BlogTocProps) {
+  // Prefer server-extracted headings so the outline is present on first paint;
+  // only fall back to client-side DOMParser when they are not supplied.
+  const [toc, setToc] = useState<TocItem[]>(() => items ?? [])
   const [activeRange, setActiveRange] = useState<[number, number] | null>(null)
   const [svg, setSvg] = useState<ComputedSvg | null>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -46,14 +51,14 @@ export function BlogToc({ content }: BlogTocProps) {
   )
 
   useEffect(() => {
-    // Parse HTML and extract headings on the client only.
+    // Fallback path only: when the server didn't supply `items`, parse the HTML
+    // client-side (DOMParser is browser-only, so this can't run during SSR).
+    if (items) return
+
     const parser = new DOMParser()
     const doc = parser.parseFromString(content, 'text/html')
     const headings = doc.querySelectorAll('h2[id], h3[id]')
 
-    // setState-in-effect is intentional: parsing must run client-only (DOMParser
-    // is browser-only) and the empty initial state keeps SSR/first-client render
-    // in sync, avoiding a hydration mismatch.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setToc(
       Array.from(headings)
@@ -64,7 +69,7 @@ export function BlogToc({ content }: BlogTocProps) {
           depth: parseInt(heading.tagName.substring(1))
         }))
     )
-  }, [content])
+  }, [content, items])
 
   // Build the SVG highlight path from the rendered anchor positions. Recomputed
   // whenever the list resizes (font load, reflow, viewport change).
