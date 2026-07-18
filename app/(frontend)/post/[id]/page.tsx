@@ -1,8 +1,8 @@
 import { BlogComments } from '@/components/blog-comments'
 import { BlogToc } from '@/components/blog-toc'
 import { PostActions } from '@/components/post-actions'
-import { extractToc } from '@/lib/blocknote/extract-toc'
 import { Badge } from '@/components/ui/badge'
+import { extractToc } from '@/lib/blocknote/extract-toc'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Calendar, Clock, Eye } from 'lucide-react'
@@ -121,7 +121,7 @@ export default async function BlogDetailPage({
             />
           </article>
 
-          <BlogToc content={content} items={tocItems} />
+          <BlogToc items={tocItems} />
         </div>
       </div>
     </HydrationBoundary>
