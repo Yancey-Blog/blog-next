@@ -4,4 +4,4 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
-  - react-fluid-toc@0.1.0
+  - react-fluid-toc

@@ -186,8 +186,8 @@ importers:
         specifier: 19.2.5
         version: 19.2.5(react@19.2.5)
       react-fluid-toc:
-        specifier: ^0.1.0
-        version: 0.1.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^0.1.1
+        version: 0.1.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react-hook-form:
         specifier: ^7.72.1
         version: 7.72.1(react@19.2.5)
@@ -6618,8 +6618,8 @@ packages:
     peerDependencies:
       react: ^19.2.5
 
-  react-fluid-toc@0.1.0:
-    resolution: {integrity: sha512-mqwNl4+/P8XObVS6EDxEfs7E7/8wuWBT+BMWXwXDzM6ht9Cuu/FmFukDdeNWDPOk+ILza3K+YN+OBCHGATRJNA==}
+  react-fluid-toc@0.1.1:
+    resolution: {integrity: sha512-1ZNhBY8BE0BH5XB9bOP60/xNMj8z2VhSFPRtTz2DKXurulD4OcfjFrcHqCzSblfcs7GTX9luChcHivM3hhIjNQ==}
     engines: {node: '>=18'}
     peerDependencies:
       react: '>=18'
@@ -14595,7 +14595,7 @@ snapshots:
       react: 19.2.5
       scheduler: 0.27.0
 
-  react-fluid-toc@0.1.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
+  react-fluid-toc@0.1.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
     dependencies:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
