@@ -2,6 +2,7 @@ import { BlogComments } from '@/components/blog-comments'
 import { BlogToc } from '@/components/blog-toc'
 import { PostActions } from '@/components/post-actions'
 import { Badge } from '@/components/ui/badge'
+import { extractToc } from '@/lib/blocknote/extract-toc'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Calendar, Clock, Eye } from 'lucide-react'
@@ -25,6 +26,8 @@ export default async function BlogDetailPage({
   }
 
   const content = blog.highlightedContent || blog.content
+  // Extract the outline on the server so the TOC renders during SSR.
+  const tocItems = extractToc(content)
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -118,7 +121,7 @@ export default async function BlogDetailPage({
             />
           </article>
 
-          <BlogToc content={content} />
+          <BlogToc items={tocItems} />
         </div>
       </div>
     </HydrationBoundary>
