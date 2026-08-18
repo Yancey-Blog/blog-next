@@ -19,8 +19,8 @@ npm run db:migrate       # Run migrations (for production)
 npm run db:studio        # Open Drizzle Studio GUI
 
 # Code Quality
-npm run lint             # ESLint
-npm run format           # Prettier
+npm run lint             # oxlint
+npm run format           # oxfmt
 npm run test             # Vitest unit tests
 npm run test:watch       # Vitest watch mode
 
