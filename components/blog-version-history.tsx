@@ -2,7 +2,7 @@
 
 import type { BlogVersion } from '@/lib/db/schema'
 import { DiffResult } from '@/lib/services/diff.service'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 import { BlogVersionDiff } from './blog-version-diff'
 import { Button } from './ui/button'
@@ -156,17 +156,18 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
     setSelectedForCompare([])
   }
 
-  useEffect(() => {
-    if (open) {
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen)
+    if (nextOpen) {
       loadVersions()
       setSelectedForCompare([])
       setDiffResult(null)
       setSelectedVersion(null)
     }
-  }, [open, loadVersions])
+  }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" type="button">
           Version History

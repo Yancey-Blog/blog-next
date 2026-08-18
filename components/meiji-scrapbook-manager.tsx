@@ -18,7 +18,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Upload } from 'lucide-react'
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 const empty = (): ScrapbookItem => ({ imageUrl: '', caption: '' })
@@ -33,14 +33,16 @@ export function MeijiScrapbookManager() {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
   const [items, setItems] = useState<ScrapbookItem[] | null>(null)
+  const [loadedData, setLoadedData] = useState<ScrapbookItem[] | null>(null)
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null)
   const fileRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const { data, isLoading } = useQuery(trpc.meiji.getScrapbook.queryOptions())
 
-  useEffect(() => {
-    if (data) setItems(pad(data))
-  }, [data])
+  if (data && data !== loadedData) {
+    setLoadedData(data)
+    setItems(pad(data))
+  }
 
   const getPresignedUrl = useMutation(
     trpc.upload.getPresignedUrl.mutationOptions()

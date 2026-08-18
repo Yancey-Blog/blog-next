@@ -16,7 +16,7 @@ import type { MeijiProfile } from '@/lib/validations/meiji'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Upload } from 'lucide-react'
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 export function MeijiProfileForm() {
@@ -25,12 +25,16 @@ export function MeijiProfileForm() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [profile, setProfile] = useState<MeijiProfile | null>(null)
+  const [loadedProfile, setLoadedProfile] = useState<MeijiProfile | null>(
+    null
+  )
 
   const { data, isLoading } = useQuery(trpc.meiji.getProfile.queryOptions())
 
-  useEffect(() => {
-    if (data) setProfile(data)
-  }, [data])
+  if (data && data !== loadedProfile) {
+    setLoadedProfile(data)
+    setProfile(data)
+  }
 
   const getPresignedUrl = useMutation(
     trpc.upload.getPresignedUrl.mutationOptions()

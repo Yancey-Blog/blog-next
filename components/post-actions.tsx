@@ -34,6 +34,7 @@ export function PostActions({
   // Check sessionStorage on mount - resets on page refresh by design
   useEffect(() => {
     const key = `liked:${blogId}`
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of a browser API with no subscription primitive
     setLiked(sessionStorage.getItem(key) === '1')
   }, [blogId])
 

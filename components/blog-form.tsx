@@ -9,7 +9,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { BlogImageUpload } from './blog-image-upload'
@@ -63,7 +63,6 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
   // Initialize form with react-hook-form
   const {
     control,
-    watch,
     formState: { errors }
   } = useForm<BlogFormData>({
     resolver: zodResolver(blogFormSchema),
@@ -75,8 +74,9 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
     }
   })
 
-  // Watch form data for autosave
-  const formData = watch()
+  // Watch form data for autosave. useWatch types every field as optional to
+  // cover the pre-mount state, but defaultValues always populates them.
+  const formData = useWatch({ control }) as BlogFormData
   const isPublished = blog?.published || false
 
   const shouldAutoSave = useMemo(

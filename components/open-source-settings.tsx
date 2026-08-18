@@ -15,7 +15,7 @@ import { useTRPC } from '@/lib/trpc/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ImageIcon, Loader2, Plus, Trash2, Upload } from 'lucide-react'
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 interface Project {
@@ -36,14 +36,16 @@ export function OpenSourceSettings() {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
   const [projects, setProjects] = useState<Project[]>([])
+  const [loadedData, setLoadedData] = useState<Project[] | null>(null)
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null)
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const { data, isLoading } = useQuery(trpc.admin.openSource.get.queryOptions())
 
-  useEffect(() => {
-    if (data) setProjects(data)
-  }, [data])
+  if (data && data !== loadedData) {
+    setLoadedData(data)
+    setProjects(data)
+  }
 
   const saveMutation = useMutation(
     trpc.admin.openSource.set.mutationOptions({
