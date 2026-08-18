@@ -1,5 +1,10 @@
 'use client'
 
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { formatDistanceToNow } from 'date-fns'
+import { X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+
 import {
   Carousel,
   type CarouselApi,
@@ -9,15 +14,12 @@ import {
   CarouselPrevious
 } from '@/components/ui/carousel'
 import type { MeijiMedia } from '@/lib/db/schema'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { formatDistanceToNow } from 'date-fns'
-import { X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+
 import { MeijiVideo } from './meiji-video'
 
 function Slide({ item }: { item: MeijiMedia }) {
   return (
-    <figure className="flex flex-col items-center h-full justify-between">
+    <figure className="flex h-full flex-col items-center justify-between">
       {/* Polaroid-style white frame around the media */}
       <div className="rounded-[26px] border-[5px] border-white bg-white p-1.5 shadow-[0_16px_36px_-16px_rgba(75,63,87,0.5)]">
         {item.type === 'video' ? (
@@ -104,10 +106,10 @@ export function MeijiMediaLightbox({
       }}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[rgba(75,63,87,0.55)] backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogPrimitive.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-[rgba(75,63,87,0.55)] backdrop-blur-sm" />
         <DialogPrimitive.Content
           aria-describedby={undefined}
-          className="meiji-portal fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 outline-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom-3"
+          className="meiji-portal data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom-3 fixed top-1/2 left-1/2 z-50 w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 duration-200 outline-none"
         >
           <DialogPrimitive.Title className="sr-only">
             Meiji media viewer
@@ -123,20 +125,20 @@ export function MeijiMediaLightbox({
             {/* Decorative paw stickers */}
             <span
               aria-hidden
-              className="pointer-events-none absolute -left-3 -top-5 rotate-[-18deg] text-3xl drop-shadow-sm"
+              className="pointer-events-none absolute -top-5 -left-3 rotate-[-18deg] text-3xl drop-shadow-sm"
             >
               🐾
             </span>
             <span
               aria-hidden
-              className="pointer-events-none absolute -bottom-5 -right-3 rotate-12 text-3xl drop-shadow-sm"
+              className="pointer-events-none absolute -right-3 -bottom-5 rotate-12 text-3xl drop-shadow-sm"
             >
               🐾
             </span>
 
             <DialogPrimitive.Close
               aria-label="Close"
-              className="meiji-pill absolute right-4 top-4 z-20 grid h-9 w-9 place-items-center border-2 border-white shadow-md transition-transform hover:rotate-12 hover:scale-110"
+              className="meiji-pill absolute top-4 right-4 z-20 grid h-9 w-9 place-items-center border-2 border-white shadow-md transition-transform hover:scale-110 hover:rotate-12"
               style={{ background: 'var(--m-peach)', color: 'var(--m-ink)' }}
             >
               <X className="h-4 w-4" />

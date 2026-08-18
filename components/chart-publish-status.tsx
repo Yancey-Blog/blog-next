@@ -1,5 +1,7 @@
 'use client'
 
+import { Cell, Pie, PieChart } from 'recharts'
+
 import {
   Card,
   CardContent,
@@ -13,7 +15,6 @@ import {
   ChartTooltipContent,
   type ChartConfig
 } from '@/components/ui/chart'
-import { Cell, Pie, PieChart } from 'recharts'
 
 const chartConfig = {
   published: { label: 'Published', color: 'var(--primary)' },

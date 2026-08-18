@@ -1,9 +1,10 @@
 'use client'
 
-import { cn } from '@/lib/utils'
 import { ImageOffIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
+
+import { cn } from '@/lib/utils'
 
 interface LazyLoadImageProps {
   src: string
@@ -69,8 +70,8 @@ export function LazyLoadImage({
 
       {/* Error state */}
       {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-muted">
-          <ImageOffIcon className="h-12 w-12 text-muted-foreground" />
+        <div className="bg-muted absolute inset-0 flex items-center justify-center">
+          <ImageOffIcon className="text-muted-foreground h-12 w-12" />
         </div>
       )}
     </div>

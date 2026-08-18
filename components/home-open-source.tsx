@@ -1,7 +1,8 @@
-import type { OpenSourceProject } from '@/lib/services/settings.service'
 import { ExternalLink, Star } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+
+import type { OpenSourceProject } from '@/lib/services/settings.service'
 
 interface Props {
   projects: OpenSourceProject[]
@@ -27,7 +28,7 @@ export function HomeOpenSource({ projects }: Props) {
               href={project.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex flex-col gap-4 rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+              className="group bg-card flex flex-col gap-4 rounded-xl border p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="flex items-center gap-3">
                 <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border">
@@ -41,12 +42,12 @@ export function HomeOpenSource({ projects }: Props) {
                 </div>
                 <div className="flex min-w-0 flex-1 items-center justify-between">
                   <span className="truncate font-semibold">{project.name}</span>
-                  <ExternalLink className="ml-2 h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+                  <ExternalLink className="text-muted-foreground group-hover:text-foreground ml-2 h-4 w-4 shrink-0 transition-colors" />
                 </div>
               </div>
 
               {project.description && (
-                <p className="line-clamp-3 text-sm text-muted-foreground">
+                <p className="text-muted-foreground line-clamp-3 text-sm">
                   {project.description}
                 </p>
               )}

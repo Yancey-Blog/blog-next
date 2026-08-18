@@ -1,5 +1,6 @@
-import { AppSidebar } from '@/components/app-sidebar'
 import dynamic from 'next/dynamic'
+
+import { AppSidebar } from '@/components/app-sidebar'
 
 const ReactQueryDevtools =
   process.env.NODE_ENV === 'development'
@@ -10,14 +11,15 @@ const ReactQueryDevtools =
       )
     : () => null
 
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { Metadata } from 'next'
+
 import { SiteHeader } from '@/components/site-header'
 import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { requireAuth } from '@/lib/auth/session'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Blog Admin',

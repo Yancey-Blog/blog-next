@@ -1,9 +1,10 @@
-import { db } from '@/lib/db'
-import * as schema from '@/lib/db/schema'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { createAuthMiddleware } from 'better-auth/api'
 import { eq } from 'drizzle-orm'
+
+import { db } from '@/lib/db'
+import * as schema from '@/lib/db/schema'
 
 // Get admin emails from environment variable
 function getAdminEmails(): string[] {

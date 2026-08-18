@@ -1,5 +1,7 @@
 'use client'
 
+import { Bar, BarChart, Cell, XAxis, YAxis } from 'recharts'
+
 import {
   Card,
   CardContent,
@@ -13,7 +15,6 @@ import {
   ChartTooltipContent,
   type ChartConfig
 } from '@/components/ui/chart'
-import { Bar, BarChart, Cell, XAxis, YAxis } from 'recharts'
 
 interface Post {
   id: string
@@ -106,13 +107,13 @@ function TopChart({
         <ul className="mt-3 space-y-1.5 border-t pt-3">
           {chartData.map((item, i) => (
             <li key={i} className="flex items-center gap-2 text-sm">
-              <span className="w-6 shrink-0 text-xs tabular-nums text-muted-foreground">
+              <span className="text-muted-foreground w-6 shrink-0 text-xs tabular-nums">
                 {item.rank}
               </span>
-              <span className="min-w-0 flex-1 truncate text-muted-foreground">
+              <span className="text-muted-foreground min-w-0 flex-1 truncate">
                 {item.title}
               </span>
-              <span className="shrink-0 tabular-nums font-medium">
+              <span className="shrink-0 font-medium tabular-nums">
                 {item.value.toLocaleString()}
               </span>
             </li>

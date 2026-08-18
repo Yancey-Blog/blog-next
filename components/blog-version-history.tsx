@@ -1,9 +1,11 @@
 'use client'
 
-import type { BlogVersion } from '@/lib/db/schema'
-import { DiffResult } from '@/lib/services/diff.service'
 import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
+
+import type { BlogVersion } from '@/lib/db/schema'
+import { DiffResult } from '@/lib/services/diff.service'
+
 import { BlogVersionDiff } from './blog-version-diff'
 import { Button } from './ui/button'
 import {
@@ -173,7 +175,7 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
           Version History
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-h-[80vh] max-w-6xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Version History</DialogTitle>
           <DialogDescription>
@@ -235,13 +237,13 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
           {!diffResult && (
             <>
               {loading && versions.length === 0 && (
-                <p className="text-muted-foreground text-center py-8">
+                <p className="text-muted-foreground py-8 text-center">
                   Loading...
                 </p>
               )}
 
               {!loading && versions.length === 0 && (
-                <p className="text-muted-foreground text-center py-8">
+                <p className="text-muted-foreground py-8 text-center">
                   No version history available. Versions are created when you
                   publish a blog.
                 </p>
@@ -311,17 +313,17 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
                     <CardContent>
                       <div className="space-y-4">
                         <div>
-                          <h4 className="font-semibold mb-2">Title</h4>
+                          <h4 className="mb-2 font-semibold">Title</h4>
                           <p className="text-sm">{selectedVersion.title}</p>
                         </div>
                         {selectedVersion.summary && (
                           <div>
-                            <h4 className="font-semibold mb-2">Summary</h4>
+                            <h4 className="mb-2 font-semibold">Summary</h4>
                             <p className="text-sm">{selectedVersion.summary}</p>
                           </div>
                         )}
                         <div>
-                          <h4 className="font-semibold mb-2">
+                          <h4 className="mb-2 font-semibold">
                             Content Preview
                           </h4>
                           <div

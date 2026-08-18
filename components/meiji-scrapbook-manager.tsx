@@ -1,5 +1,11 @@
 'use client'
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Loader2, Upload } from 'lucide-react'
+import Image from 'next/image'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -15,11 +21,6 @@ import {
   SCRAPBOOK_SLOT_COUNT,
   type ScrapbookItem
 } from '@/lib/validations/meiji'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Loader2, Upload } from 'lucide-react'
-import Image from 'next/image'
-import { useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 const empty = (): ScrapbookItem => ({ imageUrl: '', caption: '' })
 
@@ -90,7 +91,7 @@ export function MeijiScrapbookManager() {
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
         </CardContent>
       </Card>
     )
@@ -110,13 +111,13 @@ export function MeijiScrapbookManager() {
           {items.map((it, i) => (
             <div
               key={i}
-              className="rounded-lg border bg-muted/30 p-4 space-y-3"
+              className="bg-muted/30 space-y-3 rounded-lg border p-4"
             >
-              <span className="text-sm font-medium text-muted-foreground">
+              <span className="text-muted-foreground text-sm font-medium">
                 Polaroid {i + 1}
               </span>
               <div className="flex items-center gap-3">
-                <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border bg-muted">
+                <div className="bg-muted relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border">
                   {it.imageUrl ? (
                     <Image
                       src={it.imageUrl}

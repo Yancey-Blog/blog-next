@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+
 import './meiji.css'
 
 export const metadata: Metadata = {

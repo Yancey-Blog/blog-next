@@ -1,6 +1,3 @@
-import { db } from '@/lib/db'
-import { blogs, type Blog, type InsertBlog } from '@/lib/db/schema'
-import { highlightHtml } from '@/lib/shiki'
 import {
   and,
   asc,
@@ -16,6 +13,10 @@ import {
   sum
 } from 'drizzle-orm'
 import { v4 as uuidv4 } from 'uuid'
+
+import { db } from '@/lib/db'
+import { blogs, type Blog, type InsertBlog } from '@/lib/db/schema'
+import { highlightHtml } from '@/lib/shiki'
 
 export interface AdjacentBlog {
   id: string

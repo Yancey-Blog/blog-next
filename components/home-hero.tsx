@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import CountUp from 'react-countup'
+
 import { ParallaxHero } from './parallax-hero'
 
 const DEFAULT_HERO_IMAGE =
@@ -36,7 +37,7 @@ export function HomeHero({
   return (
     <ParallaxHero imageUrl={heroImage ?? DEFAULT_HERO_IMAGE}>
       {/* Centered content */}
-      <div className="container relative z-10 mx-auto px-4 text-center">
+      <div className="relative z-10 container mx-auto px-4 text-center">
         <motion.div
           className="mx-auto max-w-4xl"
           variants={container}
@@ -81,7 +82,7 @@ export function HomeHero({
               { label: 'YEARS', value: years }
             ].map(({ label, value }) => (
               <div key={label} className="text-center">
-                <div className="text-5xl font-bold tabular-nums text-white">
+                <div className="text-5xl font-bold text-white tabular-nums">
                   <CountUp end={value} duration={2.2} />
                 </div>
                 <div className="mt-1 text-xs tracking-[0.2em] text-white/50">
@@ -116,7 +117,7 @@ export function HomeHero({
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 flex flex-col items-center gap-1"
+        className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4, duration: 0.6 }}

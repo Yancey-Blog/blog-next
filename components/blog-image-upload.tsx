@@ -1,11 +1,13 @@
 'use client'
 
-import { useTRPC } from '@/lib/trpc/client'
 import { IconUpload, IconX } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
+
+import { useTRPC } from '@/lib/trpc/client'
+
 import { Button } from './ui/button'
 
 interface BlogImageUploadProps {
@@ -126,7 +128,7 @@ export function BlogImageUpload({
   if (value) {
     return (
       <div className="space-y-2">
-        <div className="relative aspect-video overflow-hidden rounded-lg border bg-muted w-80">
+        <div className="bg-muted relative aspect-video w-80 overflow-hidden rounded-lg border">
           <Image
             src={value}
             alt="Cover image"
@@ -156,7 +158,7 @@ export function BlogImageUpload({
         isDragging
           ? 'border-primary bg-primary/5'
           : 'border-muted-foreground/25 bg-muted/50'
-      } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-primary/50'} ${className}`}
+      } ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:border-primary/50 cursor-pointer'} ${className}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -169,18 +171,18 @@ export function BlogImageUpload({
           disabled={disabled || isUploading}
           className="hidden"
         />
-        <IconUpload className="h-10 w-10 text-muted-foreground" />
+        <IconUpload className="text-muted-foreground h-10 w-10" />
         {isUploading ? (
           <div className="space-y-1">
             <p className="text-sm font-medium">Uploading...</p>
-            <p className="text-xs text-muted-foreground">Please wait</p>
+            <p className="text-muted-foreground text-xs">Please wait</p>
           </div>
         ) : (
           <div className="space-y-1">
             <p className="text-sm font-medium">
               Drop image here or click to upload
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               JPEG, PNG, or WebP (max 5MB)
             </p>
           </div>

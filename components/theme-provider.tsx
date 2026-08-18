@@ -1,7 +1,8 @@
 'use client'
 
-import { getThemeById } from '@/lib/themes'
 import { useEffect } from 'react'
+
+import { getThemeById } from '@/lib/themes'
 
 interface ThemeProviderProps {
   themeId: string

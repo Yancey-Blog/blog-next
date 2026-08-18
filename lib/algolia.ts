@@ -1,4 +1,5 @@
 import { algoliasearch } from 'algoliasearch'
+
 import type { Blog } from './db/schema'
 
 const client = algoliasearch(

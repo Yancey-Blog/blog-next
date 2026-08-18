@@ -1,3 +1,6 @@
+import { desc, eq } from 'drizzle-orm'
+import { v4 as uuidv4 } from 'uuid'
+
 import { db } from '@/lib/db'
 import { meijiMedia, type MeijiMedia } from '@/lib/db/schema'
 import { SettingsService } from '@/lib/services/settings.service'
@@ -7,8 +10,6 @@ import type {
   ScrapbookItem,
   UpdateMediaInput
 } from '@/lib/validations/meiji'
-import { desc, eq } from 'drizzle-orm'
-import { v4 as uuidv4 } from 'uuid'
 
 const PROFILE_KEY = 'meiji_profile'
 const SCRAPBOOK_KEY = 'meiji_scrapbook'

@@ -1,5 +1,6 @@
-import { DiffService } from '@/lib/services/diff.service'
 import { describe, expect, it } from 'vitest'
+
+import { DiffService } from '@/lib/services/diff.service'
 
 const base = {
   title: 'Hello World',

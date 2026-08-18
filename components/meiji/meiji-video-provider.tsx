@@ -1,7 +1,8 @@
 'use client'
 
-import { activateVideo } from '@/lib/meiji/video-coordinator'
 import { createContext, useCallback, useContext, useRef } from 'react'
+
+import { activateVideo } from '@/lib/meiji/video-coordinator'
 
 type MeijiVideoContextValue = {
   /** Call from a video's `onPlay`; pauses whatever was playing before. */

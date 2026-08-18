@@ -7,14 +7,14 @@ export const metadata: Metadata = {
 
 export default function TermsOfUsePage() {
   return (
-    <div className="container mx-auto max-w-3xl px-4 pb-16 pt-28">
+    <div className="container mx-auto max-w-3xl px-4 pt-28 pb-16">
       <h1 className="mb-2 text-4xl font-bold tracking-tight">Terms of Use</h1>
-      <p className="mb-10 text-sm text-muted-foreground">
+      <p className="text-muted-foreground mb-10 text-sm">
         Last updated: March 3, 2022
       </p>
 
-      <nav className="mb-12 rounded-xl border bg-muted/40 p-6">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+      <nav className="bg-muted/40 mb-12 rounded-xl border p-6">
+        <p className="text-muted-foreground mb-3 text-sm font-semibold tracking-wider uppercase">
           Contents
         </p>
         <ol className="space-y-1.5 text-sm">

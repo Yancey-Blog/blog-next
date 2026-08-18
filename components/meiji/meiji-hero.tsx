@@ -1,8 +1,10 @@
 'use client'
 
-import type { MeijiProfile, ScrapbookItem } from '@/lib/validations/meiji'
 import { motion, type Variants } from 'framer-motion'
 import Image from 'next/image'
+
+import type { MeijiProfile, ScrapbookItem } from '@/lib/validations/meiji'
+
 import { MeijiScrapbook } from './meiji-scrapbook'
 
 const container: Variants = {

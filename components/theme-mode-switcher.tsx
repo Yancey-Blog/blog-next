@@ -15,7 +15,7 @@ export function ThemeModeSwitcher() {
   const currentTheme = theme || systemTheme || 'system'
 
   return (
-    <div className="flex w-fit rounded-full bg-accent shadow-sm border">
+    <div className="bg-accent flex w-fit rounded-full border shadow-sm">
       <span className="h-full">
         <input
           className="peer sr-only"
@@ -27,7 +27,7 @@ export function ThemeModeSwitcher() {
         />
         <label
           htmlFor="theme-switch-system"
-          className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground peer-checked:bg-background peer-checked:text-foreground peer-checked:shadow-sm"
+          className="text-muted-foreground hover:text-foreground peer-checked:bg-background peer-checked:text-foreground relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm"
           title="System theme"
         >
           <LaptopIcon className="h-4 w-4" />
@@ -44,7 +44,7 @@ export function ThemeModeSwitcher() {
         />
         <label
           htmlFor="theme-switch-light"
-          className="relative flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground peer-checked:bg-background peer-checked:text-foreground peer-checked:shadow-sm"
+          className="text-muted-foreground hover:text-foreground peer-checked:bg-background peer-checked:text-foreground relative flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm"
           title="Light theme"
         >
           <SunIcon className="h-4 w-4" />
@@ -61,7 +61,7 @@ export function ThemeModeSwitcher() {
         />
         <label
           htmlFor="theme-switch-dark"
-          className="relative flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground peer-checked:bg-background peer-checked:text-foreground peer-checked:shadow-sm"
+          className="text-muted-foreground hover:text-foreground peer-checked:bg-background peer-checked:text-foreground relative flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm"
           title="Dark theme"
         >
           <MoonIcon className="h-4 w-4" />

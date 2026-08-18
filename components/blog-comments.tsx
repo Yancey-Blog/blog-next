@@ -3,6 +3,7 @@
 import { DiscussionEmbed } from 'disqus-react'
 import { useTheme } from 'next-themes'
 import { useEffect, useRef, useState } from 'react'
+
 import { Card } from './ui/card'
 
 interface BlogCommentsProps {
@@ -82,7 +83,7 @@ export function BlogComments({ identifier, title, url }: BlogCommentsProps) {
   const surface = resolvedTheme === 'dark' ? SURFACE.dark : SURFACE.light
 
   return (
-    <Card className="mt-8 p-4 bg-transparent">
+    <Card className="mt-8 bg-transparent p-4">
       {ready ? (
         // Hex surface gives Disqus parseable colors + the correct initial scheme.
         <div style={surface} className="rounded-lg">
@@ -94,7 +95,7 @@ export function BlogComments({ identifier, title, url }: BlogCommentsProps) {
       ) : (
         // Placeholder keeps layout stable until the client-only embed mounts.
         <div
-          className="h-40 animate-pulse rounded-lg bg-muted/50"
+          className="bg-muted/50 h-40 animate-pulse rounded-lg"
           aria-hidden
         />
       )}

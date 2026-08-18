@@ -1,9 +1,11 @@
 'use client'
 
-import { useTRPC } from '@/lib/trpc/client'
 import { useMutation } from '@tanstack/react-query'
 import { Heart } from 'lucide-react'
 import { useEffect, useState } from 'react'
+
+import { useTRPC } from '@/lib/trpc/client'
+
 import { TwitterIcon } from './brand-icons'
 
 interface PostActionsProps {
@@ -79,7 +81,7 @@ export function PostActions({
         disabled={liked || likeMutation.isPending}
         className={`group flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${
           liked
-            ? 'border-rose-500/40 bg-rose-500/10 text-rose-500 cursor-default'
+            ? 'cursor-default border-rose-500/40 bg-rose-500/10 text-rose-500'
             : 'border-border bg-background text-muted-foreground hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-500'
         }`}
         aria-label={liked ? 'Liked' : 'Like this post'}
@@ -94,7 +96,7 @@ export function PostActions({
       <button
         type="button"
         onClick={handleTwitterShare}
-        className="flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:border-sky-500/40 hover:bg-sky-500/10 hover:text-sky-500"
+        className="border-border bg-background text-muted-foreground flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 hover:border-sky-500/40 hover:bg-sky-500/10 hover:text-sky-500"
         aria-label="Share on Twitter"
       >
         <TwitterIcon className="h-4 w-4" />

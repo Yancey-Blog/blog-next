@@ -1,9 +1,5 @@
 'use client'
 
-import { useAutosave } from '@/hooks/use-autosave'
-import type { Blog } from '@/lib/db/schema'
-import { useTRPC } from '@/lib/trpc/client'
-import { createBlogSchema } from '@/lib/validations/blog'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import dynamic from 'next/dynamic'
@@ -12,6 +8,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
+
+import { useAutosave } from '@/hooks/use-autosave'
+import type { Blog } from '@/lib/db/schema'
+import { useTRPC } from '@/lib/trpc/client'
+import { createBlogSchema } from '@/lib/validations/blog'
+
 import { BlogImageUpload } from './blog-image-upload'
 import { Button } from './ui/button'
 import {
@@ -32,8 +34,8 @@ const BlogEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex min-h-96 items-center justify-center rounded-md border bg-muted">
-        <p className="text-sm text-muted-foreground">Loading editor...</p>
+      <div className="bg-muted flex min-h-96 items-center justify-center rounded-md border">
+        <p className="text-muted-foreground text-sm">Loading editor...</p>
       </div>
     )
   }
@@ -243,7 +245,7 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
               )}
             />
             {errors.title && (
-              <p className="text-sm text-destructive">{errors.title.message}</p>
+              <p className="text-destructive text-sm">{errors.title.message}</p>
             )}
           </div>
 
@@ -264,7 +266,7 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
               )}
             />
             {errors.summary && (
-              <p className="text-sm text-destructive">
+              <p className="text-destructive text-sm">
                 {errors.summary.message}
               </p>
             )}
@@ -285,21 +287,21 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
               )}
             />
             {errors.coverImage && (
-              <p className="text-sm text-destructive">
+              <p className="text-destructive text-sm">
                 {errors.coverImage.message}
               </p>
             )}
           </div>
 
-          <div className="rounded-lg border border-muted bg-muted/50 p-4">
+          <div className="border-muted bg-muted/50 rounded-lg border p-4">
             <div className="flex items-center justify-between">
               <div>
                 <Label className="text-base">Status</Label>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {isPublished ? 'Published' : 'Draft'}
                 </p>
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground text-sm">
                 {isPublished
                   ? 'This blog is publicly visible'
                   : 'This blog is saved as a draft'}
@@ -330,7 +332,7 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
             )}
           />
           {errors.contentBlocks && (
-            <p className="text-sm text-destructive mt-2">
+            <p className="text-destructive mt-2 text-sm">
               {errors.contentBlocks.message}
             </p>
           )}

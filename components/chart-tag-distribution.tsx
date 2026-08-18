@@ -1,5 +1,7 @@
 'use client'
 
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts'
+
 import {
   Card,
   CardContent,
@@ -13,7 +15,6 @@ import {
   ChartTooltipContent,
   type ChartConfig
 } from '@/components/ui/chart'
-import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts'
 
 interface TagStat {
   tag: string

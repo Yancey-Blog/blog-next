@@ -1,8 +1,10 @@
 'use client'
 
-import { useTRPC } from '@/lib/trpc/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+
+import { useTRPC } from '@/lib/trpc/client'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -71,7 +73,7 @@ export function SessionManagement() {
       <Card>
         <CardHeader>
           <Skeleton className="h-6 w-32" />
-          <Skeleton className="h-4 w-40 mt-2" />
+          <Skeleton className="mt-2 h-4 w-40" />
         </CardHeader>
         <CardContent>
           <div className="space-y-3">

@@ -1,9 +1,10 @@
+import { describe, expect, it } from 'vitest'
+
 import {
   createBlogSchema,
   getBlogsQuerySchema,
   updateBlogSchema
 } from '@/lib/validations/blog'
-import { describe, expect, it } from 'vitest'
 
 const validBlog = {
   title: 'Hello World',

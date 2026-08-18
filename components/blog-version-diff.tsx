@@ -1,7 +1,9 @@
 'use client'
 
-import { DiffChange, DiffResult } from '@/lib/services/diff.service'
 import Image from 'next/image'
+
+import { DiffChange, DiffResult } from '@/lib/services/diff.service'
+
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 
 interface BlogVersionDiffProps {
@@ -16,7 +18,7 @@ function DiffText({ changes }: { changes: DiffChange[] }) {
   }
 
   return (
-    <div className="whitespace-pre-wrap break-words">
+    <div className="break-words whitespace-pre-wrap">
       {changes.map((change, index) => {
         if (change.added) {
           return (
@@ -68,7 +70,7 @@ export function BlogVersionDiff({
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center">
             No differences found between these versions.
           </p>
         </CardContent>
@@ -78,7 +80,7 @@ export function BlogVersionDiff({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex items-center justify-between text-sm">
         <div className="flex items-center gap-2">
           <span className="inline-block h-3 w-3 rounded-sm bg-red-100 dark:bg-red-900/30" />
           <span>Removed ({oldVersionDate})</span>
@@ -119,11 +121,11 @@ export function BlogVersionDiff({
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <p className="mb-2 text-sm font-medium text-muted-foreground">
+                <p className="text-muted-foreground mb-2 text-sm font-medium">
                   Old Version
                 </p>
                 {diff.coverImage.old ? (
-                  <div className="relative aspect-video overflow-hidden rounded-lg border bg-muted">
+                  <div className="bg-muted relative aspect-video overflow-hidden rounded-lg border">
                     <Image
                       src={diff.coverImage.old}
                       alt="Old cover image"
@@ -133,19 +135,19 @@ export function BlogVersionDiff({
                     />
                   </div>
                 ) : (
-                  <div className="flex aspect-video items-center justify-center rounded-lg border bg-muted">
-                    <span className="text-sm text-muted-foreground">
+                  <div className="bg-muted flex aspect-video items-center justify-center rounded-lg border">
+                    <span className="text-muted-foreground text-sm">
                       No image
                     </span>
                   </div>
                 )}
               </div>
               <div>
-                <p className="mb-2 text-sm font-medium text-muted-foreground">
+                <p className="text-muted-foreground mb-2 text-sm font-medium">
                   New Version
                 </p>
                 {diff.coverImage.new ? (
-                  <div className="relative aspect-video overflow-hidden rounded-lg border bg-muted">
+                  <div className="bg-muted relative aspect-video overflow-hidden rounded-lg border">
                     <Image
                       src={diff.coverImage.new}
                       alt="New cover image"
@@ -155,8 +157,8 @@ export function BlogVersionDiff({
                     />
                   </div>
                 ) : (
-                  <div className="flex aspect-video items-center justify-center rounded-lg border bg-muted">
-                    <span className="text-sm text-muted-foreground">
+                  <div className="bg-muted flex aspect-video items-center justify-center rounded-lg border">
+                    <span className="text-muted-foreground text-sm">
                       No image
                     </span>
                   </div>

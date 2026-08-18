@@ -2,10 +2,7 @@
   "name": "Yancey Blog",
   "short_name": "Yancey Blog",
   "description": "Yancey's personal blog - Thoughts, stories and ideas about technology, design, and life",
-  "categories": [
-    "Yancey Inc.",
-    "Blog"
-  ],
+  "categories": ["Yancey Inc.", "Blog"],
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
