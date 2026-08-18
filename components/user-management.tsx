@@ -124,15 +124,17 @@ export function UserManagement() {
                 </TableCell>
                 <TableCell className="text-right">
                   <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        disabled={deleteUser.isPending}
-                      >
-                        Delete
-                      </Button>
-                    </AlertDialogTrigger>
+                    <AlertDialogTrigger
+                      render={
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          disabled={deleteUser.isPending}
+                        >
+                          Delete
+                        </Button>
+                      }
+                    />
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete User</AlertDialogTitle>

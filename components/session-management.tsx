@@ -147,15 +147,17 @@ export function SessionManagement() {
                 </TableCell>
                 <TableCell className="text-right">
                   <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        disabled={revokeSession.isPending}
-                      >
-                        Revoke
-                      </Button>
-                    </AlertDialogTrigger>
+                    <AlertDialogTrigger
+                      render={
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          disabled={revokeSession.isPending}
+                        >
+                          Revoke
+                        </Button>
+                      }
+                    />
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Revoke Session</AlertDialogTitle>

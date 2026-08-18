@@ -1,6 +1,6 @@
 'use client'
 
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { formatDistanceToNow } from 'date-fns'
 import { X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -106,11 +106,8 @@ export function MeijiMediaLightbox({
       }}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-[rgba(75,63,87,0.55)] backdrop-blur-sm" />
-        <DialogPrimitive.Content
-          aria-describedby={undefined}
-          className="meiji-portal data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom-3 fixed top-1/2 left-1/2 z-50 w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 duration-200 outline-none"
-        >
+        <DialogPrimitive.Backdrop className="data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 z-50 bg-[rgba(75,63,87,0.55)] backdrop-blur-sm" />
+        <DialogPrimitive.Popup className="meiji-portal data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-open:slide-in-from-bottom-3 fixed top-1/2 left-1/2 z-50 w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 duration-200 outline-none">
           <DialogPrimitive.Title className="sr-only">
             Meiji media viewer
           </DialogPrimitive.Title>
@@ -188,7 +185,7 @@ export function MeijiMediaLightbox({
               </div>
             )}
           </div>
-        </DialogPrimitive.Content>
+        </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   )

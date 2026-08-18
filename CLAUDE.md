@@ -440,7 +440,7 @@ See `.env.example` for detailed documentation on each variable.
 - **Database**: PostgreSQL (Supabase) + Drizzle ORM
 - **Cache**: Redis (optional, for caching)
 - **Auth**: better-auth with OAuth (Google, GitHub)
-- **UI**: shadcn/ui + Radix UI + Tailwind CSS
+- **UI**: shadcn/ui-style components (hand-maintained) on Base UI (`@base-ui/react`) + Tailwind CSS
 - **Editor**: BlockNote.js (block-based; blocks JSON is the editing source of truth, with derived HTML for rendering/search/diff)
 - **Search**: Algolia InstantSearch (full-text search)
 - **Analytics**: Google Analytics 4 / Google Tag Manager via @next/third-parties

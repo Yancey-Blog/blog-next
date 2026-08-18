@@ -170,11 +170,13 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" type="button">
-          Version History
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button variant="outline" type="button">
+            Version History
+          </Button>
+        }
+      />
       <DialogContent className="max-h-[80vh] max-w-6xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Version History</DialogTitle>

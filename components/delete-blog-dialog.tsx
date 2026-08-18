@@ -60,11 +60,13 @@ export function DeleteBlogDialog({ blogId, blogTitle }: DeleteBlogDialogProps) {
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <Trash2 className="text-destructive h-4 w-4" />
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={
+          <Button variant="ghost" size="sm">
+            <Trash2 className="text-destructive h-4 w-4" />
+          </Button>
+        }
+      />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
