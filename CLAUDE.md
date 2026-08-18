@@ -470,3 +470,13 @@ See `.env.example` for detailed documentation on each variable.
 9. **Analytics privacy** - All analytics tracking respects user privacy. Implement proper cookie consent before enabling tracking in production.
 
 10. **Environment variable naming** - Some services require both `NEXT_PUBLIC_*` (client-side) and non-prefixed (server-side) versions of the same variable (e.g., Algolia). Always check `.env.example` for the complete list.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

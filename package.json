@@ -62,6 +62,7 @@
     "next-pwa": "^5.6.0",
     "next-themes": "^0.4.6",
     "postgres": "^3.4.9",
+    "prop-types": "^15.8.1",
     "react": "19.2.8",
     "react-countup": "^6.5.3",
     "react-dom": "19.2.8",
