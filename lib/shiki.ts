@@ -44,19 +44,43 @@ export async function highlightHtml(html: string) {
 
   const loadedLangs = shiki.getLoadedLanguages()
 
-  // Inject id attributes into h2/h3 for TOC
+  // Inject id attributes into h2/h3 for TOC. Keep any Unicode letter/number
+  // (so CJK and other non-Latin headings survive), and fall back to a
+  // positional id when a heading is punctuation-only and would slugify to "".
+  const usedIds = new Set<string>()
+  let headingIndex = 0
+
   $('h2, h3').each((_, el) => {
     const $el = $(el)
-    if (!$el.attr('id')) {
-      const id = $el
-        .text()
-        .toLowerCase()
-        .trim()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-      $el.attr('id', id)
+    const existingId = $el.attr('id')
+
+    if (existingId) {
+      usedIds.add(existingId)
+      return
     }
+
+    let id = $el
+      .text()
+      .toLowerCase()
+      .trim()
+      .replace(/[^\p{L}\p{N}\s-]/gu, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+
+    if (!id) {
+      id = `heading-${headingIndex}`
+    }
+
+    let uniqueId = id
+    let suffix = 1
+    while (usedIds.has(uniqueId)) {
+      uniqueId = `${id}-${suffix++}`
+    }
+
+    usedIds.add(uniqueId)
+    headingIndex++
+    $el.attr('id', uniqueId)
   })
 
   // Process all pre tags with language- class

@@ -40,6 +40,13 @@ export const blogRouter = {
       return await BlogService.getBlogById(input.id)
     }),
 
+  // Get the published posts immediately before/after this one (for prev/next nav)
+  adjacent: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      return await BlogService.getAdjacentBlogs(input.id)
+    }),
+
   // Create new blog
   create: protectedProcedure
     .input(createBlogSchema)

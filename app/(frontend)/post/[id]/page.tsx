@@ -1,9 +1,11 @@
+import { BlogAdjacentNav } from '@/components/blog-adjacent-nav'
 import { BlogComments } from '@/components/blog-comments'
 import { BlogToc } from '@/components/blog-toc'
 import { PostActions } from '@/components/post-actions'
 import { Badge } from '@/components/ui/badge'
 import { extractToc } from '@/lib/blocknote/extract-toc'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
+import { cn } from '@/lib/utils'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Calendar, Clock, Eye } from 'lucide-react'
 import Image from 'next/image'
@@ -28,11 +30,19 @@ export default async function BlogDetailPage({
   const content = blog.highlightedContent || blog.content
   // Extract the outline on the server so the TOC renders during SSR.
   const tocItems = extractToc(content)
+  const { prev, next } = await queryClient.fetchQuery(
+    trpc.blog.adjacent.queryOptions({ id: blog.id })
+  )
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="container mx-auto px-4 pb-8 pt-24">
-        <div className="relative grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_16rem] xl:items-start">
+        <div
+          className={cn(
+            'relative grid grid-cols-1 gap-8 xl:items-start',
+            tocItems.length > 0 && 'xl:grid-cols-[minmax(0,1fr)_16rem]'
+          )}
+        >
           <article className="mx-auto w-full min-w-0 max-w-4xl">
             {blog.coverImage && (
               <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-lg shadow-lg">
@@ -113,6 +123,8 @@ export default async function BlogDetailPage({
               className="blog-content"
               dangerouslySetInnerHTML={{ __html: content }}
             />
+
+            <BlogAdjacentNav prev={prev} next={next} />
 
             <BlogComments
               identifier={blog.id}

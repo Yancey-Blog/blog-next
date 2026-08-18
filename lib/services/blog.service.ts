@@ -1,8 +1,27 @@
 import { db } from '@/lib/db'
 import { blogs, type Blog, type InsertBlog } from '@/lib/db/schema'
 import { highlightHtml } from '@/lib/shiki'
-import { and, count, desc, eq, ilike, or, sql, sum } from 'drizzle-orm'
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  ilike,
+  lt,
+  ne,
+  or,
+  sql,
+  sum
+} from 'drizzle-orm'
 import { v4 as uuidv4 } from 'uuid'
+
+export interface AdjacentBlog {
+  id: string
+  title: string
+  coverImage: string
+}
 
 export interface GetBlogsOptions {
   page?: number
@@ -76,6 +95,66 @@ export class BlogService {
         total: totalCount,
         totalPages: Math.ceil(totalCount / pageSize)
       }
+    }
+  }
+
+  /**
+   * Get the published posts immediately before and after the given post,
+   * ordered chronologically by createdAt (prev = older, next = newer).
+   * The id tie-breaks posts sharing the same createdAt.
+   *
+   * The anchor's createdAt is read via a correlated subquery rather than
+   * passed in as a JS Date: Postgres timestamps carry microsecond
+   * precision, but a JS Date only holds milliseconds, so a value round-
+   * tripped through JS would compare unequal to (and even less than) the
+   * row it came from, making a post spuriously match as its own neighbor.
+   */
+  static async getAdjacentBlogs(
+    id: string
+  ): Promise<{ prev: AdjacentBlog | null; next: AdjacentBlog | null }> {
+    const selection = {
+      id: blogs.id,
+      title: blogs.title,
+      coverImage: blogs.coverImage
+    }
+    const anchorCreatedAt = sql`(select ${blogs.createdAt} from ${blogs} where ${blogs.id} = ${id})`
+
+    const [prevRows, nextRows] = await Promise.all([
+      db
+        .select(selection)
+        .from(blogs)
+        .where(
+          and(
+            eq(blogs.published, true),
+            ne(blogs.id, id),
+            or(
+              lt(blogs.createdAt, anchorCreatedAt),
+              and(eq(blogs.createdAt, anchorCreatedAt), lt(blogs.id, id))
+            )
+          )
+        )
+        .orderBy(desc(blogs.createdAt), desc(blogs.id))
+        .limit(1),
+      db
+        .select(selection)
+        .from(blogs)
+        .where(
+          and(
+            eq(blogs.published, true),
+            ne(blogs.id, id),
+            or(
+              gt(blogs.createdAt, anchorCreatedAt),
+              and(eq(blogs.createdAt, anchorCreatedAt), gt(blogs.id, id))
+            )
+          )
+        )
+        .orderBy(asc(blogs.createdAt), asc(blogs.id))
+        .limit(1)
+    ])
+
+    return {
+      prev: prevRows[0] ?? null,
+      next: nextRows[0] ?? null
     }
   }
 
