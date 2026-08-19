@@ -1,10 +1,21 @@
 import { z } from 'zod'
 
+import { removeBlogFromIndex, syncBlog } from '@/lib/algolia'
 import { BlogVersionService } from '@/lib/services/blog-version.service'
 import { BlogService } from '@/lib/services/blog.service'
 import { createBlogSchema, updateBlogSchema } from '@/lib/validations/blog'
 
 import { protectedProcedure, publicProcedure } from '../init'
+
+// Algolia is a search index, not the source of truth - a transient failure
+// here shouldn't fail the blog save/delete that triggered it.
+async function syncAlgoliaSafely(fn: () => Promise<void>) {
+  try {
+    await fn()
+  } catch (error) {
+    console.error('Algolia sync failed:', error)
+  }
+}
 
 export const blogRouter = {
   // Get all published blogs (public access)
@@ -71,6 +82,10 @@ export const blogRouter = {
         )
       }
 
+      if (blog.published) {
+        await syncAlgoliaSafely(() => syncBlog(blog))
+      }
+
       return blog
     }),
 
@@ -104,6 +119,14 @@ export const blogRouter = {
         await BlogVersionService.createVersion(id, ctx.user.id, 'Published')
       }
 
+      if (blog) {
+        if (blog.published) {
+          await syncAlgoliaSafely(() => syncBlog(blog))
+        } else if (originalBlog.published) {
+          await syncAlgoliaSafely(() => removeBlogFromIndex(id))
+        }
+      }
+
       return blog
     }),
 
@@ -129,6 +152,7 @@ export const blogRouter = {
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       await BlogService.deleteBlog(input.id)
+      await syncAlgoliaSafely(() => removeBlogFromIndex(input.id))
       return { message: 'Blog deleted successfully' }
     })
 }

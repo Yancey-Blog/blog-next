@@ -1,3 +1,12 @@
+overrides:
+  # @blocknote/server-util@0.54.0 requires jsdom@^29, which pulls in
+  # html-encoding-sniffer@6 -> @exodus/bytes (ESM-only, no CJS build).
+  # Vercel's function runtime hits ERR_REQUIRE_ESM requiring it through
+  # jsdom's CJS build, breaking every blog save. Pin jsdom to 25.0.1 (the
+  # version @blocknote/server-util@0.51.2 used, known-good in production) -
+  # @blocknote/server-util only calls `new JSDOM()` and reads
+  # `.window.document`, a stable API across jsdom majors.
+  jsdom: 25.0.1
 allowBuilds:
   '@sentry/cli': true
   esbuild: true
