@@ -2,6 +2,7 @@
 
 import { Play } from 'lucide-react'
 import { useRef, useState } from 'react'
+
 import { useMeijiVideo } from './meiji-video-provider'
 
 /**

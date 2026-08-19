@@ -1,8 +1,9 @@
+import { ArrowLeft, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
+
 import { LazyLoadImage } from '@/components/lazy-load-image'
 import type { AdjacentBlog } from '@/lib/services/blog.service'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
-import Link from 'next/link'
 
 interface BlogAdjacentNavProps {
   prev: AdjacentBlog | null
@@ -20,7 +21,7 @@ export function BlogAdjacentNav({ prev, next }: BlogAdjacentNavProps) {
   return (
     <nav
       aria-label="More posts"
-      className="my-10 grid grid-cols-1 gap-4 border-y border-border py-6 sm:grid-cols-2"
+      className="border-border my-10 grid grid-cols-1 gap-4 border-y py-6 sm:grid-cols-2"
     >
       {prev && (
         <AdjacentCard
@@ -61,7 +62,7 @@ function AdjacentCard({
       )}
     >
       {blog.coverImage && (
-        <div className="relative aspect-video w-24 shrink-0 overflow-hidden rounded-lg bg-muted sm:w-28">
+        <div className="bg-muted relative aspect-video w-24 shrink-0 overflow-hidden rounded-lg sm:w-28">
           <LazyLoadImage src={blog.coverImage} alt={blog.title} fill />
         </div>
       )}
@@ -85,7 +86,7 @@ function AdjacentCard({
             </>
           )}
         </div>
-        <p className="line-clamp-2 font-semibold group-hover:text-primary">
+        <p className="group-hover:text-primary line-clamp-2 font-semibold">
           {blog.title}
         </p>
       </div>

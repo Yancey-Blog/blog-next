@@ -1,8 +1,9 @@
 'use client'
 
+import { motion, useScroll, useTransform } from 'framer-motion'
+
 import { LazyLoadImage } from '@/components/lazy-load-image'
 import type { ScrapbookItem } from '@/lib/validations/meiji'
-import { motion, useScroll, useTransform } from 'framer-motion'
 
 interface Slot {
   pos: React.CSSProperties // left/right + top
@@ -104,7 +105,7 @@ function Polaroid({
         }}
       >
         <span
-          className="absolute left-1/2 top-0 h-4 w-12 -translate-x-1/2 -translate-y-1/2 -rotate-3 opacity-70"
+          className="absolute top-0 left-1/2 h-4 w-12 -translate-x-1/2 -translate-y-1/2 -rotate-3 opacity-70"
           style={{ background: 'var(--m-gold-soft)' }}
         />
         {imageUrl ? (

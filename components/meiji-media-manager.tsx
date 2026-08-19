@@ -1,5 +1,10 @@
 'use client'
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -19,10 +24,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { MeijiMedia } from '@/lib/db/schema'
 import { useTRPC } from '@/lib/trpc/client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react'
-import { useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 interface Pending {
   url: string
@@ -116,7 +117,7 @@ export function MeijiMediaManager() {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* add new */}
-        <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
+        <div className="bg-muted/30 space-y-4 rounded-lg border p-4">
           <input
             ref={fileRef}
             type="file"
@@ -131,7 +132,7 @@ export function MeijiMediaManager() {
 
           {pending ? (
             <div className="space-y-3">
-              <div className="overflow-hidden rounded-lg border bg-background">
+              <div className="bg-background overflow-hidden rounded-lg border">
                 {pending.type === 'video' ? (
                   <video
                     src={pending.url}
@@ -208,14 +209,14 @@ export function MeijiMediaManager() {
         {/* existing */}
         {isLoading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
           </div>
         ) : media && media.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {media.map((m) => (
               <div
                 key={m.id}
-                className="group relative overflow-hidden rounded-lg border bg-muted"
+                className="group bg-muted relative overflow-hidden rounded-lg border"
               >
                 {m.type === 'video' ? (
                   <video
@@ -231,24 +232,24 @@ export function MeijiMediaManager() {
                   />
                 )}
                 {m.milestone && (
-                  <span className="absolute left-1.5 top-1.5 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold capitalize">
+                  <span className="bg-background/90 absolute top-1.5 left-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize">
                     {m.milestone}
                   </span>
                 )}
-                <div className="absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                   <button
                     onClick={() => setEditing(m)}
-                    className="rounded-full bg-background/90 p-1.5"
+                    className="bg-background/90 rounded-full p-1.5"
                     aria-label="Edit"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => deleteMutation.mutate({ id: m.id })}
-                    className="rounded-full bg-background/90 p-1.5"
+                    className="bg-background/90 rounded-full p-1.5"
                     aria-label="Delete"
                   >
-                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    <Trash2 className="text-destructive h-3.5 w-3.5" />
                   </button>
                 </div>
                 {m.caption && (
@@ -258,7 +259,7 @@ export function MeijiMediaManager() {
             ))}
           </div>
         ) : (
-          <p className="py-6 text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground py-6 text-center text-sm">
             No media yet. Upload Meiji&apos;s first photo! 🐾
           </p>
         )}
@@ -374,7 +375,7 @@ function EditMediaDialog({
             }}
           />
 
-          <div className="overflow-hidden rounded-lg border bg-muted">
+          <div className="bg-muted overflow-hidden rounded-lg border">
             {type === 'video' ? (
               <video src={url} controls className="max-h-56 w-full" />
             ) : (

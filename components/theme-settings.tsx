@@ -1,11 +1,13 @@
 'use client'
 
-import { PRESET_THEMES } from '@/lib/themes'
-import { useTRPC } from '@/lib/trpc/client'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
+
+import { PRESET_THEMES } from '@/lib/themes'
+import { useTRPC } from '@/lib/trpc/client'
+
 import {
   Card,
   CardContent,
@@ -68,32 +70,27 @@ export function ThemeSettings({ currentTheme }: ThemeSettingsProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {PRESET_THEMES.map((theme) => (
             <button
               key={theme.id}
               onClick={() => handleThemeChange(theme.id)}
               disabled={isPending || updateTheme.isPending}
-              className={`
-                relative p-4 rounded-lg border-2 text-left transition-all
-                hover:border-primary hover:shadow-md
-                ${
-                  selectedTheme === theme.id
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border bg-card'
-                }
-                ${
-                  isPending || updateTheme.isPending
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'cursor-pointer'
-                }
-              `}
+              className={`hover:border-primary relative rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+                selectedTheme === theme.id
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border bg-card'
+              } ${
+                isPending || updateTheme.isPending
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'cursor-pointer'
+              } `}
             >
               {selectedTheme === theme.id && (
                 <div className="absolute top-2 right-2">
-                  <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                  <div className="bg-primary flex h-5 w-5 items-center justify-center rounded-full">
                     <svg
-                      className="w-3 h-3 text-primary-foreground"
+                      className="text-primary-foreground h-3 w-3"
                       fill="none"
                       strokeWidth="2"
                       stroke="currentColor"
@@ -110,22 +107,22 @@ export function ThemeSettings({ currentTheme }: ThemeSettingsProps) {
               )}
 
               <div className="mb-3">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="mb-2 flex items-center gap-2">
                   {/* Color preview dots */}
                   <div
-                    className="w-6 h-6 rounded-full border"
+                    className="h-6 w-6 rounded-full border"
                     style={{
                       background: extractCSSVariable(theme.css, '--primary')
                     }}
                   />
                   <div
-                    className="w-6 h-6 rounded-full border"
+                    className="h-6 w-6 rounded-full border"
                     style={{
                       background: extractCSSVariable(theme.css, '--secondary')
                     }}
                   />
                   <div
-                    className="w-6 h-6 rounded-full border"
+                    className="h-6 w-6 rounded-full border"
                     style={{
                       background: extractCSSVariable(theme.css, '--accent')
                     }}
@@ -133,17 +130,17 @@ export function ThemeSettings({ currentTheme }: ThemeSettingsProps) {
                 </div>
               </div>
 
-              <h3 className="font-semibold text-lg mb-1">{theme.name}</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="mb-1 text-lg font-semibold">{theme.name}</h3>
+              <p className="text-muted-foreground text-sm">
                 {theme.description}
               </p>
             </button>
           ))}
         </div>
 
-        <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-          <h4 className="font-semibold mb-2">About Themes</h4>
-          <p className="text-sm text-muted-foreground">
+        <div className="bg-muted/50 mt-6 rounded-lg p-4">
+          <h4 className="mb-2 font-semibold">About Themes</h4>
+          <p className="text-muted-foreground text-sm">
             Themes are applied globally across your admin dashboard. Changes
             take effect immediately after selection. You can switch themes at
             any time.

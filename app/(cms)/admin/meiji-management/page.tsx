@@ -1,8 +1,9 @@
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+
 import { MeijiMediaManager } from '@/components/meiji-media-manager'
 import { MeijiProfileForm } from '@/components/meiji-profile-form'
 import { MeijiScrapbookManager } from '@/components/meiji-scrapbook-manager'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
 export default async function MeijiManagementPage() {
   const queryClient = getQueryClient()

@@ -1,3 +1,8 @@
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { Calendar, Clock, Eye } from 'lucide-react'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
+
 import { BlogAdjacentNav } from '@/components/blog-adjacent-nav'
 import { BlogComments } from '@/components/blog-comments'
 import { BlogToc } from '@/components/blog-toc'
@@ -6,10 +11,6 @@ import { Badge } from '@/components/ui/badge'
 import { extractToc } from '@/lib/blocknote/extract-toc'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { cn } from '@/lib/utils'
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { Calendar, Clock, Eye } from 'lucide-react'
-import Image from 'next/image'
-import { notFound } from 'next/navigation'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL
 
@@ -36,14 +37,14 @@ export default async function BlogDetailPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="container mx-auto px-4 pb-8 pt-24">
+      <div className="container mx-auto px-4 pt-24 pb-8">
         <div
           className={cn(
             'relative grid grid-cols-1 gap-8 xl:items-start',
             tocItems.length > 0 && 'xl:grid-cols-[minmax(0,1fr)_16rem]'
           )}
         >
-          <article className="mx-auto w-full min-w-0 max-w-4xl">
+          <article className="mx-auto w-full max-w-4xl min-w-0">
             {blog.coverImage && (
               <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-lg shadow-lg">
                 <Image
@@ -59,8 +60,8 @@ export default async function BlogDetailPage({
               {blog.title}
             </h1>
 
-            <div className="mb-8 border-y border-border py-4">
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            <div className="border-border mb-8 border-y py-4">
+              <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-4 w-4" />
                   <time>
@@ -113,8 +114,8 @@ export default async function BlogDetailPage({
               </div>
             </div>
 
-            <div className="mb-6 border-l-4 border-primary/50 bg-muted/30 p-4 rounded-r-lg">
-              <p className="text-lg leading-relaxed text-muted-foreground italic">
+            <div className="border-primary/50 bg-muted/30 mb-6 rounded-r-lg border-l-4 p-4">
+              <p className="text-muted-foreground text-lg leading-relaxed italic">
                 {blog.summary}
               </p>
             </div>

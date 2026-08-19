@@ -26,7 +26,7 @@ export function SectionCards({ stats }: { stats: Stats }) {
             {stats.total.toLocaleString()}
           </CardTitle>
         </CardHeader>
-        <CardFooter className="flex items-center gap-2 text-sm text-muted-foreground">
+        <CardFooter className="text-muted-foreground flex items-center gap-2 text-sm">
           <IconNotes className="size-4" />
           {stats.published} published · {stats.drafts} drafts
         </CardFooter>
@@ -39,7 +39,7 @@ export function SectionCards({ stats }: { stats: Stats }) {
             {stats.published.toLocaleString()}
           </CardTitle>
         </CardHeader>
-        <CardFooter className="flex items-center gap-2 text-sm text-muted-foreground">
+        <CardFooter className="text-muted-foreground flex items-center gap-2 text-sm">
           <IconSend className="size-4" />
           {stats.total > 0
             ? Math.round((stats.published / stats.total) * 100)
@@ -55,7 +55,7 @@ export function SectionCards({ stats }: { stats: Stats }) {
             {stats.totalPv.toLocaleString()}
           </CardTitle>
         </CardHeader>
-        <CardFooter className="flex items-center gap-2 text-sm text-muted-foreground">
+        <CardFooter className="text-muted-foreground flex items-center gap-2 text-sm">
           <IconEye className="size-4" />
           {stats.published > 0
             ? Math.round(stats.totalPv / stats.published).toLocaleString()
@@ -71,7 +71,7 @@ export function SectionCards({ stats }: { stats: Stats }) {
             {stats.totalLike.toLocaleString()}
           </CardTitle>
         </CardHeader>
-        <CardFooter className="flex items-center gap-2 text-sm text-muted-foreground">
+        <CardFooter className="text-muted-foreground flex items-center gap-2 text-sm">
           <IconHeart className="size-4" />
           {stats.published > 0
             ? Math.round(stats.totalLike / stats.published).toLocaleString()

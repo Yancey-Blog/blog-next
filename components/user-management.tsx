@@ -1,8 +1,10 @@
 'use client'
 
-import { useTRPC } from '@/lib/trpc/client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+
+import { useTRPC } from '@/lib/trpc/client'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -60,7 +62,7 @@ export function UserManagement() {
       <Card>
         <CardHeader>
           <Skeleton className="h-6 w-24" />
-          <Skeleton className="h-4 w-32 mt-2" />
+          <Skeleton className="mt-2 h-4 w-32" />
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -122,15 +124,17 @@ export function UserManagement() {
                 </TableCell>
                 <TableCell className="text-right">
                   <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        disabled={deleteUser.isPending}
-                      >
-                        Delete
-                      </Button>
-                    </AlertDialogTrigger>
+                    <AlertDialogTrigger
+                      render={
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          disabled={deleteUser.isPending}
+                        >
+                          Delete
+                        </Button>
+                      }
+                    />
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete User</AlertDialogTitle>

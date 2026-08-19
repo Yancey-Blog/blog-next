@@ -3,6 +3,7 @@
 // `import 'server-only'` so it stays usable from any Node context.
 import type { Block } from '@blocknote/core'
 import { ServerBlockNoteEditor } from '@blocknote/server-util'
+
 import { blogSchema } from './schema'
 
 // ServerBlockNoteEditor is stateless per call; create once and reuse.

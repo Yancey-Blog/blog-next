@@ -20,7 +20,7 @@ export default async function MeijiPage() {
         <MeijiHero profile={profile} scrapbook={scrapbook} />
         <MeijiMediaFeed media={media} />
       </main>
-      <footer className="px-6 pb-12 pt-4 text-center">
+      <footer className="px-6 pt-4 pb-12 text-center">
         <p className="text-sm font-bold" style={{ color: 'var(--m-ink-soft)' }}>
           Made with 🧶 for {profile.name} ·{' '}
           <a

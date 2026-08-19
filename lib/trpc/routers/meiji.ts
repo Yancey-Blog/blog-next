@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import { MeijiService } from '@/lib/services/meiji.service'
 import {
   createMediaSchema,
@@ -5,7 +7,7 @@ import {
   scrapbookSchema,
   updateMediaSchema
 } from '@/lib/validations/meiji'
-import { z } from 'zod'
+
 import { protectedProcedure, publicProcedure } from '../init'
 
 export const meijiRouter = {

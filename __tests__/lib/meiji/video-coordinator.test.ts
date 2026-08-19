@@ -1,8 +1,9 @@
+import { describe, expect, it, vi } from 'vitest'
+
 import {
   activateVideo,
   type PausableVideo
 } from '@/lib/meiji/video-coordinator'
-import { describe, expect, it, vi } from 'vitest'
 
 function makeVideo(): PausableVideo {
   return { pause: vi.fn() }

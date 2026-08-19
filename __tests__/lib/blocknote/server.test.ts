@@ -1,7 +1,8 @@
-// @vitest-environment node
-import { blocksToContentHtml } from '@/lib/blocknote/server'
 import type { Block } from '@blocknote/core'
 import { describe, expect, it } from 'vitest'
+
+// @vitest-environment node
+import { blocksToContentHtml } from '@/lib/blocknote/server'
 
 // Minimal blocks covering the types used on the save path. Cast through
 // unknown because these are partial shapes; blocksToHTMLLossy fills the rest.

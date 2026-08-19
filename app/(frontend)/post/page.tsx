@@ -1,12 +1,13 @@
-import { LazyLoadImage } from '@/components/lazy-load-image'
-import { Badge } from '@/components/ui/badge'
-import { Pagination } from '@/components/ui/pagination'
-import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { Calendar, Eye, Heart, Search } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+
+import { LazyLoadImage } from '@/components/lazy-load-image'
+import { Badge } from '@/components/ui/badge'
+import { Pagination } from '@/components/ui/pagination'
+import { getQueryClient, trpc } from '@/lib/trpc/server'
 
 export const metadata: Metadata = {
   title: 'All Articles | Blog',
@@ -36,29 +37,29 @@ export default async function BlogsPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="container mx-auto px-4 pb-12 pt-24">
+      <div className="container mx-auto px-4 pt-24 pb-12">
         <div className="mb-12 text-center">
           <h1 className="mb-4 text-5xl font-bold tracking-tight">
             Discover Stories
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-muted-foreground text-xl">
             Explore insights, tutorials, and thoughts
           </p>
         </div>
 
         <form className="mb-12">
           <div className="relative mx-auto max-w-2xl">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" />
             <input
               type="text"
               name="search"
               placeholder="Search articles by title or content..."
               defaultValue={search}
-              className="w-full rounded-full border-2 bg-background py-3 pl-12 pr-32 text-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="bg-background focus:border-primary focus:ring-primary/20 w-full rounded-full border-2 py-3 pr-32 pl-12 text-lg focus:ring-2 focus:outline-none"
             />
             <button
               type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 absolute top-1/2 right-2 -translate-y-1/2 rounded-full px-6 py-2 text-sm font-medium transition"
             >
               Search
             </button>
@@ -67,7 +68,7 @@ export default async function BlogsPage({
 
         {blogs.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="text-xl text-muted-foreground">
+            <p className="text-muted-foreground text-xl">
               No articles found. Try a different search term.
             </p>
           </div>
@@ -76,14 +77,14 @@ export default async function BlogsPage({
             {blogs.map((blog) => (
               <article
                 key={blog.id}
-                className="group flex flex-col overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-xl"
+                className="group bg-card flex flex-col overflow-hidden rounded-2xl border transition-all hover:shadow-xl"
               >
                 <Link
                   href={`/post/${blog.id}`}
                   className="flex flex-1 flex-col"
                 >
                   {blog.coverImage && (
-                    <div className="relative aspect-video w-full overflow-hidden bg-muted">
+                    <div className="bg-muted relative aspect-video w-full overflow-hidden">
                       <LazyLoadImage
                         src={blog.coverImage}
                         alt={blog.title}
@@ -112,15 +113,15 @@ export default async function BlogsPage({
                       </div>
                     )}
 
-                    <h2 className="mb-3 line-clamp-2 text-2xl font-bold tracking-tight group-hover:text-primary">
+                    <h2 className="group-hover:text-primary mb-3 line-clamp-2 text-2xl font-bold tracking-tight">
                       {blog.title}
                     </h2>
 
-                    <p className="mb-4 line-clamp-3 flex-1 text-muted-foreground">
+                    <p className="text-muted-foreground mb-4 line-clamp-3 flex-1">
                       {blog.summary ?? ''}
                     </p>
 
-                    <div className="flex items-center gap-4 border-t pt-4 text-sm text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center gap-4 border-t pt-4 text-sm">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3.5 w-3.5" />
                         <time>

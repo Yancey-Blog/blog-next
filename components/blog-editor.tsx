@@ -1,15 +1,18 @@
 'use client'
 
-import { blogSchema } from '@/lib/blocknote/schema'
-import { useTRPC } from '@/lib/trpc/client'
 import type { PartialBlock } from '@blocknote/core'
-import '@blocknote/core/fonts/inter.css'
 import { BlockNoteView } from '@blocknote/mantine'
-import '@blocknote/mantine/style.css'
 import { useCreateBlockNote } from '@blocknote/react'
+
+import '@blocknote/core/fonts/inter.css'
 import { useMutation } from '@tanstack/react-query'
+
+import '@blocknote/mantine/style.css'
 import { useTheme } from 'next-themes'
 import { useMemo } from 'react'
+
+import { blogSchema } from '@/lib/blocknote/schema'
+import { useTRPC } from '@/lib/trpc/client'
 
 interface BlogEditorProps {
   /** BlockNote blocks as a JSON string. Read ONCE as initial content. */

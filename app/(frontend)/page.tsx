@@ -1,10 +1,11 @@
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import type { Metadata } from 'next'
+
 import { HomeArticles } from '@/components/home-articles'
 import { HomeHero } from '@/components/home-hero'
 import { HomeOpenSource } from '@/components/home-open-source'
 import { SettingsService } from '@/lib/services/settings.service'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Home | Yancey Blog - Thoughts, Stories & Ideas',

@@ -5,6 +5,7 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs
 } from '@blocknote/core'
+
 import { Superscript } from './superscript'
 
 /**

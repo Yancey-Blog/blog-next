@@ -1,5 +1,6 @@
-import { cn } from '@/lib/utils'
 import { describe, expect, it } from 'vitest'
+
+import { cn } from '@/lib/utils'
 
 describe('cn', () => {
   it('merges class names', () => {
@@ -12,8 +13,10 @@ describe('cn', () => {
   })
 
   it('handles conditional classes', () => {
-    expect(cn('base', false && 'hidden', 'end')).toBe('base end')
-    expect(cn('base', true && 'active')).toBe('base active')
+    const isHidden = false
+    const isActive = true
+    expect(cn('base', isHidden && 'hidden', 'end')).toBe('base end')
+    expect(cn('base', isActive && 'active')).toBe('base active')
   })
 
   it('handles undefined and null', () => {

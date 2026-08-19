@@ -1,5 +1,11 @@
 'use client'
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Loader2, Upload } from 'lucide-react'
+import Image from 'next/image'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -13,11 +19,6 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useTRPC } from '@/lib/trpc/client'
 import type { MeijiProfile } from '@/lib/validations/meiji'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Loader2, Upload } from 'lucide-react'
-import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 export function MeijiProfileForm() {
   const trpc = useTRPC()
@@ -25,12 +26,14 @@ export function MeijiProfileForm() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [profile, setProfile] = useState<MeijiProfile | null>(null)
+  const [loadedProfile, setLoadedProfile] = useState<MeijiProfile | null>(null)
 
   const { data, isLoading } = useQuery(trpc.meiji.getProfile.queryOptions())
 
-  useEffect(() => {
-    if (data) setProfile(data)
-  }, [data])
+  if (data && data !== loadedProfile) {
+    setLoadedProfile(data)
+    setProfile(data)
+  }
 
   const getPresignedUrl = useMutation(
     trpc.upload.getPresignedUrl.mutationOptions()
@@ -75,7 +78,7 @@ export function MeijiProfileForm() {
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
         </CardContent>
       </Card>
     )
@@ -91,7 +94,7 @@ export function MeijiProfileForm() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4">
-          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full border bg-muted">
+          <div className="bg-muted relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full border">
             {profile.avatarUrl ? (
               <Image
                 src={profile.avatarUrl}

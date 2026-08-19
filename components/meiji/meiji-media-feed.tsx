@@ -1,11 +1,13 @@
 'use client'
 
-import { LazyLoadImage } from '@/components/lazy-load-image'
-import type { MeijiMedia } from '@/lib/db/schema'
 import { formatDistanceToNow } from 'date-fns'
 import { motion } from 'framer-motion'
 import { Expand } from 'lucide-react'
 import { useState } from 'react'
+
+import { LazyLoadImage } from '@/components/lazy-load-image'
+import type { MeijiMedia } from '@/lib/db/schema'
+
 import { MeijiMediaLightbox } from './meiji-media-lightbox'
 import { MeijiVideo } from './meiji-video'
 import { MeijiVideoProvider, useMeijiVideo } from './meiji-video-provider'
@@ -20,7 +22,7 @@ function MilestoneBadge({ tag }: { tag: string }) {
   const s = MILESTONE_STYLE[tag] ?? MILESTONE_STYLE.default
   return (
     <span
-      className="meiji-pill absolute left-3 top-3 z-10 px-3 py-1 text-xs font-extrabold capitalize"
+      className="meiji-pill absolute top-3 left-3 z-10 px-3 py-1 text-xs font-extrabold capitalize"
       style={{ background: s.bg, color: 'var(--m-ink)' }}
     >
       {s.emoji} {tag}
@@ -59,7 +61,7 @@ function MediaCard({
         type="button"
         onClick={onZoom}
         aria-label="Zoom in"
-        className="meiji-pill absolute right-3 top-3 z-20 border-2 border-white p-2 opacity-0 shadow-md transition-opacity group-hover:opacity-100"
+        className="meiji-pill absolute top-3 right-3 z-20 border-2 border-white p-2 opacity-0 shadow-md transition-opacity group-hover:opacity-100"
         style={{ background: 'var(--m-white)', color: 'var(--m-ink)' }}
       >
         <Expand className="h-4 w-4" />

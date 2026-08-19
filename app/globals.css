@@ -139,7 +139,7 @@
 @layer components {
   /* Blog Content Styles - Medium-inspired spacing */
   .blog-content {
-    @apply text-foreground/90 leading-[1.75] text-[1.0625rem];
+    @apply text-foreground/90 text-[1.0625rem] leading-[1.75];
 
     /* Flow tight to the container - no stray outer margins */
     > :first-child {
@@ -152,27 +152,27 @@
 
     /* Headings */
     h2 {
-      @apply mt-10 mb-4 text-3xl font-bold tracking-tight scroll-mt-20;
+      @apply mt-10 mb-4 scroll-mt-20 text-3xl font-bold tracking-tight;
     }
 
     h2[id] {
-      @apply cursor-pointer hover:text-primary/80 transition-colors;
+      @apply hover:text-primary/80 cursor-pointer transition-colors;
     }
 
     h3 {
-      @apply mt-8 mb-3 text-2xl font-semibold scroll-mt-20;
+      @apply mt-8 mb-3 scroll-mt-20 text-2xl font-semibold;
     }
 
     h4 {
-      @apply mt-6 mb-2 text-xl font-semibold scroll-mt-20;
+      @apply mt-6 mb-2 scroll-mt-20 text-xl font-semibold;
     }
 
     h5 {
-      @apply mt-5 mb-2 text-lg font-semibold scroll-mt-20;
+      @apply mt-5 mb-2 scroll-mt-20 text-lg font-semibold;
     }
 
     h6 {
-      @apply mt-4 mb-2 text-base font-semibold scroll-mt-20;
+      @apply mt-4 mb-2 scroll-mt-20 text-base font-semibold;
     }
 
     /* Paragraphs - tighter spacing like Medium */
@@ -226,7 +226,7 @@
 
     /* Inline Code - bordered "chip" (fumadocs-style) */
     code {
-      @apply rounded-[5px] border border-border bg-muted px-1 py-0.5 font-mono text-[0.85em] font-normal text-foreground;
+      @apply border-border bg-muted text-foreground rounded-[5px] border px-1 py-0.5 font-mono text-[0.85em] font-normal;
     }
 
     a code {
@@ -234,7 +234,7 @@
     }
 
     pre {
-      @apply mb-5 rounded-lg overflow-x-auto relative p-4 bg-muted;
+      @apply bg-muted relative mb-5 overflow-x-auto rounded-lg p-4;
     }
 
     pre code {
@@ -250,42 +250,42 @@
     }
 
     pre::-webkit-scrollbar-track {
-      @apply bg-transparent rounded;
+      @apply rounded bg-transparent;
     }
 
     pre::-webkit-scrollbar-thumb {
-      @apply bg-border rounded hover:bg-border/80;
+      @apply bg-border hover:bg-border/80 rounded;
     }
 
     /* Blockquotes - tighter spacing */
     blockquote {
-      @apply mb-5 pl-4 py-2 border-l-4 border-muted-foreground/30 bg-muted/50 rounded-r-lg italic;
+      @apply border-muted-foreground/30 bg-muted/50 mb-5 rounded-r-lg border-l-4 py-2 pl-4 italic;
     }
 
     blockquote p {
-      @apply mb-0 text-muted-foreground;
+      @apply text-muted-foreground mb-0;
     }
 
     /* Links - refined underline (fumadocs-style) */
     a {
-      @apply font-medium text-primary underline decoration-primary underline-offset-[3px] transition-opacity hover:opacity-80;
+      @apply text-primary decoration-primary font-medium underline underline-offset-[3px] transition-opacity hover:opacity-80;
       text-decoration-thickness: 1.5px;
     }
 
     /* Strong/Bold */
     strong {
-      @apply font-semibold text-foreground;
+      @apply text-foreground font-semibold;
     }
 
     /* Keyboard keys - physical key look */
     kbd {
-      @apply rounded-[5px] border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.8em] font-medium text-foreground;
+      @apply border-border bg-muted text-foreground rounded-[5px] border px-1.5 py-0.5 font-mono text-[0.8em] font-medium;
       box-shadow: 0 2px 0 var(--color-border);
     }
 
     /* Images & Figures - responsive and tighter spacing */
     img {
-      @apply rounded-lg shadow-md h-auto mx-auto;
+      @apply mx-auto h-auto rounded-lg shadow-md;
       width: 100% !important;
       height: auto !important;
       max-width: 100%;
@@ -301,11 +301,11 @@
     }
 
     figure {
-      @apply mb-6 mt-6 text-center;
+      @apply mt-6 mb-6 text-center;
     }
 
     figcaption {
-      @apply mt-2 text-center text-sm text-muted-foreground italic;
+      @apply text-muted-foreground mt-2 text-center text-sm italic;
     }
 
     /* Image hover effect */
@@ -315,25 +315,25 @@
 
     /* Divs (for special containers) */
     div[data-rmiz] {
-      @apply mb-6 mt-6;
+      @apply mt-6 mb-6;
     }
 
     /* Horizontal Rule */
     hr {
-      @apply my-8 border-border;
+      @apply border-border my-8;
     }
 
     /* Tables */
     table {
-      @apply w-full mb-6 border-collapse;
+      @apply mb-6 w-full border-collapse;
     }
 
     th {
-      @apply border border-border bg-muted px-4 py-2 text-left font-semibold;
+      @apply border-border bg-muted border px-4 py-2 text-left font-semibold;
     }
 
     td {
-      @apply border border-border px-4 py-2;
+      @apply border-border border px-4 py-2;
     }
 
     tr:hover {

@@ -1,3 +1,6 @@
+import { ShieldX } from 'lucide-react'
+import Link from 'next/link'
+
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -6,16 +9,14 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import { ShieldX } from 'lucide-react'
-import Link from 'next/link'
 
 export default function UnauthorizedPage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-            <ShieldX className="h-6 w-6 text-destructive" />
+          <div className="bg-destructive/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+            <ShieldX className="text-destructive h-6 w-6" />
           </div>
           <CardTitle className="text-2xl">Access Denied</CardTitle>
           <CardDescription>
@@ -23,7 +24,7 @@ export default function UnauthorizedPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-center text-sm">
             This area is restricted to administrators only. If you believe you
             should have access, please contact the site administrator.
           </p>

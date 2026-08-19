@@ -1,5 +1,11 @@
 'use client'
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ImageIcon, Loader2, Plus, Trash2, Upload } from 'lucide-react'
+import Image from 'next/image'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -12,11 +18,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useTRPC } from '@/lib/trpc/client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ImageIcon, Loader2, Plus, Trash2, Upload } from 'lucide-react'
-import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 interface Project {
   name: string
@@ -36,14 +37,16 @@ export function OpenSourceSettings() {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
   const [projects, setProjects] = useState<Project[]>([])
+  const [loadedData, setLoadedData] = useState<Project[] | null>(null)
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null)
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const { data, isLoading } = useQuery(trpc.admin.openSource.get.queryOptions())
 
-  useEffect(() => {
-    if (data) setProjects(data)
-  }, [data])
+  if (data && data !== loadedData) {
+    setLoadedData(data)
+    setProjects(data)
+  }
 
   const saveMutation = useMutation(
     trpc.admin.openSource.set.mutationOptions({
@@ -109,7 +112,7 @@ export function OpenSourceSettings() {
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
         </CardContent>
       </Card>
     )
@@ -128,10 +131,10 @@ export function OpenSourceSettings() {
         {projects.map((project, index) => (
           <div
             key={index}
-            className="relative rounded-lg border bg-muted/30 p-4 space-y-4"
+            className="bg-muted/30 relative space-y-4 rounded-lg border p-4"
           >
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">
+              <span className="text-muted-foreground text-sm font-medium">
                 Project {index + 1}
               </span>
               <Button
@@ -139,7 +142,7 @@ export function OpenSourceSettings() {
                 size="icon"
                 onClick={() => removeProject(index)}
               >
-                <Trash2 className="h-4 w-4 text-destructive" />
+                <Trash2 className="text-destructive h-4 w-4" />
               </Button>
             </div>
 
@@ -156,7 +159,7 @@ export function OpenSourceSettings() {
               <div className="space-y-2">
                 <Label>Logo</Label>
                 <div className="flex items-center gap-3">
-                  <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border bg-muted">
+                  <div className="bg-muted relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border">
                     {project.logo ? (
                       <Image
                         src={project.logo}
@@ -167,7 +170,7 @@ export function OpenSourceSettings() {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
-                        <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                        <ImageIcon className="text-muted-foreground h-4 w-4" />
                       </div>
                     )}
                   </div>

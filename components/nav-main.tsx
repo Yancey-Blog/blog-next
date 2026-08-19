@@ -1,6 +1,8 @@
 'use client'
 
 import { type Icon } from '@tabler/icons-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import {
   SidebarGroup,
@@ -9,8 +11,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from '@/components/ui/sidebar'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 
 export function NavMain({
   items

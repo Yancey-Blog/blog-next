@@ -1,8 +1,10 @@
 'use client'
 
-import type { BlogListItem } from '@/lib/db/schema'
 import { Edit, ExternalLink, Search } from 'lucide-react'
 import Link from 'next/link'
+
+import type { BlogListItem } from '@/lib/db/schema'
+
 import { DeleteBlogDialog } from './delete-blog-dialog'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
@@ -57,8 +59,8 @@ export function BlogListTable({
     <div className="space-y-4">
       {/* Search and Filter Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative max-w-sm flex-1">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Search by title..."
             value={searchQuery}
@@ -94,7 +96,7 @@ export function BlogListTable({
 
       {/* Table */}
       {blogs.length === 0 ? (
-        <div className="text-center py-12 border rounded-lg">
+        <div className="rounded-lg border py-12 text-center">
           <p className="text-muted-foreground">
             {searchQuery
               ? 'No blogs found matching your search'
@@ -119,7 +121,7 @@ export function BlogListTable({
               <TableBody>
                 {blogs.map((blog) => (
                   <TableRow key={blog.id}>
-                    <TableCell className="font-medium max-w-xs truncate">
+                    <TableCell className="max-w-xs truncate font-medium">
                       {blog.title}
                     </TableCell>
                     <TableCell>{getStatusBadge(blog)}</TableCell>
@@ -167,7 +169,7 @@ export function BlogListTable({
           {pagination && (
             <div className="flex items-center justify-between">
               {/* Results count */}
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Showing{' '}
                 {blogs.length === 0
                   ? 0

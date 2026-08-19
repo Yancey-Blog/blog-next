@@ -1,9 +1,10 @@
 'use client'
 
-import { cn } from '@/lib/utils'
 import { ChevronRight } from 'lucide-react'
 import { useState, type CSSProperties } from 'react'
 import { FluidToc, type TocItem } from 'react-fluid-toc'
+
+import { cn } from '@/lib/utils'
 
 interface BlogTocProps {
   /** Headings extracted on the server (see lib/blocknote/extract-toc). */
@@ -34,7 +35,7 @@ export function BlogToc({ items }: BlogTocProps) {
       {/* Mobile TOC toggle */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed right-4 top-20 z-40 rounded-lg border border-border bg-card p-3 shadow-lg transition-colors hover:bg-accent xl:hidden"
+        className="border-border bg-card hover:bg-accent fixed top-20 right-4 z-40 rounded-lg border p-3 shadow-lg transition-colors xl:hidden"
         aria-label="Toggle Table of Contents"
       >
         <ChevronRight
@@ -45,7 +46,7 @@ export function BlogToc({ items }: BlogTocProps) {
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm xl:hidden"
+          className="bg-background/80 fixed inset-0 z-30 backdrop-blur-sm xl:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -64,7 +65,7 @@ export function BlogToc({ items }: BlogTocProps) {
             : 'translate-x-[calc(100%+1rem)] xl:translate-x-0'
         )}
       >
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-foreground">
+        <h3 className="text-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
           On this page
         </h3>
 

@@ -1,8 +1,9 @@
+import { desc, eq } from 'drizzle-orm'
+import { v4 as uuidv4 } from 'uuid'
+
 import { db } from '@/lib/db'
 import { blogVersions, blogs, type BlogVersion } from '@/lib/db/schema'
 import { highlightHtml } from '@/lib/shiki'
-import { desc, eq } from 'drizzle-orm'
-import { v4 as uuidv4 } from 'uuid'
 
 export class BlogVersionService {
   /**

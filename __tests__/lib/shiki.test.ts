@@ -1,6 +1,7 @@
+import { describe, expect, it } from 'vitest'
+
 // @vitest-environment node
 import { highlightHtml } from '@/lib/shiki'
-import { describe, expect, it } from 'vitest'
 
 describe('highlightHtml language coverage', () => {
   it('highlights graphql code blocks', async () => {

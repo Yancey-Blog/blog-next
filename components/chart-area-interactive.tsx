@@ -1,5 +1,8 @@
 'use client'
 
+import { format } from 'date-fns'
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+
 import {
   Card,
   CardContent,
@@ -13,8 +16,6 @@ import {
   ChartTooltipContent,
   type ChartConfig
 } from '@/components/ui/chart'
-import { format } from 'date-fns'
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
 const chartConfig = {
   count: {

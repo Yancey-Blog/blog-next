@@ -1,8 +1,9 @@
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+
 import { HeroImageSettings } from '@/components/hero-image-settings'
 import { OpenSourceSettings } from '@/components/open-source-settings'
 import { ThemeSettings } from '@/components/theme-settings'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
 export default async function SettingsPage() {
   const queryClient = getQueryClient()

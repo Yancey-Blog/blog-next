@@ -1,10 +1,11 @@
 import '@/app/globals.css'
+import type { Metadata } from 'next'
+
 import { FrontendFooter } from '@/components/frontend-footer'
 import { FrontendHeader } from '@/components/frontend-header'
 import { GoogleAnalytics } from '@/components/google-analytics'
 import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { Toaster } from '@/components/ui/sonner'
-import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: {

@@ -73,7 +73,7 @@ export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
       className={`fixed top-0 z-50 w-full transition-all duration-300 ${
         isTransparent
           ? 'border-b-0 bg-transparent'
-          : 'backdrop-blur supports-backdrop-filter:bg-background/60 shadow-sm'
+          : 'supports-backdrop-filter:bg-background/60 shadow-sm backdrop-blur'
       }`}
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -138,7 +138,7 @@ export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
                   : 'text-foreground/60 hover:text-foreground'
               }`}
             >
-              <PawIcon className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-125" />
+              <PawIcon className="h-3.5 w-3.5 transition-transform duration-300 group-hover:scale-125 group-hover:-rotate-12" />
               Meiji
             </Link>
           </nav>

@@ -19,7 +19,7 @@ export function AccountManagement() {
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-center py-12">
-          <p className="text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center">
             Account management features coming soon...
           </p>
         </div>

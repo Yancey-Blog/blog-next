@@ -1,8 +1,9 @@
-import { getSession } from '@/lib/auth/session'
-import { isAdminEmail } from '@/proxy'
 import { initTRPC } from '@trpc/server'
 import { cache } from 'react'
 import superjson from 'superjson'
+
+import { getSession } from '@/lib/auth/session'
+import { isAdminEmail } from '@/proxy'
 
 export const createTRPCContext = cache(async () => {
   /**

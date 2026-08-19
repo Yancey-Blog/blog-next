@@ -1,5 +1,11 @@
 'use client'
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ImageIcon, Loader2, Upload } from 'lucide-react'
+import Image from 'next/image'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -10,11 +16,6 @@ import {
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { useTRPC } from '@/lib/trpc/client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ImageIcon, Loader2, Upload } from 'lucide-react'
-import Image from 'next/image'
-import { useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 const FALLBACK_IMAGE = 'https://static.yancey.app/ng9bwfv1-1728444113930.jpeg'
 
@@ -74,7 +75,7 @@ export function HeroImageSettings() {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Preview */}
-        <div className="relative h-48 w-full overflow-hidden rounded-lg border bg-muted">
+        <div className="bg-muted relative h-48 w-full overflow-hidden rounded-lg border">
           <Image
             src={currentUrl ?? FALLBACK_IMAGE}
             alt="Hero preview"
@@ -122,7 +123,7 @@ export function HeroImageSettings() {
         </div>
 
         {currentUrl && (
-          <p className="break-all text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs break-all">
             Current: {currentUrl}
           </p>
         )}

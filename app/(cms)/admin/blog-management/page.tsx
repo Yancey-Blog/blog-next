@@ -1,14 +1,15 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+
 import { BlogListTable } from '@/components/blog-list-table'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useDebounce } from '@/lib/hooks/use-debounce'
 import { useTRPC } from '@/lib/trpc/client'
-import { useQuery } from '@tanstack/react-query'
-import Link from 'next/link'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
 
 type StatusFilter = 'all' | 'published' | 'draft'
 
@@ -92,7 +93,7 @@ export default function BlogManagementPage() {
       <div className="container mx-auto">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <Skeleton className="h-9 w-48 mb-2" />
+            <Skeleton className="mb-2 h-9 w-48" />
             <Skeleton className="h-4 w-64" />
           </div>
           <Skeleton className="h-10 w-32" />
@@ -107,7 +108,7 @@ export default function BlogManagementPage() {
 
           {/* Table skeleton */}
           <div className="rounded-md border">
-            <div className="p-4 space-y-3">
+            <div className="space-y-3 p-4">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex items-center gap-4">
                   <Skeleton className="h-4 flex-1" />

@@ -1,11 +1,12 @@
 'use client'
 
-import { LazyLoadImage } from '@/components/lazy-load-image'
-import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
 import { motion } from 'framer-motion'
 import { ArrowRight, ArrowUpRight, Calendar, Eye, Heart } from 'lucide-react'
 import Link from 'next/link'
+
+import { LazyLoadImage } from '@/components/lazy-load-image'
+import { Badge } from '@/components/ui/badge'
 
 interface Blog {
   id: string
@@ -45,7 +46,7 @@ function FeaturedPost({ blog }: { blog: Blog }) {
               className="transition-transform duration-700 group-hover:scale-105"
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-br from-primary/30 to-primary/10" />
+            <div className="from-primary/30 to-primary/10 h-full w-full bg-gradient-to-br" />
           )}
 
           {/* Gradient overlay */}
@@ -55,7 +56,7 @@ function FeaturedPost({ blog }: { blog: Blog }) {
           <div className="absolute inset-x-0 bottom-0 p-8 md:p-10">
             {/* Tags */}
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold tracking-wider text-primary-foreground">
+              <span className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-bold tracking-wider">
                 LATEST
               </span>
               {blog.tags?.slice(0, 2).map((tag) => (
@@ -96,7 +97,7 @@ function FeaturedPost({ blog }: { blog: Blog }) {
               </span>
               <span className="ml-auto flex items-center gap-1.5 font-semibold text-white transition-all group-hover:gap-2.5">
                 Read more{' '}
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
             </div>
           </div>
@@ -120,11 +121,11 @@ function ArticleCard({ blog, index }: { blog: Blog; index: number }) {
         ease: [0.25, 0.46, 0.45, 0.94] as const
       }}
       whileHover={{ y: -6, transition: { duration: 0.2 } }}
-      className="group flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-shadow hover:shadow-xl"
+      className="group bg-card flex flex-col overflow-hidden rounded-2xl border shadow-sm transition-shadow hover:shadow-xl"
     >
       <Link href={`/post/${blog.id}`} className="flex flex-1 flex-col">
         {blog.coverImage && (
-          <div className="relative aspect-video w-full overflow-hidden bg-muted">
+          <div className="bg-muted relative aspect-video w-full overflow-hidden">
             <LazyLoadImage
               src={blog.coverImage}
               alt={blog.title}
@@ -149,15 +150,15 @@ function ArticleCard({ blog, index }: { blog: Blog; index: number }) {
             </div>
           )}
 
-          <h3 className="mb-3 line-clamp-2 text-xl font-bold tracking-tight transition-colors group-hover:text-primary">
+          <h3 className="group-hover:text-primary mb-3 line-clamp-2 text-xl font-bold tracking-tight transition-colors">
             {blog.title}
           </h3>
 
-          <p className="mb-4 line-clamp-3 flex-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mb-4 line-clamp-3 flex-1 text-sm">
             {blog.summary ?? ''}
           </p>
 
-          <div className="flex items-center gap-4 border-t pt-4 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-4 border-t pt-4 text-sm">
             <span className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" />
               <time>{formatDate(blog.createdAt)}</time>
@@ -191,7 +192,7 @@ function SectionHeader() {
       className="mb-10 flex items-end justify-between"
     >
       <div>
-        <p className="mb-1 text-xs font-semibold tracking-[0.2em] text-primary">
+        <p className="text-primary mb-1 text-xs font-semibold tracking-[0.2em]">
           RECENT POSTS
         </p>
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -200,7 +201,7 @@ function SectionHeader() {
       </div>
       <Link
         href="/post"
-        className="hidden items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:flex"
+        className="text-muted-foreground hover:text-foreground hidden items-center gap-1 text-sm font-medium transition-colors sm:flex"
       >
         View all <ArrowRight className="h-4 w-4" />
       </Link>
@@ -230,7 +231,7 @@ export function HomeArticles({ blogs }: { blogs: Blog[] }) {
         <div className="mt-12 text-center sm:hidden">
           <Link
             href="/post"
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            className="text-primary inline-flex items-center gap-2 text-sm font-medium hover:underline"
           >
             View all articles <ArrowRight className="h-4 w-4" />
           </Link>
