@@ -14,10 +14,13 @@ export async function syncBlog(blog: Blog) {
     indexName,
     body: {
       objectID: blog.id,
-      title: blog.title,
-      summary: blog.summary,
+      // Field names below match what components/algolia-search.tsx reads
+      // off Algolia hits (name/description/labels), not the DB column names.
+      name: blog.title,
+      description: blog.summary,
       content: blog.content,
-      tags: blog.tags,
+      coverImage: blog.coverImage,
+      labels: blog.tags,
       createdAt: blog.createdAt.getTime()
     }
   })

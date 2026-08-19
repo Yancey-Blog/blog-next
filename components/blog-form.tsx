@@ -23,9 +23,72 @@ import {
   CardHeader,
   CardTitle
 } from './ui/card'
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
+  useComboboxAnchor
+} from './ui/combobox'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { Textarea } from './ui/textarea'
+
+function TagsField({
+  value,
+  onChange,
+  disabled
+}: {
+  value: string[]
+  onChange: (tags: string[]) => void
+  disabled?: boolean
+}) {
+  const [query, setQuery] = useState('')
+  const anchorRef = useComboboxAnchor()
+  const trimmed = query.trim()
+  // The only selectable item is whatever the user is currently typing, so
+  // pressing Enter commits it as a new tag - there's no fixed tag vocabulary.
+  const items = trimmed && !value.includes(trimmed) ? [trimmed] : []
+
+  return (
+    <Combobox
+      items={items}
+      multiple
+      value={value}
+      onValueChange={(next) => {
+        onChange(next)
+        setQuery('')
+      }}
+      inputValue={query}
+      onInputValueChange={setQuery}
+      disabled={disabled}
+    >
+      <ComboboxChips ref={anchorRef}>
+        <ComboboxValue>
+          {(tags: string[]) =>
+            tags.map((tag) => <ComboboxChip key={tag}>{tag}</ComboboxChip>)
+          }
+        </ComboboxValue>
+        <ComboboxChipsInput placeholder="Add a tag and press Enter" />
+      </ComboboxChips>
+      <ComboboxContent anchor={anchorRef}>
+        <ComboboxEmpty>Type to add a tag</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              Add &quot;{item}&quot;
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+}
 
 // BlockNote's useCreateBlockNote touches `window` at render, so the editor must
 // be client-only (no SSR), otherwise the admin page throws during server render.
@@ -72,7 +135,8 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
       title: blog?.title ?? '',
       contentBlocks: blog?.contentBlocks ?? '',
       summary: blog?.summary ?? '',
-      coverImage: blog?.coverImage ?? ''
+      coverImage: blog?.coverImage ?? '',
+      tags: blog?.tags ?? []
     }
   })
 
@@ -290,6 +354,24 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
               <p className="text-destructive text-sm">
                 {errors.coverImage.message}
               </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tags</Label>
+            <Controller
+              name="tags"
+              control={control}
+              render={({ field }) => (
+                <TagsField
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  disabled={loading}
+                />
+              )}
+            />
+            {errors.tags && (
+              <p className="text-destructive text-sm">{errors.tags.message}</p>
             )}
           </div>
 

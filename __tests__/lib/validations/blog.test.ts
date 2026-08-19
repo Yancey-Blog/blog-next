@@ -11,6 +11,7 @@ const validBlog = {
   contentBlocks: '[{"type":"paragraph"}]',
   summary: 'A short summary',
   coverImage: 'https://example.com/image.jpg',
+  tags: ['nextjs', 'react'],
   published: false
 }
 
@@ -52,6 +53,18 @@ describe('createBlogSchema', () => {
   it('rejects invalid coverImage URL', () => {
     expect(() =>
       createBlogSchema.parse({ ...validBlog, coverImage: 'not-a-url' })
+    ).toThrow()
+  })
+
+  it('accepts an empty tags array', () => {
+    expect(() =>
+      createBlogSchema.parse({ ...validBlog, tags: [] })
+    ).not.toThrow()
+  })
+
+  it('rejects non-array tags', () => {
+    expect(() =>
+      createBlogSchema.parse({ ...validBlog, tags: 'nextjs' })
     ).toThrow()
   })
 })
