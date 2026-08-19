@@ -18,6 +18,8 @@ import {
 
 import { analytics } from '@/lib/analytics'
 
+import { Kbd } from './ui/kbd'
+
 const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_APP_ID!,
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY!
@@ -97,17 +99,6 @@ function ModalContent() {
   const { query } = useSearchBox()
   const { results } = useInstantSearch()
 
-  // Auto-focus the input when modal opens
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const input = document.querySelector<HTMLInputElement>(
-        '.ais-SearchBox-input'
-      )
-      input?.focus()
-    }, 50)
-    return () => clearTimeout(timer)
-  }, [])
-
   // Track search analytics
   useEffect(() => {
     if (query && results) {
@@ -124,6 +115,7 @@ function ModalContent() {
         <Search className="text-muted-foreground h-5 w-5 shrink-0" />
         <SearchBox
           placeholder="Search articles..."
+          autoFocus
           classNames={{
             root: 'flex-1',
             form: 'relative',
@@ -133,6 +125,7 @@ function ModalContent() {
             reset: 'hidden',
             loadingIndicator: 'hidden'
           }}
+          ignoreCompositionEvents
         />
       </div>
 
@@ -201,7 +194,7 @@ function SearchModal({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[10vh]">
+    <div className="fixed inset-0 z-50 flex h-svh items-start justify-center px-4 pt-[10vh]">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -247,14 +240,12 @@ export function AlgoliaSearch() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors"
+        className="bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors select-none"
         aria-label="Search"
       >
         <Search className="h-4 w-4" />
         <span className="hidden sm:inline">Search...</span>
-        <kbd className="bg-background hidden rounded border px-1.5 py-0.5 text-xs sm:inline">
-          ⌘K
-        </kbd>
+        <Kbd>⌘K</Kbd>
       </button>
 
       <SearchModal open={open} onClose={handleClose} />
