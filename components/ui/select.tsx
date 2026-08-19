@@ -54,15 +54,23 @@ function SelectContent({
   className,
   children,
   align = 'center',
+  side,
   sideOffset = 4,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Popup> &
-  Pick<React.ComponentProps<typeof SelectPrimitive.Positioner>, 'align'> & {
+  Pick<
+    React.ComponentProps<typeof SelectPrimitive.Positioner>,
+    'align' | 'side'
+  > & {
     sideOffset?: number
   }) {
   return (
     <SelectPrimitive.Portal>
-      <SelectPrimitive.Positioner align={align} sideOffset={sideOffset}>
+      <SelectPrimitive.Positioner
+        align={align}
+        side={side}
+        sideOffset={sideOffset}
+      >
         <SelectPrimitive.Popup
           data-slot="select-content"
           className={cn(
