@@ -37,7 +37,7 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 | **API**        | tRPC 11 with RSC support + SuperJSON                    |
 | **Database**   | PostgreSQL (Supabase) + Drizzle ORM                     |
 | **Auth**       | better-auth (OAuth: Google, GitHub)                     |
-| **UI**         | shadcn/ui + Radix UI + Tailwind CSS v4                  |
+| **UI**         | shadcn/ui-style components + Base UI + Tailwind CSS v4  |
 | **Animation**  | Framer Motion + react-countup                           |
 | **Editor**     | BlockNote.js (block editor, blocks JSON + derived HTML) |
 | **Search**     | Algolia InstantSearch                                   |
@@ -46,7 +46,7 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 | **Monitoring** | Sentry                                                  |
 | **Storage**    | AWS S3 (image uploads, CDN via static.yancey.app)       |
 | **Testing**    | Vitest                                                  |
-| **Linting**    | ESLint + Prettier                                       |
+| **Linting**    | oxlint + oxfmt                                          |
 | **Validation** | Zod                                                     |
 
 ## Prerequisites
@@ -94,8 +94,8 @@ pnpm db:migrate       # Run migrations (production)
 pnpm db:studio        # Open Drizzle Studio GUI
 
 # Code quality
-pnpm lint             # ESLint
-pnpm format           # Prettier
+pnpm lint             # oxlint
+pnpm format           # oxfmt
 pnpm test             # Vitest (single run)
 pnpm test:watch       # Vitest watch mode
 pnpm test:coverage    # Coverage report
@@ -146,7 +146,8 @@ blog-next/
 ├── public/
 │   ├── manifest.json        # PWA manifest
 │   └── icon-*.png           # App icons (72–512px)
-├── eslint.config.mjs        # ESLint config (Next.js rules)
+├── .oxlintrc.json           # oxlint config
+├── .oxfmtrc.json            # oxfmt config
 ├── drizzle/                 # Migration files
 └── sentry.*.config.ts       # Sentry configurations
 ```
