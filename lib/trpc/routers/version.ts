@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 import { BlogVersionService } from '@/lib/services/blog-version.service'
-import { BlogService } from '@/lib/services/blog.service'
 import { DiffService } from '@/lib/services/diff.service'
 
 import { protectedProcedure, publicProcedure } from '../init'
@@ -56,19 +55,12 @@ export const versionRouter = {
         versionId: z.string()
       })
     )
-    .mutation(async ({ input }) => {
-      const version = await BlogVersionService.getVersion(input.versionId)
-
-      if (!version) {
-        throw new Error('Version not found')
-      }
-
-      await BlogService.updateBlog(input.blogId, {
-        title: version.title,
-        content: version.content,
-        summary: version.summary ?? undefined,
-        coverImage: version.coverImage ?? undefined
-      })
+    .mutation(async ({ input, ctx }) => {
+      await BlogVersionService.restoreVersion(
+        input.blogId,
+        input.versionId,
+        ctx.user.id
+      )
 
       return { message: 'Version restored successfully' }
     })

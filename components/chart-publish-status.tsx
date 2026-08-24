@@ -40,7 +40,7 @@ export function ChartPublishStatus({ published, drafts }: Props) {
         <CardDescription>Published vs drafts</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center pb-6">
-        <ChartContainer config={chartConfig} className="h-[200px] w-full">
+        <ChartContainer config={chartConfig} className="h-50 w-full">
           <PieChart>
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
             <Pie

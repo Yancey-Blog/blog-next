@@ -1,10 +1,13 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 import type { BlogVersion } from '@/lib/db/schema'
 import { DiffResult } from '@/lib/services/diff.service'
+import { useTRPC } from '@/lib/trpc/client'
 
 import { BlogVersionDiff } from './blog-version-diff'
 import { Button } from './ui/button'
@@ -30,37 +33,32 @@ interface BlogVersionHistoryProps {
 }
 
 export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
-  const [versions, setVersions] = useState<BlogVersion[]>([])
-  const [loading, setLoading] = useState(false)
+  const trpc = useTRPC()
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  const [open, setOpen] = useState(false)
   const [selectedVersion, setSelectedVersion] = useState<BlogVersion | null>(
     null
   )
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([])
   const [diffResult, setDiffResult] = useState<{
     diff: DiffResult
-    version1: { id: string; version: number; createdAt: Date }
-    version2: { id: string; version: number; createdAt: Date }
+    oldVersionDate: string
+    newVersionDate: string
   } | null>(null)
-  const [open, setOpen] = useState(false)
+  const [comparing, setComparing] = useState(false)
 
-  const loadVersions = useCallback(async () => {
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/blogs/${blogId}/versions`)
-      if (!response.ok) {
-        throw new Error('Failed to load version history')
-      }
-      const data = await response.json()
-      setVersions(data)
-    } catch (error) {
-      console.error('Load versions error:', error)
-      toast.error('Failed to load version history')
-    } finally {
-      setLoading(false)
-    }
-  }, [blogId])
+  const { data: versions = [], isLoading } = useQuery({
+    ...trpc.version.list.queryOptions({ blogId }),
+    enabled: open
+  })
 
-  const handleRestore = async (versionId: string) => {
+  const restoreMutation = useMutation(trpc.version.restore.mutationOptions())
+
+  const loading = isLoading || restoreMutation.isPending || comparing
+
+  const handleRestore = (versionId: string) => {
     if (
       !confirm(
         'Are you sure you want to restore to this version? Current content will be overwritten.'
@@ -69,45 +67,27 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
       return
     }
 
-    setLoading(true)
-    try {
-      const response = await fetch(
-        `/api/blogs/${blogId}/versions/${versionId}/restore`,
-        {
-          method: 'POST'
+    restoreMutation.mutate(
+      { blogId, versionId },
+      {
+        onSuccess: () => {
+          toast.success('Version restored successfully')
+          setOpen(false)
+          queryClient.invalidateQueries({
+            queryKey: trpc.version.list.queryOptions({ blogId }).queryKey
+          })
+          router.refresh()
+        },
+        onError: (error) => {
+          console.error('Restore version error:', error)
+          toast.error('Failed to restore version')
         }
-      )
-
-      if (!response.ok) {
-        throw new Error('Failed to restore version')
       }
-
-      toast.success('Version restored successfully')
-      setOpen(false)
-      window.location.reload()
-    } catch (error) {
-      console.error('Restore version error:', error)
-      toast.error('Failed to restore version')
-    } finally {
-      setLoading(false)
-    }
+    )
   }
 
-  const handleViewVersion = async (versionId: string) => {
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/blogs/${blogId}/versions/${versionId}`)
-      if (!response.ok) {
-        throw new Error('Failed to load version details')
-      }
-      const data = await response.json()
-      setSelectedVersion(data)
-    } catch (error) {
-      console.error('Load version error:', error)
-      toast.error('Failed to load version details')
-    } finally {
-      setLoading(false)
-    }
+  const handleViewVersion = (versionId: string) => {
+    setSelectedVersion(versions.find((v) => v.id === versionId) ?? null)
   }
 
   const handleCompareSelect = (versionId: string, checked: boolean) => {
@@ -131,25 +111,32 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
       return
     }
 
-    setLoading(true)
+    const [versionId1, versionId2] = selectedForCompare
+    const version1 = versions.find((v) => v.id === versionId1)
+    const version2 = versions.find((v) => v.id === versionId2)
+
+    if (!version1 || !version2) {
+      toast.error('Failed to compare versions')
+      return
+    }
+
+    setComparing(true)
     try {
-      const [version1Id, version2Id] = selectedForCompare
-      const response = await fetch(
-        `/api/blogs/${blogId}/versions/${version1Id}/diff?compareWith=${version2Id}`
+      const diff = await queryClient.fetchQuery(
+        trpc.version.diff.queryOptions({ blogId, versionId1, versionId2 })
       )
 
-      if (!response.ok) {
-        throw new Error('Failed to compare versions')
-      }
-
-      const data = await response.json()
-      setDiffResult(data)
+      setDiffResult({
+        diff,
+        oldVersionDate: new Date(version1.createdAt).toLocaleString(),
+        newVersionDate: new Date(version2.createdAt).toLocaleString()
+      })
       setSelectedVersion(null) // Clear single version view
     } catch (error) {
       console.error('Compare versions error:', error)
       toast.error('Failed to compare versions')
     } finally {
-      setLoading(false)
+      setComparing(false)
     }
   }
 
@@ -161,7 +148,6 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen)
     if (nextOpen) {
-      loadVersions()
       setSelectedForCompare([])
       setDiffResult(null)
       setSelectedVersion(null)
@@ -225,12 +211,8 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
               </div>
               <BlogVersionDiff
                 diff={diffResult.diff}
-                oldVersionDate={new Date(
-                  diffResult.version1.createdAt
-                ).toLocaleString()}
-                newVersionDate={new Date(
-                  diffResult.version2.createdAt
-                ).toLocaleString()}
+                oldVersionDate={diffResult.oldVersionDate}
+                newVersionDate={diffResult.newVersionDate}
               />
             </div>
           )}

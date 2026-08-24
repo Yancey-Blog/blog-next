@@ -122,7 +122,6 @@ export function HomeHero({
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4, duration: 0.6 }}
       >
-        <span className="text-xs tracking-widest text-white/40">SCROLL</span>
         <motion.div
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}

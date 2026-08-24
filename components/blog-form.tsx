@@ -374,22 +374,6 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
               <p className="text-destructive text-sm">{errors.tags.message}</p>
             )}
           </div>
-
-          <div className="border-muted bg-muted/50 rounded-lg border p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-base">Status</Label>
-                <p className="text-muted-foreground text-sm">
-                  {isPublished ? 'Published' : 'Draft'}
-                </p>
-              </div>
-              <div className="text-muted-foreground text-sm">
-                {isPublished
-                  ? 'This blog is publicly visible'
-                  : 'This blog is saved as a draft'}
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
