@@ -4,6 +4,7 @@ import { liteClient as algoliasearch } from 'algoliasearch/lite'
 import { Search } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Configure,
   Highlight,
@@ -193,7 +194,11 @@ function SearchModal({
 
   if (!open) return null
 
-  return (
+  // Portaled to <body> so the header's own backdrop-blur/transform never
+  // becomes this overlay's containing block (either one turns an ancestor
+  // into the containing block for `fixed` descendants, shrinking this
+  // overlay down to the header's box instead of the full viewport).
+  return createPortal(
     <div className="fixed inset-0 z-50 flex h-svh items-start justify-center px-4 pt-[10vh]">
       {/* Backdrop */}
       <div
@@ -205,7 +210,8 @@ function SearchModal({
       <div className="bg-background relative z-10 w-full max-w-xl overflow-hidden rounded-xl border shadow-2xl">
         <ModalContent />
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
