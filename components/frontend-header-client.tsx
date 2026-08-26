@@ -25,8 +25,7 @@ const MEIJI_HREF =
 // React states.
 const HEADER_TRANSITION = [
   'width 320ms cubic-bezier(0.22,1,0.36,1)',
-  'top 320ms cubic-bezier(0.22,1,0.36,1)',
-  'border-radius 320ms cubic-bezier(0.22,1,0.36,1)'
+  'top 320ms cubic-bezier(0.22,1,0.36,1)'
 ].join(', ')
 
 // Same shadow shape (layer count) in both states — only the alpha changes —
