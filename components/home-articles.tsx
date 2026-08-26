@@ -154,11 +154,11 @@ function ArticleCard({ blog, index }: { blog: Blog; index: number }) {
             {blog.title}
           </h3>
 
-          <p className="text-muted-foreground mb-4 line-clamp-3 flex-1 text-sm">
+          <p className="text-muted-foreground mb-4 line-clamp-3 text-sm">
             {blog.summary ?? ''}
           </p>
 
-          <div className="text-muted-foreground flex items-center gap-4 border-t pt-4 text-sm">
+          <div className="text-muted-foreground mt-auto flex items-center gap-4 border-t pt-4 text-sm">
             <span className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" />
               <time>{formatDate(blog.createdAt)}</time>
