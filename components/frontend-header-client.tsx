@@ -5,7 +5,7 @@ import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 
 interface FrontendHeaderClientProps {
   children: React.ReactNode
@@ -56,6 +56,7 @@ function PawIcon({ className }: { className?: string }) {
 export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [suppressTransition, setSuppressTransition] = useState(false)
   const { resolvedTheme } = useTheme()
   const pathname = usePathname()
 
@@ -82,6 +83,23 @@ export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
     }
   }, [])
 
+  // This component persists across client-side navigations (it lives in the
+  // shared frontend layout), so `isScrolled` can still be `true` from the
+  // previous page after a route change lands the new page at the top. Reset
+  // it synchronously (before paint) on pathname change and skip the CSS
+  // transition for that reset so the floating pill snaps instead of
+  // animating back to the top bar.
+  useLayoutEffect(() => {
+    setSuppressTransition(true)
+    setIsScrolled(false)
+  }, [pathname])
+
+  useEffect(() => {
+    if (!suppressTransition) return
+    const rafId = requestAnimationFrame(() => setSuppressTransition(false))
+    return () => cancelAnimationFrame(rafId)
+  }, [suppressTransition])
+
   // Determine if dark mode (for logo selection)
   const isDark = resolvedTheme === 'dark'
 
@@ -92,10 +110,18 @@ export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
     ? 'text-white/80 hover:text-white'
     : 'text-foreground/60 hover:text-foreground'
 
+  // Framer Motion's layout animations run independently of the header's own
+  // CSS transition, so `suppressTransition` must also zero out the spring
+  // here — otherwise the logo still glides to its new position after a
+  // route-change reset even though the header box itself snaps.
+  const logoTransition = suppressTransition
+    ? { duration: 0 }
+    : { type: 'spring' as const, stiffness: 380, damping: 34 }
+
   const logo = (
     <motion.div
       layoutId="site-logo"
-      transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+      transition={logoTransition}
       className="relative top-0.5 flex items-center"
     >
       <Link
@@ -125,7 +151,7 @@ export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
   return (
     <header
       style={{
-        transition: HEADER_TRANSITION,
+        transition: suppressTransition ? 'none' : HEADER_TRANSITION,
         boxShadow: isScrolled ? SHADOW_ON : SHADOW_OFF
       }}
       className={`fixed inset-x-0 z-50 mx-auto ${
@@ -137,14 +163,19 @@ export function FrontendHeaderClient({ children }: FrontendHeaderClientProps) {
       }`}
     >
       <div
-        className={`relative container mx-auto flex items-center justify-between transition-all duration-300 ${
-          isScrolled ? 'h-14 px-6' : 'h-16 px-4'
-        }`}
+        className={`relative container mx-auto flex items-center justify-between ${
+          suppressTransition ? '' : 'transition-all duration-300'
+        } ${isScrolled ? 'h-14 px-6' : 'h-16 px-4'}`}
       >
-        <motion.div layout="position" className="flex items-center gap-6">
+        <motion.div
+          layout="position"
+          transition={suppressTransition ? { duration: 0 } : undefined}
+          className="flex items-center gap-6"
+        >
           {!isScrolled && logo}
           <motion.nav
             layout="position"
+            transition={suppressTransition ? { duration: 0 } : undefined}
             className="hidden items-center gap-6 text-sm md:flex"
           >
             <Link href="/" className={`transition-colors ${linkColorClass}`}>
