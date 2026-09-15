@@ -13,3 +13,10 @@ const serverEditor = ServerBlockNoteEditor.create({ schema: blogSchema })
 export async function blocksToContentHtml(blocks: Block[]): Promise<string> {
   return await serverEditor.blocksToHTMLLossy(blocks)
 }
+
+/** Render BlockNote blocks to Markdown for storage/AI-facing `.md` responses. */
+export async function blocksToContentMarkdown(
+  blocks: Block[]
+): Promise<string> {
+  return await serverEditor.blocksToMarkdownLossy(blocks)
+}

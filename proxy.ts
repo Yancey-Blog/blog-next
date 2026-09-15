@@ -7,6 +7,16 @@ import { auth } from './lib/auth'
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // AI-facing Markdown alternate (Apple docs-style): a request to
+  // /post/{id}.md is rewritten (URL bar stays untouched) to the `markdown`
+  // route handler nested under the same [id] segment as the HTML page.
+  const markdownMatch = pathname.match(/^\/post\/(.+)\.md$/)
+  if (markdownMatch) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/post/${markdownMatch[1]}/markdown`
+    return NextResponse.rewrite(url)
+  }
+
   // Meiji cat site: meiji.yanceyleo.com (and meiji.localhost in dev) is served
   // from the same project. Rewrite its requests into the app/meiji/* route
   // group so the address bar stays clean, and keep the cat host away from the
@@ -92,6 +102,8 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public files
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*|auth).*)'
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*|auth).*)',
+    // The dotted-path exclusion above would otherwise skip /post/{id}.md.
+    '/post/(.+)\\.md'
   ]
 }

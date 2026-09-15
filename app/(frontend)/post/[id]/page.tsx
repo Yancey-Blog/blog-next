@@ -162,6 +162,11 @@ export async function generateMetadata({
   return {
     title: blog.title,
     description: blog.summary,
+    alternates: {
+      types: {
+        'text/markdown': `${postUrl}.md`
+      }
+    },
     openGraph: {
       title: blog.title,
       description: blog.summary ?? undefined,
