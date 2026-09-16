@@ -1,13 +1,31 @@
 'use client'
 
 import type { PartialBlock } from '@blocknote/core'
+import { filterSuggestionItems } from '@blocknote/core/extensions'
+import { en } from '@blocknote/core/locales'
 import { BlockNoteView } from '@blocknote/mantine'
-import { useCreateBlockNote } from '@blocknote/react'
+import {
+  FormattingToolbar,
+  FormattingToolbarController,
+  getDefaultReactSlashMenuItems,
+  getFormattingToolbarItems,
+  SuggestionMenuController,
+  useCreateBlockNote
+} from '@blocknote/react'
+import {
+  AIExtension,
+  AIMenuController,
+  AIToolbarButton,
+  getAISlashMenuItems
+} from '@blocknote/xl-ai'
+import { en as aiEn } from '@blocknote/xl-ai/locales'
 
 import '@blocknote/core/fonts/inter.css'
 import { useMutation } from '@tanstack/react-query'
+import { DefaultChatTransport } from 'ai'
 
 import '@blocknote/mantine/style.css'
+import '@blocknote/xl-ai/style.css'
 import { useTheme } from 'next-themes'
 import { useMemo } from 'react'
 
@@ -53,7 +71,13 @@ export function BlogEditor({
 
   const editor = useCreateBlockNote({
     schema: blogSchema,
+    dictionary: { ...en, ai: aiEn },
     initialContent: initialBlocks,
+    extensions: [
+      AIExtension({
+        transport: new DefaultChatTransport({ api: '/api/ai/chat' })
+      })
+    ],
     uploadFile: async (file: File) => {
       const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
         fileName: file.name,
@@ -74,9 +98,33 @@ export function BlogEditor({
       editor={editor}
       editable={!disabled}
       theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
+      formattingToolbar={false}
+      slashMenu={false}
       onChange={() => {
         onChange(JSON.stringify(editor.document))
       }}
-    />
+    >
+      <AIMenuController />
+      <FormattingToolbarController
+        formattingToolbar={() => (
+          <FormattingToolbar>
+            {getFormattingToolbarItems()}
+            <AIToolbarButton />
+          </FormattingToolbar>
+        )}
+      />
+      <SuggestionMenuController
+        triggerCharacter="/"
+        getItems={async (query) =>
+          filterSuggestionItems(
+            [
+              ...getDefaultReactSlashMenuItems(editor),
+              ...getAISlashMenuItems(editor)
+            ],
+            query
+          )
+        }
+      />
+    </BlockNoteView>
   )
 }
