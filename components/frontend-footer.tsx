@@ -2,6 +2,8 @@ import { Mail } from 'lucide-react'
 import Link from 'next/link'
 
 import { GithubIcon, TwitterIcon } from './brand-icons'
+import { InstallPrompt } from './install-prompt'
+import { PushNotificationManager } from './push-notification-manager'
 import { ThemeModeSwitcher } from './theme-mode-switcher'
 
 export function FrontendFooter() {
@@ -10,6 +12,7 @@ export function FrontendFooter() {
   return (
     <footer className="bg-background border-t py-6">
       <div className="container mx-auto px-4">
+        <InstallPrompt />
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
           {/* Left: copyright + legal links */}
           <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm sm:justify-start">
@@ -55,6 +58,7 @@ export function FrontendFooter() {
             >
               <TwitterIcon className="h-4 w-4" />
             </a>
+            <PushNotificationManager />
             <div className="bg-border h-4 w-px" />
             <ThemeModeSwitcher />
           </div>

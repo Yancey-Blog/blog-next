@@ -1,5 +1,6 @@
 'use client'
 
+import { KeyRound } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -48,6 +49,24 @@ export function LoginForm({
     }
   }
 
+  const handlePasskeyLogin = async () => {
+    setLoading('passkey')
+    try {
+      await authClient.signIn.passkey({
+        fetchOptions: {
+          onSuccess: () => {
+            window.location.href = '/admin'
+          },
+          onError: (context) => {
+            console.error('Passkey login error:', context.error.message)
+          }
+        }
+      })
+    } finally {
+      setLoading(null)
+    }
+  }
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
@@ -87,6 +106,25 @@ export function LoginForm({
                   />
                 </svg>
                 {loading === 'github' ? 'Signing in...' : 'Sign in with GitHub'}
+              </Button>
+            </Field>
+
+            <div className="flex w-full items-center gap-4">
+              <div className="bg-border h-px flex-1" />
+              <span className="text-muted-foreground text-sm">Or</span>
+              <div className="bg-border h-px flex-1" />
+            </div>
+            <Field>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={handlePasskeyLogin}
+                disabled={loading !== null}
+              >
+                <KeyRound className="h-4 w-4" />
+                {loading === 'passkey'
+                  ? 'Signing in...'
+                  : 'Sign in with Passkey'}
               </Button>
             </Field>
           </FieldGroup>

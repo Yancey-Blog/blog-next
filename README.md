@@ -11,7 +11,7 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 - **Post detail** — syntax-highlighted code blocks, auto-generated TOC, optimistic like button, Twitter share, PV auto-increment
 - **Algolia search** — ⌘K modal with instant results, snippet highlights, always-visible PoweredBy
 - **Dark mode** — light / dark / system toggle in footer
-- **PWA** — installable as standalone app with multi-size icons
+- **PWA** — installable as standalone app with multi-size icons, opt-in Web Push notifications (VAPID)
 - **SEO** — Open Graph, Twitter Cards, sitemap, robots.txt
 
 ### Admin Dashboard
@@ -25,8 +25,8 @@ A modern, full-featured personal blog CMS built with Next.js 16. Features a publ
 
 ### Auth & Security
 
-- **OAuth only** — Google and GitHub (no password)
-- **Whitelist-based** — only `ADMIN_EMAILS` can log in; others are rejected at callback
+- **OAuth + Passkey** — Google, GitHub, or a registered passkey (WebAuthn, no password)
+- **Whitelist-based** — only `ADMIN_EMAILS` can log in via OAuth; others are rejected at callback
 - **Session storage** — PostgreSQL via better-auth + Drizzle adapter
 
 ## Tech Stack
@@ -194,14 +194,20 @@ NEXT_PUBLIC_SENTRY_DSN=
 SENTRY_AUTH_TOKEN=               # optional, for source maps
 SENTRY_ORG=
 SENTRY_PROJECT=
+
+# PWA / Web Push (VAPID)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=    # generate: npx web-push generate-vapid-keys
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=                   # mailto:you@example.com
 ```
 
 ## Authentication Flow
 
-1. User signs in via Google or GitHub
-2. better-auth `after` hook checks email against `ADMIN_EMAILS`
+1. User signs in via Google/GitHub OAuth, or with a passkey (WebAuthn) once one is registered
+2. For OAuth, better-auth's `after` hook checks email against `ADMIN_EMAILS`
 3. ✅ Whitelisted → session created, redirected to `/admin`
 4. ❌ Not whitelisted → session + user record deleted, redirected to `/unauthorized`
+5. Passkeys are self-service: sign in once via OAuth, then register one from `/admin/management` → **Passkeys**. Afterwards the login page's "Sign in with Passkey" button works without OAuth.
 
 ## Deployment
 

@@ -82,7 +82,8 @@ export const verifications = pgTable(
 
 export const userRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
-  accounts: many(accounts)
+  accounts: many(accounts),
+  passkeys: many(passkeys)
 }))
 
 export const sessionRelations = relations(sessions, ({ one }) => ({
@@ -95,6 +96,34 @@ export const sessionRelations = relations(sessions, ({ one }) => ({
 export const accountRelations = relations(accounts, ({ one }) => ({
   user: one(users, {
     fields: [accounts.userId],
+    references: [users.id]
+  })
+}))
+
+// WebAuthn passkeys (better-auth passkey plugin)
+export const passkeys = pgTable(
+  'passkeys',
+  {
+    id: text('id').primaryKey(),
+    name: text('name'),
+    publicKey: text('public_key').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    credentialID: text('credential_i_d').notNull(),
+    counter: integer('counter').notNull(),
+    deviceType: text('device_type').notNull(),
+    backedUp: boolean('backed_up').notNull(),
+    transports: text('transports'),
+    createdAt: timestamp('created_at').defaultNow(),
+    aaguid: text('aaguid')
+  },
+  (table) => [index('passkey_userId_idx').on(table.userId)]
+)
+
+export const passkeyRelations = relations(passkeys, ({ one }) => ({
+  user: one(users, {
+    fields: [passkeys.userId],
     references: [users.id]
   })
 }))
@@ -151,6 +180,15 @@ export const settings = pgTable('settings', {
     .notNull()
 })
 
+// Web push subscriptions (anonymous — blog readers don't have accounts)
+export const pushSubscriptions = pgTable('push_subscriptions', {
+  id: text('id').primaryKey(),
+  endpoint: text('endpoint').notNull().unique(),
+  p256dh: text('p256dh').notNull(),
+  auth: text('auth').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+})
+
 // Meiji cat-site media feed (photos / videos)
 export const meijiMedia = pgTable('meiji_media', {
   id: text('id').primaryKey(),
@@ -178,3 +216,7 @@ export type Setting = typeof settings.$inferSelect
 export type InsertSetting = typeof settings.$inferInsert
 export type MeijiMedia = typeof meijiMedia.$inferSelect
 export type InsertMeijiMedia = typeof meijiMedia.$inferInsert
+export type Passkey = typeof passkeys.$inferSelect
+export type InsertPasskey = typeof passkeys.$inferInsert
+export type PushSubscription = typeof pushSubscriptions.$inferSelect
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert

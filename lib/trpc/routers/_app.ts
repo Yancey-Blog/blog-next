@@ -2,6 +2,7 @@ import { createTRPCRouter } from '../init'
 import { adminRouter } from './admin'
 import { blogRouter } from './blog'
 import { meijiRouter } from './meiji'
+import { pushRouter } from './push'
 import { uploadRouter } from './upload'
 import { versionRouter } from './version'
 
@@ -10,7 +11,8 @@ export const appRouter = createTRPCRouter({
   version: versionRouter,
   upload: uploadRouter,
   admin: adminRouter,
-  meiji: meijiRouter
+  meiji: meijiRouter,
+  push: pushRouter
 })
 
 // Export type router type signature

@@ -2,6 +2,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
 import { HeroImageSettings } from '@/components/hero-image-settings'
 import { OpenSourceSettings } from '@/components/open-source-settings'
+import { PushNotificationSettings } from '@/components/push-notification-settings'
 import { ThemeSettings } from '@/components/theme-settings'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 
@@ -11,7 +12,8 @@ export default async function SettingsPage() {
   await Promise.all([
     queryClient.prefetchQuery(trpc.admin.theme.get.queryOptions()),
     queryClient.prefetchQuery(trpc.admin.heroImage.get.queryOptions()),
-    queryClient.prefetchQuery(trpc.admin.openSource.get.queryOptions())
+    queryClient.prefetchQuery(trpc.admin.openSource.get.queryOptions()),
+    queryClient.prefetchQuery(trpc.push.subscriberCount.queryOptions())
   ])
 
   const theme = await queryClient.fetchQuery(
@@ -33,6 +35,7 @@ export default async function SettingsPage() {
           <HeroImageSettings />
           <OpenSourceSettings />
           <ThemeSettings currentTheme={currentTheme} />
+          <PushNotificationSettings />
         </div>
       </div>
     </HydrationBoundary>

@@ -1,6 +1,7 @@
 'use client'
 
 import { AccountManagement } from '@/components/account-management'
+import { PasskeyManagement } from '@/components/passkey-management'
 import { SessionManagement } from '@/components/session-management'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { UserManagement } from '@/components/user-management'
@@ -20,6 +21,7 @@ export default function ManagementPage() {
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="sessions">Sessions</TabsTrigger>
           <TabsTrigger value="accounts">Accounts</TabsTrigger>
+          <TabsTrigger value="passkeys">Passkeys</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="space-y-4">
@@ -32,6 +34,10 @@ export default function ManagementPage() {
 
         <TabsContent value="accounts" className="space-y-4">
           <AccountManagement />
+        </TabsContent>
+
+        <TabsContent value="passkeys" className="space-y-4">
+          <PasskeyManagement />
         </TabsContent>
       </Tabs>
     </div>
