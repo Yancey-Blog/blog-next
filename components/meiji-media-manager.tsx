@@ -3,7 +3,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -22,6 +21,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { toast } from '@/components/ui/toast'
 import type { MeijiMedia } from '@/lib/db/schema'
 import { useTRPC } from '@/lib/trpc/client'
 
@@ -62,7 +62,7 @@ export function MeijiMediaManager() {
   const createMutation = useMutation(
     trpc.meiji.createMedia.mutationOptions({
       onSuccess: () => {
-        invalidate()
+        void invalidate()
         setPending(null)
         setCaption('')
         setMilestone('')
@@ -75,7 +75,7 @@ export function MeijiMediaManager() {
   const deleteMutation = useMutation(
     trpc.meiji.deleteMedia.mutationOptions({
       onSuccess: () => {
-        invalidate()
+        void invalidate()
         toast.success('Removed')
       },
       onError: () => toast.error('Failed to remove')
@@ -125,7 +125,7 @@ export function MeijiMediaManager() {
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0]
-              if (f) handleUpload(f)
+              if (f) void handleUpload(f)
               e.target.value = ''
             }}
           />
@@ -370,7 +370,7 @@ function EditMediaDialog({
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0]
-              if (f) handleReplace(f)
+              if (f) void handleReplace(f)
               e.target.value = ''
             }}
           />

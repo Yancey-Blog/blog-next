@@ -1,4 +1,4 @@
-import { IconEye, IconHeart, IconNotes, IconSend } from '@tabler/icons-react'
+import { Eye, Heart, NotebookText, Send } from 'lucide-react'
 
 import {
   Card,
@@ -27,7 +27,7 @@ export function SectionCards({ stats }: { stats: Stats }) {
           </CardTitle>
         </CardHeader>
         <CardFooter className="text-muted-foreground flex items-center gap-2 text-sm">
-          <IconNotes className="size-4" />
+          <NotebookText className="size-4" />
           {stats.published} published · {stats.drafts} drafts
         </CardFooter>
       </Card>
@@ -40,7 +40,7 @@ export function SectionCards({ stats }: { stats: Stats }) {
           </CardTitle>
         </CardHeader>
         <CardFooter className="text-muted-foreground flex items-center gap-2 text-sm">
-          <IconSend className="size-4" />
+          <Send className="size-4" />
           {stats.total > 0
             ? Math.round((stats.published / stats.total) * 100)
             : 0}
@@ -56,7 +56,7 @@ export function SectionCards({ stats }: { stats: Stats }) {
           </CardTitle>
         </CardHeader>
         <CardFooter className="text-muted-foreground flex items-center gap-2 text-sm">
-          <IconEye className="size-4" />
+          <Eye className="size-4" />
           {stats.published > 0
             ? Math.round(stats.totalPv / stats.published).toLocaleString()
             : 0}{' '}
@@ -72,7 +72,7 @@ export function SectionCards({ stats }: { stats: Stats }) {
           </CardTitle>
         </CardHeader>
         <CardFooter className="text-muted-foreground flex items-center gap-2 text-sm">
-          <IconHeart className="size-4" />
+          <Heart className="size-4" />
           {stats.published > 0
             ? Math.round(stats.totalLike / stats.published).toLocaleString()
             : 0}{' '}

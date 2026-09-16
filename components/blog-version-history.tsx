@@ -3,8 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { toast } from 'sonner'
 
+import { toast } from '@/components/ui/toast'
 import type { BlogVersion } from '@/lib/db/schema'
 import { DiffResult } from '@/lib/services/diff.service'
 import { useTRPC } from '@/lib/trpc/client'
@@ -73,7 +73,7 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
         onSuccess: () => {
           toast.success('Version restored successfully')
           setOpen(false)
-          queryClient.invalidateQueries({
+          void queryClient.invalidateQueries({
             queryKey: trpc.version.list.queryOptions({ blogId }).queryKey
           })
           router.refresh()

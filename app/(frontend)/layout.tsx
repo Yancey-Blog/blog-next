@@ -5,7 +5,7 @@ import { FrontendFooter } from '@/components/frontend-footer'
 import { FrontendHeader } from '@/components/frontend-header'
 import { GoogleAnalytics } from '@/components/google-analytics'
 import { ThemeModeProvider } from '@/components/theme-mode-provider'
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/ui/toast'
 
 export const metadata: Metadata = {
   title: {

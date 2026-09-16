@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ImageIcon, Loader2, Upload } from 'lucide-react'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -15,6 +14,7 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
+import { toast } from '@/components/ui/toast'
 import { useTRPC } from '@/lib/trpc/client'
 
 const FALLBACK_IMAGE = 'https://static.yancey.app/ng9bwfv1-1728444113930.jpeg'
@@ -31,7 +31,9 @@ export function HeroImageSettings() {
   const saveMutation = useMutation(
     trpc.admin.heroImage.set.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries(trpc.admin.heroImage.get.queryFilter())
+        void queryClient.invalidateQueries(
+          trpc.admin.heroImage.get.queryFilter()
+        )
         toast.success('Hero image updated')
       },
       onError: () => toast.error('Failed to save image URL')
@@ -102,7 +104,7 @@ export function HeroImageSettings() {
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0]
-                if (file) handleFileUpload(file)
+                if (file) void handleFileUpload(file)
                 e.target.value = ''
               }}
             />

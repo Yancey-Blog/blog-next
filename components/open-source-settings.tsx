@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ImageIcon, Loader2, Plus, Trash2, Upload } from 'lucide-react'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -17,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from '@/components/ui/toast'
 import { useTRPC } from '@/lib/trpc/client'
 
 interface Project {
@@ -51,7 +51,9 @@ export function OpenSourceSettings() {
   const saveMutation = useMutation(
     trpc.admin.openSource.set.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries(trpc.admin.openSource.get.queryFilter())
+        void queryClient.invalidateQueries(
+          trpc.admin.openSource.get.queryFilter()
+        )
         toast.success('Open source projects saved')
       },
       onError: () => toast.error('Failed to save projects')
@@ -183,7 +185,7 @@ export function OpenSourceSettings() {
                     className="hidden"
                     onChange={(e) => {
                       const file = e.target.files?.[0]
-                      if (file) handleLogoUpload(index, file)
+                      if (file) void handleLogoUpload(index, file)
                       e.target.value = ''
                     }}
                   />

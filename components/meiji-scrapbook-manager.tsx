@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Upload } from 'lucide-react'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -16,6 +15,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { toast } from '@/components/ui/toast'
 import { useTRPC } from '@/lib/trpc/client'
 import {
   SCRAPBOOK_SLOT_COUNT,
@@ -52,7 +52,9 @@ export function MeijiScrapbookManager() {
   const saveMutation = useMutation(
     trpc.meiji.setScrapbook.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries(trpc.meiji.getScrapbook.queryFilter())
+        void queryClient.invalidateQueries(
+          trpc.meiji.getScrapbook.queryFilter()
+        )
         toast.success('Scrapbook saved')
       },
       onError: (e) => toast.error(e.message || 'Failed to save')
@@ -141,7 +143,7 @@ export function MeijiScrapbookManager() {
                   className="hidden"
                   onChange={(e) => {
                     const f = e.target.files?.[0]
-                    if (f) handleUpload(i, f)
+                    if (f) void handleUpload(i, f)
                     e.target.value = ''
                   }}
                 />

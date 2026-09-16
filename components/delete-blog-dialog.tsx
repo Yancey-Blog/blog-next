@@ -4,8 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { toast } from 'sonner'
 
+import { toast } from '@/components/ui/toast'
 import { useTRPC } from '@/lib/trpc/client'
 
 import {
@@ -38,10 +38,10 @@ export function DeleteBlogDialog({ blogId, blogTitle }: DeleteBlogDialogProps) {
       toast.success('Blog deleted successfully')
       setOpen(false)
       // Invalidate both frontend and admin lists
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
       })
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: trpc.blog.listAdmin.queryOptions({ page: 1 }).queryKey
       })
       router.refresh()

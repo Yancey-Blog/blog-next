@@ -6,9 +6,9 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
-import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { toast } from '@/components/ui/toast'
 import { useAutosave } from '@/hooks/use-autosave'
 import type { Blog } from '@/lib/db/schema'
 import { useTRPC } from '@/lib/trpc/client'
@@ -190,7 +190,7 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
   })
 
   // Show toast notifications for autosave status
-  const toastIdRef = useRef<string | number | null>(null)
+  const toastIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (autosaveStatus === 'saving') {
@@ -233,10 +233,10 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
 
       toast.success('Draft saved successfully')
       // Invalidate both frontend and admin lists
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
       })
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: trpc.blog.listAdmin.queryOptions({ page: 1 }).queryKey
       })
       router.refresh()
@@ -270,10 +270,10 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
 
       toast.success('Blog published successfully')
       // Invalidate both frontend and admin lists
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
       })
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: trpc.blog.listAdmin.queryOptions({ page: 1 }).queryKey
       })
       router.push('/admin/blog-management')

@@ -6,10 +6,10 @@ import Link from 'next/link'
 import type { BlogListItem } from '@/lib/db/schema'
 
 import { DeleteBlogDialog } from './delete-blog-dialog'
+import { Pagination } from './pagination'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
-import { Pagination } from './ui/pagination'
 import {
   Table,
   TableBody,

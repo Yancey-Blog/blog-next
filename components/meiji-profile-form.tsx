@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Upload } from 'lucide-react'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -17,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from '@/components/ui/toast'
 import { useTRPC } from '@/lib/trpc/client'
 import type { MeijiProfile } from '@/lib/validations/meiji'
 
@@ -42,7 +42,7 @@ export function MeijiProfileForm() {
   const saveMutation = useMutation(
     trpc.meiji.updateProfile.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries(trpc.meiji.getProfile.queryFilter())
+        void queryClient.invalidateQueries(trpc.meiji.getProfile.queryFilter())
         toast.success('Profile saved')
       },
       onError: (e) => toast.error(e.message || 'Failed to save profile')
@@ -116,7 +116,7 @@ export function MeijiProfileForm() {
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0]
-              if (f) handleAvatarUpload(f)
+              if (f) void handleAvatarUpload(f)
               e.target.value = ''
             }}
           />

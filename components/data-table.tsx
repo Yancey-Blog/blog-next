@@ -20,20 +20,6 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
-  IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronsLeft,
-  IconChevronsRight,
-  IconCircleCheckFilled,
-  IconDotsVertical,
-  IconGripVertical,
-  IconLayoutColumns,
-  IconLoader,
-  IconPlus,
-  IconTrendingUp
-} from '@tabler/icons-react'
-import {
   flexRender,
   type ColumnFiltersState,
   type ColumnVisibilityState,
@@ -50,9 +36,22 @@ import {
   type LegacyColumnDef,
   type LegacyRow
 } from '@tanstack/react-table/legacy'
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  CircleCheckBig,
+  Columns3,
+  EllipsisVertical,
+  GripVertical,
+  Loader,
+  Plus,
+  TrendingUp
+} from 'lucide-react'
 import * as React from 'react'
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
-import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { Badge } from '@/components/ui/badge'
@@ -101,6 +100,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { toast } from '@/components/ui/toast'
 import { useIsMobile } from '@/hooks/use-mobile'
 
 export const schema = z.object({
@@ -127,7 +127,7 @@ function DragHandle({ id }: { id: number }) {
       size="icon"
       className="text-muted-foreground size-7 hover:bg-transparent"
     >
-      <IconGripVertical className="text-muted-foreground size-3" />
+      <GripVertical className="text-muted-foreground size-3" />
       <span className="sr-only">Drag to reorder</span>
     </Button>
   )
@@ -188,9 +188,9 @@ const columns: LegacyColumnDef<z.infer<typeof schema>>[] = [
     cell: ({ row }) => (
       <Badge variant="outline" className="text-muted-foreground px-1.5">
         {row.original.status === 'Done' ? (
-          <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
+          <CircleCheckBig className="fill-green-500 dark:fill-green-400" />
         ) : (
-          <IconLoader />
+          <Loader />
         )}
         {row.original.status}
       </Badge>
@@ -203,11 +203,14 @@ const columns: LegacyColumnDef<z.infer<typeof schema>>[] = [
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: 'Done',
-            error: 'Error'
-          })
+          void toast.promise(
+            new Promise((resolve) => setTimeout(resolve, 1000)),
+            {
+              loading: `Saving ${row.original.header}`,
+              success: 'Done',
+              error: 'Error'
+            }
+          )
         }}
       >
         <Label htmlFor={`${row.original.id}-target`} className="sr-only">
@@ -228,11 +231,14 @@ const columns: LegacyColumnDef<z.infer<typeof schema>>[] = [
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: 'Done',
-            error: 'Error'
-          })
+          void toast.promise(
+            new Promise((resolve) => setTimeout(resolve, 1000)),
+            {
+              loading: `Saving ${row.original.header}`,
+              success: 'Done',
+              error: 'Error'
+            }
+          )
         }}
       >
         <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
@@ -291,7 +297,7 @@ const columns: LegacyColumnDef<z.infer<typeof schema>>[] = [
               className="data-popup-open:bg-muted text-muted-foreground flex size-8"
               size="icon"
             >
-              <IconDotsVertical />
+              <EllipsisVertical />
               <span className="sr-only">Open menu</span>
             </Button>
           }
@@ -438,10 +444,10 @@ export function DataTable({
             <DropdownMenuTrigger
               render={
                 <Button variant="outline" size="sm">
-                  <IconLayoutColumns />
+                  <Columns3 />
                   <span className="hidden lg:inline">Customize Columns</span>
                   <span className="lg:hidden">Columns</span>
-                  <IconChevronDown />
+                  <ChevronDown />
                 </Button>
               }
             />
@@ -470,7 +476,7 @@ export function DataTable({
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="outline" size="sm">
-            <IconPlus />
+            <Plus />
             <span className="hidden lg:inline">Add Section</span>
           </Button>
         </div>
@@ -572,7 +578,7 @@ export function DataTable({
                 disabled={!table.getCanPreviousPage()}
               >
                 <span className="sr-only">Go to first page</span>
-                <IconChevronsLeft />
+                <ChevronsLeft />
               </Button>
               <Button
                 variant="outline"
@@ -582,7 +588,7 @@ export function DataTable({
                 disabled={!table.getCanPreviousPage()}
               >
                 <span className="sr-only">Go to previous page</span>
-                <IconChevronLeft />
+                <ChevronLeft />
               </Button>
               <Button
                 variant="outline"
@@ -592,7 +598,7 @@ export function DataTable({
                 disabled={!table.getCanNextPage()}
               >
                 <span className="sr-only">Go to next page</span>
-                <IconChevronRight />
+                <ChevronRight />
               </Button>
               <Button
                 variant="outline"
@@ -602,7 +608,7 @@ export function DataTable({
                 disabled={!table.getCanNextPage()}
               >
                 <span className="sr-only">Go to last page</span>
-                <IconChevronsRight />
+                <ChevronsRight />
               </Button>
             </div>
           </div>
@@ -716,7 +722,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
               <div className="grid gap-2">
                 <div className="flex gap-2 leading-none font-medium">
                   Trending up by 5.2% this month{' '}
-                  <IconTrendingUp className="size-4" />
+                  <TrendingUp className="size-4" />
                 </div>
                 <div className="text-muted-foreground">
                   Showing total visitors for the last 6 months. This is just

@@ -28,7 +28,7 @@ export class MeijiService {
   // --- Profile (settings) ---
   static async getProfile(): Promise<MeijiProfile> {
     const stored = await SettingsService.get<MeijiProfile>(PROFILE_KEY)
-    return { ...DEFAULT_PROFILE, ...(stored ?? {}) }
+    return { ...DEFAULT_PROFILE, ...stored }
   }
 
   static async updateProfile(profile: MeijiProfile): Promise<void> {

@@ -5,8 +5,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { LazyLoadImage } from '@/components/lazy-load-image'
+import { Pagination } from '@/components/pagination'
 import { Badge } from '@/components/ui/badge'
-import { Pagination } from '@/components/ui/pagination'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 
 export const metadata: Metadata = {

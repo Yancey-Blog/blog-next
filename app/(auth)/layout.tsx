@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/ui/toast'
 
 export const metadata: Metadata = {
   title: 'Blog CMS',

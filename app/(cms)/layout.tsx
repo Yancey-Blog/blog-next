@@ -18,6 +18,7 @@ import { SiteHeader } from '@/components/site-header'
 import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/toast'
 import { requireAuth } from '@/lib/auth/session'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 
@@ -64,6 +65,7 @@ export default async function AdminLayout({
             </SidebarInset>
           </SidebarProvider>
         </ThemeModeProvider>
+        <Toaster />
       </div>
     </HydrationBoundary>
   )

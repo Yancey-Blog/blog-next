@@ -1,8 +1,8 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 
+import { toast } from '@/components/ui/toast'
 import { useTRPC } from '@/lib/trpc/client'
 
 import {
@@ -47,7 +47,7 @@ export function UserManagement() {
     trpc.admin.users.delete.mutationOptions({
       onSuccess: () => {
         toast.success('User deleted successfully')
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.admin.users.list.queryOptions().queryKey
         })
       },

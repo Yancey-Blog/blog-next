@@ -1,171 +1,133 @@
-'use client'
+import { cn } from 'cn'
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MoreHorizontalIcon
+} from 'lucide-react'
+import * as React from 'react'
 
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react'
-import Link from 'next/link'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 
-import { Button } from './button'
-
-interface PaginationProps {
-  currentPage: number
-  totalPages: number
-  onPageChange?: (page: number) => void
-  useUrlQuery?: boolean // If true, use URL query params instead of callback
+function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
+  return (
+    <nav
+      role="navigation"
+      aria-label="pagination"
+      data-slot="pagination"
+      className={cn('mx-auto flex w-full justify-center', className)}
+      {...props}
+    />
+  )
 }
 
-export function Pagination({
-  currentPage,
-  totalPages,
-  onPageChange,
-  useUrlQuery = false
-}: PaginationProps) {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  // Generate page numbers to display
-  const getPageNumbers = () => {
-    const pages: (number | 'ellipsis')[] = []
-    const delta = 2 // Number of pages to show on each side of current page
-
-    // Always show first page
-    pages.push(1)
-
-    // Calculate range around current page
-    const rangeStart = Math.max(2, currentPage - delta)
-    const rangeEnd = Math.min(totalPages - 1, currentPage + delta)
-
-    // Add ellipsis after first page if needed
-    if (rangeStart > 2) {
-      pages.push('ellipsis')
-    }
-
-    // Add pages in range
-    for (let i = rangeStart; i <= rangeEnd; i++) {
-      pages.push(i)
-    }
-
-    // Add ellipsis before last page if needed
-    if (rangeEnd < totalPages - 1) {
-      pages.push('ellipsis')
-    }
-
-    // Always show last page (if more than 1 page)
-    if (totalPages > 1) {
-      pages.push(totalPages)
-    }
-
-    return pages
-  }
-
-  const createPageUrl = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('page', page.toString())
-    return `${pathname}?${params.toString()}`
-  }
-
-  const handlePageClick = (page: number) => {
-    if (onPageChange) {
-      onPageChange(page)
-    }
-  }
-
-  const pageNumbers = getPageNumbers()
-
-  if (totalPages <= 1) {
-    return null
-  }
-
+function PaginationContent({
+  className,
+  ...props
+}: React.ComponentProps<'ul'>) {
   return (
-    <div className="flex items-center gap-1">
-      {/* Previous Button */}
-      {useUrlQuery ? (
-        <Link
-          href={createPageUrl(Math.max(1, currentPage - 1))}
-          className={currentPage <= 1 ? 'pointer-events-none opacity-50' : ''}
-        >
-          <Button variant="outline" size="sm" disabled={currentPage <= 1}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-      ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handlePageClick(currentPage - 1)}
-          disabled={currentPage <= 1}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-      )}
-
-      {/* Page Numbers */}
-      {pageNumbers.map((page, index) => {
-        if (page === 'ellipsis') {
-          return (
-            <div
-              key={`ellipsis-${index}`}
-              className="flex h-9 w-9 items-center justify-center"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </div>
-          )
-        }
-
-        const isActive = page === currentPage
-
-        if (useUrlQuery) {
-          return (
-            <Link key={page} href={createPageUrl(page)}>
-              <Button
-                variant={isActive ? 'default' : 'outline'}
-                size="sm"
-                className="h-9 w-9"
-              >
-                {page}
-              </Button>
-            </Link>
-          )
-        }
-
-        return (
-          <Button
-            key={page}
-            variant={isActive ? 'default' : 'outline'}
-            size="sm"
-            className="h-9 w-9"
-            onClick={() => handlePageClick(page)}
-          >
-            {page}
-          </Button>
-        )
-      })}
-
-      {/* Next Button */}
-      {useUrlQuery ? (
-        <Link
-          href={createPageUrl(Math.min(totalPages, currentPage + 1))}
-          className={
-            currentPage >= totalPages ? 'pointer-events-none opacity-50' : ''
-          }
-        >
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={currentPage >= totalPages}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </Link>
-      ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handlePageClick(currentPage + 1)}
-          disabled={currentPage >= totalPages}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      )}
-    </div>
+    <ul
+      data-slot="pagination-content"
+      className={cn('flex items-center gap-1', className)}
+      {...props}
+    />
   )
+}
+
+function PaginationItem({ ...props }: React.ComponentProps<'li'>) {
+  return <li data-slot="pagination-item" {...props} />
+}
+
+type PaginationLinkProps = {
+  isActive?: boolean
+} & Pick<React.ComponentProps<typeof Button>, 'size'> &
+  React.ComponentProps<'a'>
+
+function PaginationLink({
+  className,
+  isActive,
+  size = 'icon',
+  ...props
+}: PaginationLinkProps) {
+  return (
+    <Button
+      variant={isActive ? 'outline' : 'ghost'}
+      size={size}
+      className={cn(className)}
+      nativeButton={false}
+      render={
+        <a
+          aria-current={isActive ? 'page' : undefined}
+          data-slot="pagination-link"
+          data-active={isActive}
+          {...props}
+        />
+      }
+    />
+  )
+}
+
+function PaginationPrevious({
+  className,
+  text = 'Previous',
+  ...props
+}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+  return (
+    <PaginationLink
+      aria-label="Go to previous page"
+      size="default"
+      className={cn('pl-1.5!', className)}
+      {...props}
+    >
+      <ChevronLeftIcon data-icon="inline-start" />
+      <span className="hidden sm:block">{text}</span>
+    </PaginationLink>
+  )
+}
+
+function PaginationNext({
+  className,
+  text = 'Next',
+  ...props
+}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+  return (
+    <PaginationLink
+      aria-label="Go to next page"
+      size="default"
+      className={cn('pr-1.5!', className)}
+      {...props}
+    >
+      <span className="hidden sm:block">{text}</span>
+      <ChevronRightIcon data-icon="inline-end" />
+    </PaginationLink>
+  )
+}
+
+function PaginationEllipsis({
+  className,
+  ...props
+}: React.ComponentProps<'span'>) {
+  return (
+    <span
+      aria-hidden
+      data-slot="pagination-ellipsis"
+      className={cn(
+        "flex size-8 items-center justify-center [&_svg:not([class*='size-'])]:size-4",
+        className
+      )}
+      {...props}
+    >
+      <MoreHorizontalIcon />
+      <span className="sr-only">More pages</span>
+    </span>
+  )
+}
+
+export {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
 }

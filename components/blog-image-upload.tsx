@@ -1,11 +1,11 @@
 'use client'
 
-import { IconUpload, IconX } from '@tabler/icons-react'
 import { useMutation } from '@tanstack/react-query'
+import { Upload, X } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
-import { toast } from 'sonner'
 
+import { toast } from '@/components/ui/toast'
 import { useTRPC } from '@/lib/trpc/client'
 
 import { Button } from './ui/button'
@@ -93,7 +93,7 @@ export function BlogImageUpload({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      uploadFile(file)
+      void uploadFile(file)
     }
   }
 
@@ -114,7 +114,7 @@ export function BlogImageUpload({
 
       const file = e.dataTransfer.files?.[0]
       if (file) {
-        uploadFile(file)
+        void uploadFile(file)
       }
     },
     [uploadFile]
@@ -145,7 +145,7 @@ export function BlogImageUpload({
           disabled={disabled || isUploading}
           className="w-80"
         >
-          <IconX className="mr-2 h-4 w-4" />
+          <X className="mr-2 h-4 w-4" />
           Remove Image
         </Button>
       </div>
@@ -171,7 +171,7 @@ export function BlogImageUpload({
           disabled={disabled || isUploading}
           className="hidden"
         />
-        <IconUpload className="text-muted-foreground h-10 w-10" />
+        <Upload className="text-muted-foreground h-10 w-10" />
         {isUploading ? (
           <div className="space-y-1">
             <p className="text-sm font-medium">Uploading...</p>

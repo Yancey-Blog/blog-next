@@ -111,7 +111,7 @@ export function useAutosave<T>({
 
     // Set new debounce timer
     debounceTimerRef.current = setTimeout(() => {
-      save(data)
+      void save(data)
     }, debounceMs)
 
     return () => {
@@ -126,7 +126,7 @@ export function useAutosave<T>({
     if (!enabled || !isInitializedRef.current) return
 
     intervalTimerRef.current = setInterval(() => {
-      save(data)
+      void save(data)
     }, intervalMs)
 
     return () => {

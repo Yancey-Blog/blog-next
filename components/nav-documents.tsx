@@ -1,12 +1,6 @@
 'use client'
 
-import {
-  IconDots,
-  IconFolder,
-  IconShare3,
-  IconTrash,
-  type Icon
-} from '@tabler/icons-react'
+import { Ellipsis, Folder, Share2, Trash, type LucideIcon } from 'lucide-react'
 
 import {
   DropdownMenu,
@@ -31,7 +25,7 @@ export function NavDocuments({
   items: {
     name: string
     url: string
-    icon: Icon
+    icon: LucideIcon
   }[]
 }) {
   const { isMobile } = useSidebar()
@@ -57,7 +51,7 @@ export function NavDocuments({
                     showOnHover
                     className="data-popup-open:bg-accent rounded-sm"
                   >
-                    <IconDots />
+                    <Ellipsis />
                     <span className="sr-only">More</span>
                   </SidebarMenuAction>
                 }
@@ -68,16 +62,16 @@ export function NavDocuments({
                 align={isMobile ? 'end' : 'start'}
               >
                 <DropdownMenuItem>
-                  <IconFolder />
+                  <Folder />
                   <span>Open</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <IconShare3 />
+                  <Share2 />
                   <span>Share</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive">
-                  <IconTrash />
+                  <Trash />
                   <span>Delete</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -86,7 +80,7 @@ export function NavDocuments({
         ))}
         <SidebarMenuItem>
           <SidebarMenuButton className="text-sidebar-foreground/70">
-            <IconDots className="text-sidebar-foreground/70" />
+            <Ellipsis className="text-sidebar-foreground/70" />
             <span>More</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
