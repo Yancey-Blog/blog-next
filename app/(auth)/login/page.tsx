@@ -1,6 +1,7 @@
 import { GalleryVerticalEnd } from 'lucide-react'
 
 import { LoginForm } from '@/components/login-form'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 export default function LoginPage() {
   return (
@@ -8,7 +9,15 @@ export default function LoginPage() {
       <div className="flex w-full max-w-sm flex-col gap-6">
         <a href="#" className="flex items-center gap-2 self-center font-medium">
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <GalleryVerticalEnd className="size-4" />
+            <Avatar>
+              <AvatarImage
+                src="https://static.yancey.app/48c3afef-e53a-46f8-b78e-dcc041ed6814.png"
+                alt="@yanceyofficial"
+              />
+              <AvatarFallback>
+                <GalleryVerticalEnd />
+              </AvatarFallback>
+            </Avatar>
           </div>
           Yancey Inc.
         </a>

@@ -16,7 +16,7 @@ export default function ManagementPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="users" className="space-y-4">
+      <Tabs defaultValue="users" className="flex-col space-y-4">
         <TabsList>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="sessions">Sessions</TabsTrigger>
