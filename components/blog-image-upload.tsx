@@ -1,12 +1,11 @@
 'use client'
 
-import { useMutation } from '@tanstack/react-query'
 import { Upload, X } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
 
 import { toast } from '@/components/ui/toast'
-import { useTRPC } from '@/lib/trpc/client'
+import { useUploadFile } from '@/lib/hooks/use-upload-file'
 
 import { Button } from './ui/button'
 
@@ -33,11 +32,7 @@ export function BlogImageUpload({
 }: BlogImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
-  const trpc = useTRPC()
-
-  const getPresignedUrl = useMutation(
-    trpc.upload.getPresignedUrl.mutationOptions()
-  )
+  const upload = useUploadFile()
 
   const validateFile = (file: File): string | null => {
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
@@ -59,26 +54,7 @@ export function BlogImageUpload({
 
       setIsUploading(true)
       try {
-        // Step 1: Get presigned URL
-        const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
-          fileName: file.name,
-          contentType: file.type
-        })
-
-        // Step 2: Upload directly to S3
-        const uploadResponse = await fetch(uploadUrl, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': file.type
-          },
-          body: file
-        })
-
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload to S3')
-        }
-
-        onChange(publicUrl)
+        onChange(await upload(file))
         toast.success('Image uploaded successfully')
       } catch (error) {
         console.error('Upload error:', error)
@@ -87,7 +63,7 @@ export function BlogImageUpload({
         setIsUploading(false)
       }
     },
-    [getPresignedUrl, onChange]
+    [upload, onChange]
   )
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

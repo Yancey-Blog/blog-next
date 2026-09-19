@@ -21,7 +21,6 @@ import {
 import { en as aiEn } from '@blocknote/xl-ai/locales'
 
 import '@blocknote/core/fonts/inter.css'
-import { useMutation } from '@tanstack/react-query'
 import { DefaultChatTransport } from 'ai'
 
 import '@blocknote/mantine/style.css'
@@ -30,7 +29,7 @@ import { useTheme } from 'next-themes'
 import { useMemo } from 'react'
 
 import { blogSchema } from '@/lib/blocknote/schema'
-import { useTRPC } from '@/lib/trpc/client'
+import { useUploadFile } from '@/lib/hooks/use-upload-file'
 
 interface BlogEditorProps {
   /** BlockNote blocks as a JSON string. Read ONCE as initial content. */
@@ -57,10 +56,7 @@ export function BlogEditor({
   disabled = false
 }: BlogEditorProps) {
   const { resolvedTheme } = useTheme()
-  const trpc = useTRPC()
-  const getPresignedUrl = useMutation(
-    trpc.upload.getPresignedUrl.mutationOptions()
-  )
+  const uploadFile = useUploadFile()
 
   // Freeze initial content so per-keystroke parent re-renders never reset the editor.
   const initialBlocks = useMemo(
@@ -78,19 +74,7 @@ export function BlogEditor({
         transport: new DefaultChatTransport({ api: '/api/ai/chat' })
       })
     ],
-    uploadFile: async (file: File) => {
-      const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
-        fileName: file.name,
-        contentType: file.type
-      })
-      const res = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type },
-        body: file
-      })
-      if (!res.ok) throw new Error('Failed to upload to S3')
-      return publicUrl
-    }
+    uploadFile
   })
 
   return (
