@@ -5,10 +5,12 @@ import { notFound } from 'next/navigation'
 
 import { BlogAdjacentNav } from '@/components/blog-adjacent-nav'
 import { BlogComments } from '@/components/blog-comments'
+import { BlogContentImages } from '@/components/blog-content-images'
 import { BlogToc } from '@/components/blog-toc'
 import { PostActions } from '@/components/post-actions'
 import { Badge } from '@/components/ui/badge'
 import { extractToc } from '@/lib/blocknote/extract-toc'
+import { transformContentImages } from '@/lib/images/transform-html'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
 import { cn } from '@/lib/utils'
 
@@ -28,9 +30,11 @@ export default async function BlogDetailPage({
     notFound()
   }
 
-  const content = blog.highlightedContent || blog.content
+  const storedContent = blog.highlightedContent || blog.content
   // Extract the outline on the server so the TOC renders during SSR.
-  const tocItems = extractToc(content)
+  const tocItems = extractToc(storedContent)
+  // Render-time only: stored HTML keeps plain <img> tags.
+  const content = transformContentImages(storedContent)
   const { prev, next } = await queryClient.fetchQuery(
     trpc.blog.adjacent.queryOptions({ id: blog.id })
   )
@@ -121,9 +125,11 @@ export default async function BlogDetailPage({
             </div>
 
             <div
+              id="blog-content"
               className="blog-content"
               dangerouslySetInnerHTML={{ __html: content }}
             />
+            <BlogContentImages containerId="blog-content" />
 
             <BlogAdjacentNav prev={prev} next={next} />
 
