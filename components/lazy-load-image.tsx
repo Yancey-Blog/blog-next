@@ -49,12 +49,6 @@ export function LazyLoadImage({
   const imgRef = useRef<HTMLImageElement>(null)
   const lqipUrl = buildSources(src)?.lqipUrl
 
-  // A cached image can finish loading before hydration attaches onLoad.
-  useEffect(() => {
-    const img = imgRef.current
-    if (img?.complete && img.naturalWidth > 0) setIsLoaded(true)
-  }, [useOriginal])
-
   const handleError = () => {
     if (lqipUrl && !useOriginal) {
       setUseOriginal(true)
@@ -63,6 +57,18 @@ export function LazyLoadImage({
     setHasError(true)
     setIsLoaded(true)
   }
+
+  // Both outcomes can happen before hydration attaches onLoad/onError: a cached
+  // image finishes instantly, and a missing derivative can 404 just as fast.
+  useEffect(() => {
+    const img = imgRef.current
+    if (!img?.complete) return
+    if (img.naturalWidth > 0) setIsLoaded(true)
+    // Only on the first pass: once we are retrying with the original, the
+    // listeners are attached and onError reports a second failure itself.
+    else if (!useOriginal) handleError()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [useOriginal])
 
   return (
     <div className="relative h-full w-full overflow-hidden">
