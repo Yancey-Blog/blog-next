@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
+import { Picture } from '@/components/picture'
 import {
   Carousel,
   type CarouselApi,
@@ -29,10 +30,10 @@ function Slide({ item }: { item: MeijiMedia }) {
             videoClassName="max-h-[60vh] w-auto max-w-full rounded-[20px]"
           />
         ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Picture
             src={item.url}
             alt={item.caption ?? 'Meiji'}
+            sizes="100vw"
             className="max-h-[60vh] w-auto max-w-full rounded-[20px] object-contain"
           />
         )}

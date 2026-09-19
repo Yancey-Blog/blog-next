@@ -1,8 +1,8 @@
 'use client'
 
 import { motion, type Variants } from 'framer-motion'
-import Image from 'next/image'
 
+import { Picture } from '@/components/picture'
 import type { MeijiProfile, ScrapbookItem } from '@/lib/validations/meiji'
 
 import { MeijiScrapbook } from './meiji-scrapbook'
@@ -86,11 +86,12 @@ export function MeijiHero({
             className="meiji-card grid h-40 w-40 place-items-center overflow-hidden rounded-full p-0 sm:h-48 sm:w-48"
           >
             {profile.avatarUrl ? (
-              <Image
+              <Picture
                 src={profile.avatarUrl}
                 alt={profile.name}
                 width={192}
                 height={192}
+                sizes="192px"
                 className="h-full w-full object-cover"
               />
             ) : (

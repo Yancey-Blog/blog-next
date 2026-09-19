@@ -88,6 +88,7 @@ export default async function BlogsPage({
                       <LazyLoadImage
                         src={blog.coverImage}
                         alt={blog.title}
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                         className="transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>

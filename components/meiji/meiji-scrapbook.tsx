@@ -110,7 +110,7 @@ function Polaroid({
         />
         {imageUrl ? (
           <div className="relative aspect-square overflow-hidden rounded-[3px]">
-            <LazyLoadImage src={imageUrl} alt={caption} fill />
+            <LazyLoadImage src={imageUrl} alt={caption} fill sizes="144px" />
           </div>
         ) : (
           <div
