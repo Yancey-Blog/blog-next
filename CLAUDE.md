@@ -244,9 +244,20 @@ See `GOOGLE_ANALYTICS_MIGRATION.md` for migration guide from Universal Analytics
 
 ### Image Upload (AWS S3)
 
-- tRPC endpoint: `trpc.upload.getPresignedUrl`
-- Direct upload to S3 with presigned URLs
-- Used by the BlockNote editor (via its `uploadFile` handler) and image upload components
+- tRPC endpoints: `trpc.upload.getPresignedUrl`, then `trpc.upload.processImage` for JPEG/PNG
+- Client code never calls these directly: use `useUploadFile()` from `lib/hooks/use-upload-file.ts`
+- Direct browser upload to S3 with presigned URLs; public origin is `https://static.yancey.app` (CloudFront)
+
+### Image Pipeline (AVIF/WebP + blur-up)
+
+Stored URLs always point at the untouched original. Everything else is derived from that URL by convention, with no lookup at render time. The rules live in one pure module, `lib/images/derivatives.ts`, shared by the generator and the render side.
+
+- **Upload**: JPEG/PNG land in `tmp/{uuid}.{ext}`. `processImage` (sharp, `lib/images/process.ts`) writes the derivatives, then moves the original to `{uuid}_{width}x{height}.{ext}`. The dimensions in the file name are how the render side knows the size.
+- **Derivatives**: `_derived/{original key}/w{N}.avif|webp` for widths `[480, 960, 1440, 2400]` (exact tiers when the width is known, all four otherwise) plus `_derived/{original key}/lqip.webp` (24px, written last as the "done" marker).
+- **Eligible**: `jpg`/`jpeg`/`png` on `static.yancey.app`. GIF, SVG, WebP originals and videos are served as-is.
+- **Render**: `components/picture.tsx` (`<picture>` with AVIF/WebP), `components/lazy-load-image.tsx` (blur-up, always fills its parent; pass `sizes`), and `lib/images/transform-html.ts` + `components/blog-content-images.tsx` for post bodies (render-time only; stored HTML keeps plain `<img>`).
+- **Legacy images** (no dimensions in the name) were backfilled with `pnpm images:backfill`. It is idempotent; re-run it after importing images by any other route.
+- Never hand-build an `<img>` for a first-party image on a public page: use `Picture` or `LazyLoadImage`.
 
 ### PWA Support (Progressive Web App)
 
