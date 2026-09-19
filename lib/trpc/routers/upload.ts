@@ -1,5 +1,8 @@
 import { z } from 'zod'
 
+import { TMP_KEY_PATTERN } from '@/lib/images/derivatives'
+import { processUploadedImage } from '@/lib/images/process'
+import { s3ObjectStore } from '@/lib/images/s3-store'
 import { generatePresignedUploadUrl } from '@/lib/s3'
 
 import { protectedProcedure } from '../init'
@@ -33,13 +36,32 @@ export const uploadRouter = {
         )
       }
 
-      const { uploadUrl, publicUrl, fileKey } =
+      const { uploadUrl, publicUrl, fileKey, needsProcessing } =
         await generatePresignedUploadUrl(fileName, contentType)
 
       return {
         uploadUrl,
         publicUrl,
-        fileKey
+        fileKey,
+        needsProcessing
       }
+    }),
+
+  // Finish a JPEG/PNG upload: write AVIF/WebP tiers and the LQIP, then move the
+  // original out of tmp/. Runs synchronously so a URL is only handed out once
+  // its derivatives exist, and so failures surface in the uploader right away.
+  processImage: protectedProcedure
+    .input(
+      z.object({
+        // Only keys issued by getPresignedUrl; never arbitrary bucket objects.
+        fileKey: z.string().regex(TMP_KEY_PATTERN)
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { publicUrl, width, height } = await processUploadedImage(
+        s3ObjectStore,
+        input.fileKey
+      )
+      return { publicUrl, width, height }
     })
 }
