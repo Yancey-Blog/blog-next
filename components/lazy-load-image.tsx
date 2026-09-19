@@ -1,9 +1,10 @@
 'use client'
 
 import { ImageOffIcon } from 'lucide-react'
-import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
+import { Picture } from '@/components/picture'
+import { buildSources } from '@/lib/images/derivatives'
 import { cn } from '@/lib/utils'
 
 interface LazyLoadImageProps {
@@ -11,60 +12,98 @@ interface LazyLoadImageProps {
   alt: string
   className?: string
   skeletonClassName?: string
+  /** Accepted for compatibility. The image always fills its wrapper. */
   width?: number
+  /** Accepted for compatibility. The image always fills its wrapper. */
   height?: number
+  /** Accepted for compatibility. The image always fills its wrapper. */
   fill?: boolean
   priority?: boolean
+  /** How wide the image renders, in `sizes` syntax. */
+  sizes?: string
 }
 
+/**
+ * Cover-fit image that fills its (sized, positioned) parent.
+ *
+ * First-party images blur up: a 24px LQIP is shown blurred until the real
+ * image has loaded, then the two cross-fade. Other images keep the pulsing
+ * skeleton. If a derivative fails to load, the original is tried once before
+ * the error state is shown.
+ */
 export function LazyLoadImage({
   src,
   alt,
   className,
   skeletonClassName,
-  width,
-  height,
-  fill = false,
-  priority = false
+  priority = false,
+  sizes = '100vw'
 }: LazyLoadImageProps) {
   const [isLoaded, setIsLoaded] = useState(false)
+  const [useOriginal, setUseOriginal] = useState(false)
   const [hasError, setHasError] = useState(false)
+  const imgRef = useRef<HTMLImageElement>(null)
+  const lqipUrl = buildSources(src)?.lqipUrl
+
+  // A cached image can finish loading before hydration attaches onLoad.
+  useEffect(() => {
+    const img = imgRef.current
+    if (img?.complete && img.naturalWidth > 0) setIsLoaded(true)
+  }, [useOriginal])
+
+  const handleError = () => {
+    if (lqipUrl && !useOriginal) {
+      setUseOriginal(true)
+      return
+    }
+    setHasError(true)
+    setIsLoaded(true)
+  }
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      {/* Skeleton loader */}
-      {!isLoaded && !hasError && (
+      {/* Blurred LQIP for first-party images */}
+      {!hasError && lqipUrl && (
+        <img
+          src={lqipUrl}
+          alt=""
+          aria-hidden="true"
+          loading={priority ? 'eager' : 'lazy'}
+          className={cn(
+            'absolute inset-0 h-full w-full scale-110 object-cover blur-xl transition-opacity duration-500 motion-reduce:transition-none',
+            isLoaded ? 'opacity-0' : 'opacity-100'
+          )}
+        />
+      )}
+
+      {/* Skeleton for everything else */}
+      {!hasError && !lqipUrl && !isLoaded && (
         <div
           className={cn(
-            'absolute inset-0 animate-pulse bg-muted',
+            'bg-muted absolute inset-0 animate-pulse',
             skeletonClassName
           )}
         />
       )}
 
-      {/* Next.js optimized image */}
       {!hasError && (
-        <Image
+        <Picture
+          ref={imgRef}
           src={src}
           alt={alt}
-          width={fill ? undefined : width || 800}
-          height={fill ? undefined : height || 600}
-          fill={fill}
-          loading={priority ? undefined : 'lazy'}
+          sizes={sizes}
+          fill
           priority={priority}
+          disableDerivatives={useOriginal}
           onLoad={() => setIsLoaded(true)}
-          onError={() => {
-            setHasError(true)
-            setIsLoaded(true)
-          }}
+          onError={handleError}
           className={cn(
-            'object-cover transition-opacity duration-500',
-            isLoaded ? 'opacity-100' : 'opacity-0',
+            'object-cover transition-opacity duration-500 motion-reduce:transition-none',
+            // Priority images are LCP candidates: paint them as soon as bytes
+            // arrive instead of waiting for JavaScript to reveal them.
+            priority || isLoaded ? 'opacity-100' : 'opacity-0',
             className
           )}
-          unoptimized={
-            src.startsWith('http') && !src.includes('edge.yancey.app')
-          }
         />
       )}
 

@@ -1756,7 +1756,7 @@ describe('Picture', () => {
     expect(html).toContain('height="800"')
     expect(html).toContain('loading="lazy"')
     expect(html).toContain('decoding="async"')
-    expect(html).not.toContain('fetchpriority')
+    expect(html.toLowerCase()).not.toContain('fetchpriority')
   })
 
   it('omits width and height for legacy URLs', () => {
@@ -1780,7 +1780,9 @@ describe('Picture', () => {
   it('loads priority images eagerly with high fetch priority', () => {
     const html = renderToStaticMarkup(<Picture src={NEW_URL} alt="" priority />)
     expect(html).toContain('loading="eager"')
-    expect(html).toContain('fetchpriority="high"')
+    // React's server renderer keeps the camelCase attribute name; HTML
+    // attribute names are case-insensitive.
+    expect(html.toLowerCase()).toContain('fetchpriority="high"')
   })
 
   it('fills its positioned parent and drops intrinsic size when fill is set', () => {
@@ -1877,7 +1879,9 @@ export function Picture({
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : undefined}
-        className={cn(fill && 'absolute inset-0 h-full w-full', className)}
+        className={
+          cn(fill && 'absolute inset-0 h-full w-full', className) || undefined
+        }
       />
     </picture>
   )
