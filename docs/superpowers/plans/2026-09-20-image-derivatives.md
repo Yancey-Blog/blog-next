@@ -1910,6 +1910,10 @@ import { cn } from '@/lib/utils'
 interface LazyLoadImageProps {
   src: string
   alt: string
+  /**
+   * Applied to the layer that holds both the placeholder and the image, so
+   * hover transforms move them together and never clobber the opacity fade.
+   */
   className?: string
   skeletonClassName?: string
   /** Accepted for compatibility. The image always fills its wrapper. */
@@ -1962,49 +1966,50 @@ export function LazyLoadImage({
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      {/* Blurred LQIP for first-party images */}
-      {!hasError && lqipUrl && (
-        <img
-          src={lqipUrl}
-          alt=""
-          aria-hidden="true"
-          loading={priority ? 'eager' : 'lazy'}
-          className={cn(
-            'absolute inset-0 h-full w-full scale-110 object-cover blur-xl transition-opacity duration-500 motion-reduce:transition-none',
-            isLoaded ? 'opacity-0' : 'opacity-100'
-          )}
-        />
-      )}
-
-      {/* Skeleton for everything else */}
-      {!hasError && !lqipUrl && !isLoaded && (
-        <div
-          className={cn(
-            'bg-muted absolute inset-0 animate-pulse',
-            skeletonClassName
-          )}
-        />
-      )}
-
       {!hasError && (
-        <Picture
-          ref={imgRef}
-          src={src}
-          alt={alt}
-          sizes={sizes}
-          fill
-          priority={priority}
-          disableDerivatives={useOriginal}
-          onLoad={() => setIsLoaded(true)}
-          onError={handleError}
-          className={cn(
-            'object-cover transition-opacity duration-500 motion-reduce:transition-none',
-            // Priority images are LCP candidates: paint them as soon as bytes
-            // arrive instead of waiting for JavaScript to reveal them.
-            priority || isLoaded ? 'opacity-100' : 'opacity-0',
-            className
+        <div className={cn('absolute inset-0', className)}>
+          {/* Blurred LQIP for first-party images */}
+          {lqipUrl && (
+            <img
+              src={lqipUrl}
+              alt=""
+              aria-hidden="true"
+              loading={priority ? 'eager' : 'lazy'}
+              className={cn(
+                'absolute inset-0 h-full w-full scale-110 object-cover blur-xl transition-opacity duration-500 motion-reduce:transition-none',
+                isLoaded ? 'opacity-0' : 'opacity-100'
+              )}
+            />
           )}
-        />
+
+          {/* Skeleton for everything else */}
+          {!lqipUrl && !isLoaded && (
+            <div
+              className={cn(
+                'bg-muted absolute inset-0 animate-pulse',
+                skeletonClassName
+              )}
+            />
+          )}
+
+          <Picture
+            ref={imgRef}
+            src={src}
+            alt={alt}
+            sizes={sizes}
+            fill
+            priority={priority}
+            disableDerivatives={useOriginal}
+            onLoad={() => setIsLoaded(true)}
+            onError={handleError}
+            className={cn(
+              'object-cover transition-opacity duration-500 motion-reduce:transition-none',
+              // Priority images are LCP candidates: paint them as soon as
+              // bytes arrive instead of waiting for JavaScript to reveal them.
+              priority || isLoaded ? 'opacity-100' : 'opacity-0'
+            )}
+          />
+        </div>
       )}
 
       {/* Error state */}
