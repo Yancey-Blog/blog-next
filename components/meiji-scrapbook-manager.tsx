@@ -16,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast'
+import { useUploadFile } from '@/lib/hooks/use-upload-file'
 import { useTRPC } from '@/lib/trpc/client'
 import {
   SCRAPBOOK_SLOT_COUNT,
@@ -45,9 +46,7 @@ export function MeijiScrapbookManager() {
     setItems(pad(data))
   }
 
-  const getPresignedUrl = useMutation(
-    trpc.upload.getPresignedUrl.mutationOptions()
-  )
+  const uploadFile = useUploadFile()
 
   const saveMutation = useMutation(
     trpc.meiji.setScrapbook.mutationOptions({
@@ -72,15 +71,7 @@ export function MeijiScrapbookManager() {
   async function handleUpload(index: number, file: File) {
     setUploadingIndex(index)
     try {
-      const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
-        fileName: file.name,
-        contentType: file.type
-      })
-      await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type }
-      })
+      const publicUrl = await uploadFile(file)
       update(index, 'imageUrl', publicUrl)
     } catch {
       toast.error('Upload failed')

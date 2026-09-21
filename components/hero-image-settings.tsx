@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast'
+import { useUploadFile } from '@/lib/hooks/use-upload-file'
 import { useTRPC } from '@/lib/trpc/client'
 
 const FALLBACK_IMAGE = 'https://static.yancey.app/ng9bwfv1-1728444113930.jpeg'
@@ -40,22 +41,12 @@ export function HeroImageSettings() {
     })
   )
 
-  const getPresignedUrl = useMutation(
-    trpc.upload.getPresignedUrl.mutationOptions()
-  )
+  const uploadFile = useUploadFile()
 
   async function handleFileUpload(file: File) {
     setUploading(true)
     try {
-      const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
-        fileName: file.name,
-        contentType: file.type
-      })
-      await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type }
-      })
+      const publicUrl = await uploadFile(file)
       saveMutation.mutate({ url: publicUrl })
     } catch {
       toast.error('Upload failed')

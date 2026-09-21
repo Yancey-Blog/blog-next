@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast'
+import { useUploadFile } from '@/lib/hooks/use-upload-file'
 import { useTRPC } from '@/lib/trpc/client'
 import type { MeijiProfile } from '@/lib/validations/meiji'
 
@@ -35,9 +36,7 @@ export function MeijiProfileForm() {
     setProfile(data)
   }
 
-  const getPresignedUrl = useMutation(
-    trpc.upload.getPresignedUrl.mutationOptions()
-  )
+  const uploadFile = useUploadFile()
 
   const saveMutation = useMutation(
     trpc.meiji.updateProfile.mutationOptions({
@@ -56,15 +55,7 @@ export function MeijiProfileForm() {
   async function handleAvatarUpload(file: File) {
     setUploading(true)
     try {
-      const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
-        fileName: file.name,
-        contentType: file.type
-      })
-      await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type }
-      })
+      const publicUrl = await uploadFile(file)
       set('avatarUrl', publicUrl)
       toast.success('Avatar uploaded')
     } catch {

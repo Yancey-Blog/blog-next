@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast'
 import type { MeijiMedia } from '@/lib/db/schema'
+import { useUploadFile } from '@/lib/hooks/use-upload-file'
 import { useTRPC } from '@/lib/trpc/client'
 
 interface Pending {
@@ -52,9 +53,7 @@ export function MeijiMediaManager() {
     trpc.meiji.listMedia.queryOptions()
   )
 
-  const getPresignedUrl = useMutation(
-    trpc.upload.getPresignedUrl.mutationOptions()
-  )
+  const uploadFile = useUploadFile()
 
   const invalidate = () =>
     queryClient.invalidateQueries(trpc.meiji.listMedia.queryFilter())
@@ -85,15 +84,7 @@ export function MeijiMediaManager() {
   async function handleUpload(file: File) {
     setUploading(true)
     try {
-      const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
-        fileName: file.name,
-        contentType: file.type
-      })
-      await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type }
-      })
+      const publicUrl = await uploadFile(file)
       setPending({
         url: publicUrl,
         type: file.type.startsWith('video') ? 'video' : 'photo'
@@ -299,9 +290,7 @@ function EditMediaDialog({
   )
   const [uploading, setUploading] = useState(false)
 
-  const getPresignedUrl = useMutation(
-    trpc.upload.getPresignedUrl.mutationOptions()
-  )
+  const uploadFile = useUploadFile()
 
   const updateMutation = useMutation(
     trpc.meiji.updateMedia.mutationOptions({
@@ -317,15 +306,7 @@ function EditMediaDialog({
   async function handleReplace(file: File) {
     setUploading(true)
     try {
-      const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
-        fileName: file.name,
-        contentType: file.type
-      })
-      await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type }
-      })
+      const publicUrl = await uploadFile(file)
       setUrl(publicUrl)
       setType(file.type.startsWith('video') ? 'video' : 'photo')
       toast.success('Replaced — save to apply')

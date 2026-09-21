@@ -43,6 +43,7 @@ function FeaturedPost({ blog }: { blog: Blog }) {
               alt={blog.title}
               fill
               priority
+              sizes="(min-width: 1536px) 1536px, 100vw"
               className="transition-transform duration-700 group-hover:scale-105"
             />
           ) : (
@@ -129,6 +130,7 @@ function ArticleCard({ blog, index }: { blog: Blog; index: number }) {
             <LazyLoadImage
               src={blog.coverImage}
               alt={blog.title}
+              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
               className="transition-transform duration-500 group-hover:scale-110"
             />
           </div>

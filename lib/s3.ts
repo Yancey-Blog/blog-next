@@ -2,6 +2,8 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { v4 as uuidv4 } from 'uuid'
 
+import { publicUrlFor, tmpKeyFor } from '@/lib/images/derivatives'
+
 if (!process.env.AWS_REGION) {
   throw new Error('AWS_REGION is not defined')
 }
@@ -27,14 +29,24 @@ export const s3Client = new S3Client({
 })
 
 /**
- * Generate presigned URL for file upload
+ * Generate a presigned URL for a direct browser upload.
+ *
+ * JPEG and PNG uploads land under `tmp/` and must be finished with
+ * `upload.processImage`, which writes the derivatives and moves the original to
+ * its final, dimension-bearing key. Every other type is published as-is.
  */
 export async function generatePresignedUploadUrl(
   fileName: string,
   contentType: string
-): Promise<{ uploadUrl: string; fileKey: string; publicUrl: string }> {
-  const fileExtension = fileName.split('.').pop()
-  const fileKey = `${uuidv4()}.${fileExtension}`
+): Promise<{
+  uploadUrl: string
+  fileKey: string
+  publicUrl: string
+  needsProcessing: boolean
+}> {
+  const uuid = uuidv4()
+  const tmpKey = tmpKeyFor(uuid, contentType)
+  const fileKey = tmpKey ?? `${uuid}.${fileName.split('.').pop()}`
 
   const command = new PutObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -46,12 +58,11 @@ export async function generatePresignedUploadUrl(
     expiresIn: 3600 // 1 hour
   })
 
-  const publicUrl = `https://static.yancey.app/${fileKey}`
-
   return {
     uploadUrl,
     fileKey,
-    publicUrl
+    publicUrl: publicUrlFor(fileKey),
+    needsProcessing: tmpKey !== null
   }
 }
 
@@ -75,7 +86,5 @@ export async function uploadFileToS3(
 
   await s3Client.send(command)
 
-  const publicUrl = `https://static.yancey.app/${fileKey}`
-
-  return publicUrl
+  return publicUrlFor(fileKey)
 }

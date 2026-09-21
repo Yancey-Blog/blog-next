@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from 'react'
 
+import { LazyLoadImage } from '@/components/lazy-load-image'
+
 interface ParallaxHeroProps {
   imageUrl: string
   children: React.ReactNode
@@ -26,11 +28,14 @@ export function ParallaxHero({ imageUrl, children }: ParallaxHeroProps) {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
       <div className="absolute inset-0 -z-10">
+        {/* An <img> instead of a CSS background so the hero gets AVIF/WebP
+            tiers and the blur-up placeholder. It is the LCP element. */}
         <div
           ref={bgRef}
-          className="absolute inset-0 -top-[20%] h-[120%] w-full bg-cover bg-center bg-no-repeat will-change-transform"
-          style={{ backgroundImage: `url(${imageUrl})` }}
-        />
+          className="absolute inset-0 -top-[20%] h-[120%] w-full will-change-transform"
+        >
+          <LazyLoadImage src={imageUrl} alt="" priority sizes="100vw" />
+        </div>
         <div className="absolute inset-0 bg-black/50" />
       </div>
 

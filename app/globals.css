@@ -313,6 +313,46 @@
       @apply shadow-lg transition-shadow duration-300;
     }
 
+    /* Blur-up wrapper emitted by lib/images/transform-html.ts.
+       data-pending / data-loaded are toggled by components/blog-content-images.tsx */
+    .img-blur {
+      @apply relative mx-auto block w-full overflow-hidden rounded-lg shadow-md;
+
+      &::before {
+        content: '';
+        @apply absolute inset-0 scale-110 bg-cover bg-center blur-xl transition-opacity duration-500;
+        background-image: var(--lqip);
+      }
+
+      picture {
+        @apply block;
+      }
+
+      /* The wrapper owns the radius and shadow; overflow-hidden would clip them on the img. */
+      img {
+        @apply relative block rounded-none shadow-none transition-opacity duration-500;
+      }
+
+      &[data-pending] img {
+        opacity: 0;
+      }
+
+      &[data-loaded]::before {
+        opacity: 0;
+      }
+
+      &:hover {
+        @apply shadow-lg transition-shadow duration-300;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .img-blur::before,
+      .img-blur img {
+        transition: none;
+      }
+    }
+
     /* Divs (for special containers) */
     div[data-rmiz] {
       @apply mt-6 mb-6;

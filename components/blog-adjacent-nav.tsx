@@ -63,7 +63,12 @@ function AdjacentCard({
     >
       {blog.coverImage && (
         <div className="bg-muted relative aspect-video w-24 shrink-0 overflow-hidden rounded-lg sm:w-28">
-          <LazyLoadImage src={blog.coverImage} alt={blog.title} fill />
+          <LazyLoadImage
+            src={blog.coverImage}
+            alt={blog.title}
+            fill
+            sizes="112px"
+          />
         </div>
       )}
 

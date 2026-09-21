@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast'
+import { useUploadFile } from '@/lib/hooks/use-upload-file'
 import { useTRPC } from '@/lib/trpc/client'
 
 interface Project {
@@ -60,22 +61,12 @@ export function OpenSourceSettings() {
     })
   )
 
-  const getPresignedUrl = useMutation(
-    trpc.upload.getPresignedUrl.mutationOptions()
-  )
+  const uploadFile = useUploadFile()
 
   async function handleLogoUpload(index: number, file: File) {
     setUploadingIndex(index)
     try {
-      const { uploadUrl, publicUrl } = await getPresignedUrl.mutateAsync({
-        fileName: file.name,
-        contentType: file.type
-      })
-      await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type }
-      })
+      const publicUrl = await uploadFile(file)
       setProjects((prev) =>
         prev.map((p, i) => (i === index ? { ...p, logo: publicUrl } : p))
       )
