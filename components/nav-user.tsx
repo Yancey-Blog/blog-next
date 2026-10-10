@@ -1,14 +1,10 @@
 'use client'
 
-import {
-  Bell,
-  CircleUser,
-  CreditCard,
-  EllipsisVertical,
-  LogOut
-} from 'lucide-react'
+import { EllipsisVertical, LogOut, Palette, Settings } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+import { ThemeModeSwitcher } from '@/components/theme-mode-switcher'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -98,18 +94,18 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <CircleUser />
-                Account
+              <DropdownMenuItem render={<Link href="/admin/settings" />}>
+                <Settings />
+                Settings
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
+              {/* Not a menu item: picking a mode shouldn't close the menu. */}
+              <div className="flex items-center gap-2 py-1 pr-1 pl-1.5 text-sm">
+                <Palette className="text-muted-foreground size-4" />
+                Theme
+                <div className="ml-auto">
+                  <ThemeModeSwitcher />
+                </div>
+              </div>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
