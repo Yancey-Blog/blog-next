@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { cn } from '@/lib/utils'
+import { cn, toContainsPattern } from '@/lib/utils'
 
 describe('cn', () => {
   it('merges class names', () => {
@@ -33,5 +33,20 @@ describe('cn', () => {
 
   it('handles array syntax', () => {
     expect(cn(['px-2', 'py-1'])).toBe('px-2 py-1')
+  })
+})
+
+describe('toContainsPattern', () => {
+  it('trims the input and wraps it in wildcards', () => {
+    expect(toContainsPattern('  HTTPS 安全  ')).toBe('%HTTPS 安全%')
+  })
+
+  it('returns null for blank input', () => {
+    expect(toContainsPattern(undefined)).toBeNull()
+    expect(toContainsPattern('   ')).toBeNull()
+  })
+
+  it('escapes LIKE wildcards so they match literally', () => {
+    expect(toContainsPattern('100%_done\\')).toBe('%100\\%\\_done\\\\%')
   })
 })

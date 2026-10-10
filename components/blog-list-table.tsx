@@ -2,6 +2,7 @@
 
 import { Edit, ExternalLink, Search } from 'lucide-react'
 import Link from 'next/link'
+import { useRef, useState } from 'react'
 
 import type { BlogListItem } from '@/lib/db/schema'
 
@@ -10,6 +11,7 @@ import { Pagination } from './pagination'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
+import { Spinner } from './ui/spinner'
 import {
   Table,
   TableBody,
@@ -32,8 +34,8 @@ interface BlogListTableProps {
   statusFilter: 'all' | 'published' | 'draft'
   onSearchChange: (query: string) => void
   onStatusFilterChange: (filter: 'all' | 'published' | 'draft') => void
-  onPageChange?: (page: number) => void // Optional now since we use URL query
-  isLoading?: boolean
+  /** True while a new page of results is loading (the old rows stay visible). */
+  isFetching?: boolean
 }
 
 export function BlogListTable({
@@ -43,9 +45,14 @@ export function BlogListTable({
   statusFilter,
   onSearchChange,
   onStatusFilterChange,
-  onPageChange,
-  isLoading
+  isFetching
 }: BlogListTableProps) {
+  // The input keeps its own value: while an IME is composing (e.g. pinyin
+  // "zhong'wen" before it becomes "中文"), the raw keystrokes must not be sent
+  // as a search query. Only committed text goes to onSearchChange.
+  const [inputValue, setInputValue] = useState(searchQuery)
+  const isComposingRef = useRef(false)
+
   const getStatusBadge = (blog: BlogListItem) => {
     if (blog.published) {
       return (
@@ -62,34 +69,38 @@ export function BlogListTable({
         <div className="relative max-w-sm flex-1">
           <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
-            placeholder="Search by title..."
-            value={searchQuery}
+            placeholder="Search title, summary, tags or content..."
+            value={inputValue}
             onChange={(e) => {
-              onSearchChange(e.target.value)
-              onPageChange?.(1) // Reset to first page on search
+              setInputValue(e.target.value)
+              if (!isComposingRef.current) {
+                onSearchChange(e.target.value)
+              }
             }}
-            className="pl-9"
-            disabled={isLoading}
+            onCompositionStart={() => {
+              isComposingRef.current = true
+            }}
+            onCompositionEnd={(e) => {
+              isComposingRef.current = false
+              onSearchChange(e.currentTarget.value)
+            }}
+            className="pr-9 pl-9"
           />
+          {isFetching && (
+            <Spinner className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2" />
+          )}
         </div>
 
         <Tabs
           value={statusFilter}
           onValueChange={(value) => {
             onStatusFilterChange(value as 'all' | 'published' | 'draft')
-            onPageChange?.(1) // Reset to first page on filter change
           }}
         >
           <TabsList>
-            <TabsTrigger value="all" disabled={isLoading}>
-              All
-            </TabsTrigger>
-            <TabsTrigger value="published" disabled={isLoading}>
-              Published
-            </TabsTrigger>
-            <TabsTrigger value="draft" disabled={isLoading}>
-              Draft
-            </TabsTrigger>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="published">Published</TabsTrigger>
+            <TabsTrigger value="draft">Draft</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -98,7 +109,7 @@ export function BlogListTable({
       {blogs.length === 0 ? (
         <div className="rounded-lg border py-12 text-center">
           <p className="text-muted-foreground">
-            {searchQuery
+            {searchQuery.trim()
               ? 'No blogs found matching your search'
               : statusFilter !== 'all'
                 ? `No ${statusFilter} blogs found`
@@ -121,7 +132,7 @@ export function BlogListTable({
               <TableBody>
                 {blogs.map((blog) => (
                   <TableRow key={blog.id}>
-                    <TableCell className="max-w-xs truncate font-medium">
+                    <TableCell className="max-w-xs truncate">
                       {blog.title}
                     </TableCell>
                     <TableCell>{getStatusBadge(blog)}</TableCell>
