@@ -1,6 +1,8 @@
+import { TRPCError } from '@trpc/server'
 import { eq, inArray } from 'drizzle-orm'
 import { z } from 'zod'
 
+import { DEFAULT_AI_MODEL, listOpenAIChatModels } from '@/lib/ai/models'
 import { db } from '@/lib/db'
 import { sessions, users } from '@/lib/db/schema'
 import { BlogService } from '@/lib/services/blog.service'
@@ -82,6 +84,48 @@ export const adminRouter = {
       .input(z.object({ url: z.string().url() }))
       .mutation(async ({ input }) => {
         await SettingsService.setHeroImage(input.url)
+        return { ok: true }
+      })
+  },
+
+  // OpenAI model for the editor AI
+  aiModel: {
+    get: protectedProcedure.query(async () => {
+      return {
+        model: await SettingsService.getAIModel(),
+        defaultModel: DEFAULT_AI_MODEL
+      }
+    }),
+
+    // Live list from OpenAI, so new models show up without a deploy.
+    list: protectedProcedure.query(async () => {
+      try {
+        const models = await listOpenAIChatModels()
+        return models.map((m) => ({
+          id: m.id,
+          created: m.created,
+          retiring: m.shutdown_date != null
+        }))
+      } catch (error) {
+        throw new TRPCError({
+          code: 'BAD_GATEWAY',
+          message:
+            error instanceof Error ? error.message : 'Failed to list models'
+        })
+      }
+    }),
+
+    set: protectedProcedure
+      .input(z.object({ model: z.string().min(1) }))
+      .mutation(async ({ input }) => {
+        const models = await listOpenAIChatModels()
+        if (!models.some((m) => m.id === input.model)) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Unknown model: ${input.model}`
+          })
+        }
+        await SettingsService.setAIModel(input.model)
         return { ok: true }
       })
   },

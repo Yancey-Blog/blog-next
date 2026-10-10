@@ -1,17 +1,9 @@
 'use client'
 
-import {
-  Cat,
-  FileText,
-  LayoutDashboard,
-  Newspaper,
-  Settings,
-  Users
-} from 'lucide-react'
+import { Cat, FileText, LayoutDashboard, Newspaper, Users } from 'lucide-react'
 import * as React from 'react'
 
 import { NavMain } from '@/components/nav-main'
-import { NavSecondary } from '@/components/nav-secondary'
 import { NavUser } from '@/components/nav-user'
 import {
   Sidebar,
@@ -46,13 +38,6 @@ const data = {
       url: '/admin/meiji-management',
       icon: Cat
     }
-  ],
-  navSecondary: [
-    {
-      title: 'Settings',
-      url: '/admin/settings',
-      icon: Settings
-    }
   ]
 }
 
@@ -78,7 +63,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         {user.data?.user && <NavUser user={user.data?.user} />}

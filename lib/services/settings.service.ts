@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { v4 as uuidv4 } from 'uuid'
 
+import { DEFAULT_AI_MODEL } from '@/lib/ai/models'
 import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 
@@ -113,6 +114,20 @@ export class SettingsService {
    */
   static async setHeroImage(url: string): Promise<void> {
     await this.set('hero_image', url, 'Homepage hero background image URL')
+  }
+
+  /**
+   * Get the OpenAI model used by the editor AI
+   */
+  static async getAIModel(): Promise<string> {
+    return (await this.get<string>('ai_model')) || DEFAULT_AI_MODEL
+  }
+
+  /**
+   * Set the OpenAI model used by the editor AI
+   */
+  static async setAIModel(model: string): Promise<void> {
+    await this.set('ai_model', model, 'OpenAI model used by the editor AI')
   }
 
   /**

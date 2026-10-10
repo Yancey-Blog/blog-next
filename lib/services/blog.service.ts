@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { db } from '@/lib/db'
 import { blogs, type Blog, type InsertBlog } from '@/lib/db/schema'
 import { highlightHtml } from '@/lib/shiki'
+import { toContainsPattern } from '@/lib/utils'
 
 export interface AdjacentBlog {
   id: string
@@ -50,11 +51,16 @@ export class BlogService {
       conditions.push(eq(blogs.authorId, authorId))
     }
 
-    if (search) {
+    const pattern = toContainsPattern(search)
+    if (pattern) {
       conditions.push(
         or(
-          ilike(blogs.title, `%${search}%`),
-          ilike(blogs.content, `%${search}%`)
+          ilike(blogs.title, pattern),
+          ilike(blogs.summary, pattern),
+          sql`array_to_string(${blogs.tags}, ' ') ilike ${pattern}`,
+          // Match the visible text only: searching the raw HTML would also hit
+          // tag names, attributes and link URLs.
+          sql`regexp_replace(${blogs.content}, '<[^>]*>', ' ', 'g') ilike ${pattern}`
         )
       )
     }
@@ -78,7 +84,13 @@ export class BlogService {
         })
         .from(blogs)
         .where(whereClause)
-        .orderBy(desc(blogs.createdAt))
+        .orderBy(
+          // Title matches first, then newest first.
+          ...(pattern
+            ? [sql`case when ${blogs.title} ilike ${pattern} then 0 else 1 end`]
+            : []),
+          desc(blogs.createdAt)
+        )
         .limit(pageSize)
         .offset(offset),
       db

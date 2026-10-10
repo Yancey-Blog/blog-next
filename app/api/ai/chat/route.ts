@@ -7,8 +7,10 @@ import {
 import { convertToModelMessages, streamText } from 'ai'
 
 import { requireAuth } from '@/lib/auth/session'
+import { SettingsService } from '@/lib/services/settings.service'
 
-export const maxDuration = 30
+// A whole-post polish streams edits for every block, well past 30s on long posts.
+export const maxDuration = 300
 
 const openai = createOpenAI({ apiKey: process.env.OPENAI_PRIVATE_KEY })
 
@@ -22,7 +24,7 @@ export async function POST(req: Request) {
   const { messages, toolDefinitions } = await req.json()
 
   const result = streamText({
-    model: openai('gpt-4.1'),
+    model: openai(await SettingsService.getAIModel()),
     system: aiDocumentFormats.html.systemPrompt,
     messages: await convertToModelMessages(
       injectDocumentStateMessages(messages)

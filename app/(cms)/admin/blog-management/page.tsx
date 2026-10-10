@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -30,18 +30,7 @@ export default function BlogManagementPage() {
   )
 
   // Debounce search query to avoid too many requests
-  const debouncedSearchQuery = useDebounce(searchQuery, 500)
-
-  // Handle page change (for resetting to page 1 when filters change)
-  const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (newPage > 1) {
-      params.set('page', newPage.toString())
-    } else {
-      params.delete('page')
-    }
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
-  }
+  const debouncedSearchQuery = useDebounce(searchQuery.trim(), 500)
 
   // Update URL when search or filter changes (reset to page 1)
   useEffect(() => {
@@ -71,8 +60,8 @@ export default function BlogManagementPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchQuery, statusFilter])
 
-  const { data, isLoading } = useQuery(
-    trpc.blog.listAdmin.queryOptions({
+  const { data, isLoading, isFetching } = useQuery({
+    ...trpc.blog.listAdmin.queryOptions({
       page,
       pageSize,
       search: debouncedSearchQuery || undefined,
@@ -82,8 +71,11 @@ export default function BlogManagementPage() {
           : statusFilter === 'published'
             ? true
             : false
-    })
-  )
+    }),
+    // Keep showing the current rows while a new search loads, so the table
+    // (and the focused search box) doesn't get swapped out for the skeleton.
+    placeholderData: keepPreviousData
+  })
 
   const blogs = data?.data || []
   const pagination = data?.pagination
@@ -150,8 +142,7 @@ export default function BlogManagementPage() {
         statusFilter={statusFilter}
         onSearchChange={setSearchQuery}
         onStatusFilterChange={setStatusFilter}
-        onPageChange={handlePageChange}
-        isLoading={isLoading}
+        isFetching={isFetching}
       />
     </div>
   )
