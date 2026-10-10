@@ -117,6 +117,9 @@ type BlogFormData = z.infer<typeof blogFormSchema>
 export function BlogForm({ blog, mode }: BlogFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  // While an AI edit is in progress or awaiting review, the editor holds both
+  // the old and the suggested text, so nothing may be saved.
+  const [aiBusy, setAIBusy] = useState(false)
   const [blogId, setBlogId] = useState(blog?.id || '')
   const trpc = useTRPC()
   const queryClient = useQueryClient()
@@ -166,7 +169,7 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
     error: autosaveError
   } = useAutosave({
     data: formData,
-    enabled: !isPublished && !loading && shouldAutoSave,
+    enabled: !isPublished && !loading && !aiBusy && shouldAutoSave,
     onSave: async (data) => {
       // For new blogs, create draft on first autosave
       if (!blogId && mode === 'create') {
@@ -377,7 +380,9 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* overflow-visible: the card's default overflow-hidden would stop the
+          AI review bar from sticking to the top while scrolling. */}
+      <Card className="overflow-visible">
         <CardHeader>
           <CardTitle>Content</CardTitle>
           <CardDescription>
@@ -393,6 +398,7 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
               <BlogEditor
                 initialContent={blog?.contentBlocks ?? undefined}
                 onChange={field.onChange}
+                onAIBusyChange={setAIBusy}
                 disabled={loading}
               />
             )}
@@ -405,30 +411,46 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
         </CardContent>
       </Card>
 
-      <div className="flex justify-end gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
-          disabled={loading}
-        >
-          Cancel
-        </Button>
-
-        {!isPublished && (
+      {/* A compact floating pill, centred so it clears the fixed widget in the
+          bottom-right corner, keeps the actions reachable on long posts. */}
+      <div className="pointer-events-none sticky bottom-6 z-20 flex justify-center">
+        <div className="bg-popover pointer-events-auto flex items-center gap-1.5 rounded-full border p-1.5 shadow-lg">
+          {aiBusy && (
+            <span className="text-muted-foreground px-3 text-sm">
+              Review the AI suggestions first
+            </span>
+          )}
           <Button
             type="button"
-            variant="secondary"
-            onClick={handleSaveDraft}
+            variant="ghost"
+            className="rounded-full"
+            onClick={() => router.back()}
             disabled={loading}
           >
-            {loading ? 'Saving...' : 'Save Draft'}
+            Cancel
           </Button>
-        )}
 
-        <Button type="button" onClick={handlePublish} disabled={loading}>
-          {loading ? 'Publishing...' : isPublished ? 'Update' : 'Publish'}
-        </Button>
+          {!isPublished && (
+            <Button
+              type="button"
+              variant="secondary"
+              className="rounded-full"
+              onClick={handleSaveDraft}
+              disabled={loading || aiBusy}
+            >
+              {loading ? 'Saving...' : 'Save Draft'}
+            </Button>
+          )}
+
+          <Button
+            type="button"
+            className="rounded-full px-5"
+            onClick={handlePublish}
+            disabled={loading || aiBusy}
+          >
+            {loading ? 'Publishing...' : isPublished ? 'Update' : 'Publish'}
+          </Button>
+        </div>
       </div>
     </form>
   )
