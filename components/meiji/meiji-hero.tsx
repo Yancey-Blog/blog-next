@@ -147,31 +147,6 @@ export function MeijiHero({
             </span>
           ))}
         </motion.div>
-
-        {/* X / Twitter button */}
-        {profile.xHandle && (
-          <motion.div variants={item} className="mt-8">
-            <a
-              href={`https://x.com/${profile.xHandle}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="meiji-pill inline-flex items-center gap-2 px-6 py-3 text-base font-extrabold text-white transition-transform hover:-translate-y-0.5 active:translate-y-0"
-              style={{
-                background: 'var(--m-ink)',
-                boxShadow: '0 12px 24px -8px rgba(75,63,87,0.55)'
-              }}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="h-4 w-4 fill-current"
-                aria-hidden
-              >
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-              @{profile.xHandle}
-            </a>
-          </motion.div>
-        )}
       </motion.div>
 
       {/* scroll cue */}

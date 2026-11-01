@@ -22,15 +22,7 @@ export default async function MeijiPage() {
       </main>
       <footer className="px-6 pt-4 pb-12 text-center">
         <p className="text-sm font-bold" style={{ color: 'var(--m-ink-soft)' }}>
-          Made with 🧶 for {profile.name} ·{' '}
-          <a
-            href={`https://x.com/${profile.xHandle}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline decoration-wavy underline-offset-4"
-          >
-            @{profile.xHandle}
-          </a>
+          Made with 🧶 for {profile.name}
         </p>
       </footer>
     </>

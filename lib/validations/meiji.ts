@@ -6,8 +6,7 @@ export const meijiProfileSchema = z.object({
   breed: z.string().max(150),
   birthday: z.string().max(30), // ISO date string, e.g. 2026-03-05
   bio: z.string().max(2000),
-  avatarUrl: z.string(),
-  xHandle: z.string().max(50)
+  avatarUrl: z.string()
 })
 
 export const createMediaSchema = z.object({

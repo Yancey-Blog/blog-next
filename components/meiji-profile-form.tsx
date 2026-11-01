@@ -159,14 +159,6 @@ export function MeijiProfileForm() {
               onChange={(e) => set('birthday', e.target.value)}
             />
           </div>
-          <div className="space-y-2">
-            <Label>X handle</Label>
-            <Input
-              value={profile.xHandle}
-              onChange={(e) => set('xHandle', e.target.value)}
-              placeholder="meiji_20260305"
-            />
-          </div>
         </div>
 
         <div className="space-y-2">
