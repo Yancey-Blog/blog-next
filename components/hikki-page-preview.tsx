@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 
+import { HikkiDetailSkeleton } from '@/components/hikki-loading'
 import {
   HIKKI_READER_ORIGIN as READER_ORIGIN,
   readerMessage
@@ -73,25 +74,29 @@ export function HikkiPagePreview({
           {preview.error.message}
         </p>
       )}
-      {!rendered && !preview.error && (
-        <p
-          role={failed ? 'alert' : 'status'}
-          className="text-muted-foreground text-sm"
-        >
-          {failed
-            ? 'The preview could not be loaded. Reload this page before reviewing.'
-            : 'Loading the website reader…'}
+      {!rendered && !preview.error && failed && (
+        <p role="alert" className="text-muted-foreground text-sm">
+          The preview could not be loaded. Reload this page before reviewing.
         </p>
       )}
-      <iframe
-        ref={frame}
-        src={`${READER_ORIGIN}/review-preview`}
-        title="Hikki page snapshot"
-        className="h-screen max-h-[75vh] min-h-96 w-full rounded-lg border"
-        sandbox="allow-scripts allow-same-origin"
-        referrerPolicy="origin"
-        onLoad={() => setAvailable((value) => value + 1)}
-      />
+      <div className="relative h-screen max-h-[75vh] min-h-96">
+        {!rendered && !preview.error && !failed && (
+          <div className="bg-background absolute inset-0 rounded-lg border p-6">
+            <HikkiDetailSkeleton label="Loading the website reader" />
+          </div>
+        )}
+        <iframe
+          ref={frame}
+          src={`${READER_ORIGIN}/review-preview`}
+          title="Hikki page snapshot"
+          className={`h-full w-full rounded-lg border ${rendered ? '' : 'invisible'}`}
+          aria-hidden={!rendered}
+          tabIndex={rendered ? 0 : -1}
+          sandbox="allow-scripts allow-same-origin"
+          referrerPolicy="origin"
+          onLoad={() => setAvailable((value) => value + 1)}
+        />
+      </div>
     </div>
   )
 }

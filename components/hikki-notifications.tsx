@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 
+import { HikkiRowsSkeleton } from '@/components/hikki-loading'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Card,
@@ -186,7 +187,9 @@ export function HikkiNotifications() {
             </div>
           )}
         </form>
-        {devices.isLoading && <p role="status">Loading reviewer accounts…</p>}
+        {devices.isLoading && (
+          <HikkiRowsSkeleton label="Loading reviewer accounts" table />
+        )}
         {devices.error && (
           <div className="space-y-3">
             <p role="alert" className="text-destructive">

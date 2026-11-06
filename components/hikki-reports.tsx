@@ -3,6 +3,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 
+import {
+  HikkiRowsSkeleton,
+  HikkiDetailSkeleton
+} from '@/components/hikki-loading'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -96,7 +100,7 @@ export function HikkiReports() {
   }
   const results = (
     <>
-      {reports.isLoading && <p role="status">Loading reports…</p>}
+      {reports.isLoading && <HikkiRowsSkeleton label="Loading reports" table />}
       {reports.error && (
         <p role="alert" className="text-destructive">
           {reports.error.message}
@@ -192,7 +196,7 @@ export function HikkiReports() {
                 setMarker(null)
               }
             }}
-            className="min-w-0"
+            className="min-w-0 gap-4"
           >
             <TabsList
               aria-label="Report status"
@@ -233,7 +237,9 @@ export function HikkiReports() {
                 : 'An anonymous reader submitted this concern. Their explanation is an allegation, not verified page content.'}
             </DialogDescription>
           </DialogHeader>
-          {detail.isFetching && <p role="status">Loading current report…</p>}
+          {detail.isFetching && (
+            <HikkiDetailSkeleton label="Loading current report" />
+          )}
           {detail.error && (
             <p role="alert" className="text-destructive">
               {detail.error.message}

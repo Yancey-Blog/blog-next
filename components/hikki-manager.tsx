@@ -3,6 +3,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useState } from 'react'
 
+import {
+  HikkiRowsSkeleton,
+  HikkiDetailSkeleton
+} from '@/components/hikki-loading'
 import { HikkiNotifications } from '@/components/hikki-notifications'
 import { HikkiPagePreview } from '@/components/hikki-page-preview'
 import { HikkiReports } from '@/components/hikki-reports'
@@ -124,6 +128,7 @@ export function HikkiManager({
     })
   )
   const error = published ? listed.error : queue.error
+  const loading = published ? listed.isLoading : queue.isLoading
   const switchMode = (value: boolean) => {
     setPublished(value)
     setMarker(null)
@@ -151,8 +156,8 @@ export function HikkiManager({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {(published ? listed.isLoading : queue.isLoading) && (
-              <p role="status">Loading pages…</p>
+            {loading && (
+              <HikkiRowsSkeleton label="Loading pages" table={published} />
             )}
             {items?.length === 0 && (
               <p className="text-muted-foreground">
@@ -161,87 +166,90 @@ export function HikkiManager({
                   : 'There are no submissions waiting for review.'}
               </p>
             )}
-            {published ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Page</TableHead>
-                    <TableHead>Author</TableHead>
-                    <TableHead>Tags</TableHead>
-                    <TableHead>Published</TableHead>
-                    <TableHead>Public link</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {items?.map((item) => (
-                    <TableRow
-                      key={item.id}
-                      data-state={selected === item.id ? 'selected' : undefined}
-                    >
-                      <TableCell className="font-medium whitespace-normal">
-                        {item.title}
-                      </TableCell>
-                      <TableCell>{item.author || 'Anonymous'}</TableCell>
-                      <TableCell>{item.tags.join(', ') || '—'}</TableCell>
-                      <TableCell>
-                        {item.publishedAt
-                          ? new Date(item.publishedAt).toLocaleString()
-                          : 'Unavailable'}
-                      </TableCell>
-                      <TableCell>
-                        {item.publicURL && (
-                          <a
-                            className="underline underline-offset-4"
-                            href={item.publicURL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Open page
-                          </a>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="destructive"
-                          disabled={decide.isPending || !!confirmation}
-                          onClick={() => {
-                            setSelected(item.id)
-                            setConfirmation({
-                              action: 'unpublish',
-                              id: item.id,
-                              revision: ''
-                            })
-                          }}
-                        >
-                          Unpublish
-                        </Button>
-                      </TableCell>
+            {!loading &&
+              (published ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Page</TableHead>
+                      <TableHead>Author</TableHead>
+                      <TableHead>Tags</TableHead>
+                      <TableHead>Published</TableHead>
+                      <TableHead>Public link</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              items?.map((item) => (
-                <Button
-                  key={item.id}
-                  variant={id === item.id ? 'secondary' : 'ghost'}
-                  className="h-auto w-full justify-start py-3 text-left whitespace-normal"
-                  disabled={decide.isPending}
-                  onClick={() => {
-                    setSelected(item.id)
-                    setAction(null)
-                  }}
-                >
-                  <span>
-                    <strong className="block">{item.title}</strong>
-                    <span className="text-muted-foreground text-xs">
-                      {item.author || 'Anonymous'} · {item.status}
+                  </TableHeader>
+                  <TableBody>
+                    {items?.map((item) => (
+                      <TableRow
+                        key={item.id}
+                        data-state={
+                          selected === item.id ? 'selected' : undefined
+                        }
+                      >
+                        <TableCell className="font-medium whitespace-normal">
+                          {item.title}
+                        </TableCell>
+                        <TableCell>{item.author || 'Anonymous'}</TableCell>
+                        <TableCell>{item.tags.join(', ') || '—'}</TableCell>
+                        <TableCell>
+                          {item.publishedAt
+                            ? new Date(item.publishedAt).toLocaleString()
+                            : 'Unavailable'}
+                        </TableCell>
+                        <TableCell>
+                          {item.publicURL && (
+                            <a
+                              className="underline underline-offset-4"
+                              href={item.publicURL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Open page
+                            </a>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="destructive"
+                            disabled={decide.isPending || !!confirmation}
+                            onClick={() => {
+                              setSelected(item.id)
+                              setConfirmation({
+                                action: 'unpublish',
+                                id: item.id,
+                                revision: ''
+                              })
+                            }}
+                          >
+                            Unpublish
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                items?.map((item) => (
+                  <Button
+                    key={item.id}
+                    variant={id === item.id ? 'secondary' : 'ghost'}
+                    className="h-auto w-full justify-start py-3 text-left whitespace-normal"
+                    disabled={decide.isPending}
+                    onClick={() => {
+                      setSelected(item.id)
+                      setAction(null)
+                    }}
+                  >
+                    <span>
+                      <strong className="block">{item.title}</strong>
+                      <span className="text-muted-foreground text-xs">
+                        {item.author || 'Anonymous'} · {item.status}
+                      </span>
                     </span>
-                  </span>
-                </Button>
-              ))
-            )}
+                  </Button>
+                ))
+              ))}
             {(published ? listed.data?.marker : queue.data?.marker) && (
               <Button
                 variant="outline"
@@ -283,7 +291,7 @@ export function HikkiManager({
             </CardHeader>
             <CardContent className="space-y-5">
               {detail.isFetching && !!id && (
-                <p role="status">Loading preview…</p>
+                <HikkiDetailSkeleton label="Loading preview" />
               )}
               {detail.error && (
                 <p role="alert" className="text-destructive">
@@ -351,7 +359,7 @@ export function HikkiManager({
       <Tabs
         value={published ? 'published' : 'pending'}
         onValueChange={(value) => switchMode(value === 'published')}
-        className="min-w-0"
+        className="min-w-0 gap-4"
       >
         <TabsList aria-label="Community pages" variant="line">
           <TabsTrigger value="pending" disabled={decide.isPending}>
@@ -393,7 +401,7 @@ export function HikkiManager({
             </DialogDescription>
           </DialogHeader>
           {action === 'unpublish' && !confirmation?.revision && (
-            <p role="status">Loading the current page version…</p>
+            <HikkiDetailSkeleton label="Loading the current page version" />
           )}
           {action === 'unpublish' && detail.error && (
             <p role="alert" className="text-destructive">
