@@ -84,6 +84,11 @@ app/
 
 **Blog Tables**:
 
+Runtime database connections live in `lib/db/index.ts`. On Vercel, Supabase shared-pooler Session URLs
+(port 5432) use the corresponding Transaction endpoint (6543), preserving credentials and SSL settings.
+Postgres.js disables prepared statements and query pipelining, reuses one client per runtime, and retires
+idle connections after five seconds. Keep the original configured URL for migrations and local persistent tools.
+
 - `blogs` - Main blog content with slug, title, content, published status
 - `blogVersions` - Version history for every blog update (title, content, publishedAt snapshots)
 
