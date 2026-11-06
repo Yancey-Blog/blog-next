@@ -247,28 +247,31 @@ export function HikkiReports() {
           )}
           {report && !detail.isFetching && !detail.error && (
             <>
-              <dl className="space-y-3 text-sm">
-                <div>
-                  <dt className="font-medium">Reason</dt>
+              <dl className="space-y-5 text-sm leading-6">
+                <div className="space-y-1">
+                  <dt className="font-bold">Reason</dt>
                   <dd>{reasons[report.reason] ?? 'Unknown reason'}</dd>
                 </div>
-                <div>
-                  <dt className="font-medium">Reader’s explanation</dt>
-                  <dd className="mt-1 break-words whitespace-pre-wrap">
+                <div className="space-y-1">
+                  <dt className="font-bold">Reader’s explanation</dt>
+                  <dd className="break-words whitespace-pre-wrap">
                     {report.details || 'No explanation supplied.'}
                   </dd>
                 </div>
-                <div>
-                  <dt className="font-medium">Page ID</dt>
+                <div className="space-y-1">
+                  <dt className="font-bold">Page ID</dt>
                   <dd className="break-all">{report.page}</dd>
                 </div>
-                <div>
-                  <dt className="font-medium">Status</dt>
-                  <dd>{report.status}</dd>
+                <div className="space-y-1">
+                  <dt className="font-bold">Status</dt>
+                  <dd>
+                    {statuses.find(([key]) => key === report.status)?.[1] ??
+                      report.status}
+                  </dd>
                 </div>
                 {report.resolvedBy && (
-                  <div>
-                    <dt className="font-medium">Resolved by</dt>
+                  <div className="space-y-1">
+                    <dt className="font-bold">Resolved by</dt>
                     <dd className="break-all">
                       {report.resolvedBy} · {date(report.resolvedAt)}
                     </dd>
