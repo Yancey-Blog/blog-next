@@ -4,7 +4,6 @@ import type { Metadata } from 'next'
 import { FrontendFooter } from '@/components/frontend-footer'
 import { FrontendHeader } from '@/components/frontend-header'
 import { GoogleAnalytics } from '@/components/google-analytics'
-import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { Toaster } from '@/components/ui/toast'
 
 export const metadata: Metadata = {
@@ -50,12 +49,12 @@ export default function Layout({
   children: React.ReactNode
 }>) {
   return (
-    <ThemeModeProvider>
+    <>
       <GoogleAnalytics />
       <FrontendHeader />
       {children}
       <FrontendFooter />
       <Toaster />
-    </ThemeModeProvider>
+    </>
   )
 }

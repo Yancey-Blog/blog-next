@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger
 } from './ui/alert-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import {
   Card,
@@ -88,6 +89,10 @@ export function UserManagement() {
         <CardTitle>Users</CardTitle>
         <CardDescription>
           Total: {users?.length || 0} user{users?.length !== 1 ? 's' : ''}
+          <span className="mt-2 block">
+            A stored account does not grant administrator access. Access
+            requires a verified email on the current allowlist.
+          </span>
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -96,6 +101,7 @@ export function UserManagement() {
             <TableRow>
               <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>CMS access</TableHead>
               <TableHead>Joined</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -115,6 +121,15 @@ export function UserManagement() {
                   </div>
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <Badge variant={user.canAccess ? 'secondary' : 'outline'}>
+                    {user.canAccess
+                      ? 'Allowed'
+                      : user.whitelisted
+                        ? 'Email unverified'
+                        : 'Blocked'}
+                  </Badge>
+                </TableCell>
                 <TableCell>
                   {new Date(user.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',

@@ -5,7 +5,8 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes'
 /**
  * Theme mode provider using next-themes
  * Manages light/dark/system theme modes
- * Automatically syncs with system preferences and persists to localStorage
+ * Automatically syncs with system preferences and persists to localStorage.
+ * Mount once in the root layout: route-level mounts recreate next-themes' bootstrap script on client navigation.
  */
 export function ThemeModeProvider({ children }: { children: React.ReactNode }) {
   return (

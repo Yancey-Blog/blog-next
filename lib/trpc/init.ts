@@ -2,8 +2,8 @@ import { initTRPC } from '@trpc/server'
 import { cache } from 'react'
 import superjson from 'superjson'
 
+import { isAdminUser } from '@/lib/auth/access'
 import { getSession } from '@/lib/auth/session'
-import { isAdminEmail } from '@/proxy'
 
 export const createTRPCContext = cache(async () => {
   /**
@@ -13,7 +13,7 @@ export const createTRPCContext = cache(async () => {
 
   return {
     session,
-    user: session?.user // User from session (all logged-in users are admins)
+    user: session?.user // Current verified allowlist is also checked by protectedProcedure
   }
 })
 
@@ -41,12 +41,7 @@ export const publicProcedure = t.procedure
  * Since only admin emails can login, all authenticated users are admins
  */
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (
-    !ctx.session ||
-    !ctx.user ||
-    !isAdminEmail(ctx.user.email) ||
-    !ctx.user.emailVerified
-  ) {
+  if (!ctx.session || !ctx.user || !isAdminUser(ctx.user)) {
     throw new Error('UNAUTHORIZED')
   }
   return next({

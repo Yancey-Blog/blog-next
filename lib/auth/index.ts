@@ -1,19 +1,37 @@
 import { passkey } from '@better-auth/passkey'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { createAuthMiddleware } from 'better-auth/api'
 import { eq } from 'drizzle-orm'
+import { importPKCS8, SignJWT } from 'jose'
 
 import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 
-// Get admin emails from environment variable
-function getAdminEmails(): string[] {
-  const emails = process.env.ADMIN_EMAILS || ''
-  return emails
-    .split(',')
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean)
+import { adminDatabaseHooks, assertAdminIdentity } from './provisioning'
+
+// Generate the client secret JWT required for 'Sign in with Apple'.
+async function generateAppleClientSecret(
+  clientId: string,
+  teamId: string,
+  keyId: string,
+  privateKey: string
+): Promise<string> {
+  const key = await importPKCS8(
+    privateKey
+      .trim()
+      .replace(/^["']|["']$/g, '')
+      .replace(/\\n/g, '\n'),
+    'ES256'
+  )
+  const now = Math.floor(Date.now() / 1000)
+  return new SignJWT({})
+    .setProtectedHeader({ alg: 'ES256', kid: keyId })
+    .setIssuer(teamId)
+    .setSubject(clientId)
+    .setAudience('https://appleid.apple.com')
+    .setIssuedAt(now)
+    .setExpirationTime(now + 180 * 24 * 60 * 60)
+    .sign(key)
 }
 
 export const auth = betterAuth({
@@ -41,7 +59,16 @@ export const auth = betterAuth({
     github: {
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!
-    }
+    },
+    apple: async () => ({
+      clientId: process.env.APPLE_CLIENT_ID as string,
+      clientSecret: await generateAppleClientSecret(
+        process.env.APPLE_CLIENT_ID!,
+        process.env.APPLE_TEAM_ID!,
+        process.env.APPLE_KEY_ID!,
+        process.env.APPLE_PRIVATE_KEY!
+      )
+    })
   },
   plugins: [
     passkey({
@@ -51,6 +78,7 @@ export const auth = betterAuth({
     })
   ],
   trustedOrigins: [
+    'https://appleid.apple.com',
     process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     ...(process.env.NEXT_PUBLIC_APP_URL
       ? [
@@ -59,38 +87,22 @@ export const auth = betterAuth({
         ]
       : [])
   ],
-  // Hook to restrict access to admin emails only
-  hooks: {
-    after: createAuthMiddleware(async (ctx) => {
-      const newSession = ctx.context.newSession
-      // Re-check the whitelist on every path that establishes a session
-      // (OAuth sign-in, and passkey sign-in), so removing an email from
-      // ADMIN_EMAILS revokes a previously-registered passkey too.
-      const isNewLogin =
-        ctx.path === '/sign-in/social' ||
-        ctx.path === '/passkey/verify-authentication'
-
-      if (isNewLogin && newSession?.user) {
-        const adminEmails = getAdminEmails()
-        const userEmail = newSession.user.email.toLowerCase()
-
-        // If user email is not in admin list, revoke session and delete user
-        if (!adminEmails.includes(userEmail)) {
-          await db
-            .delete(schema.sessions)
-            .where(eq(schema.sessions.id, newSession.session.id))
-
-          await db
-            .delete(schema.users)
-            .where(eq(schema.users.id, newSession.user.id))
-
-          throw new Error(
-            'Access denied. Only authorized administrators can access this system.'
-          )
-        }
-      }
-    })
-  }
+  user: {
+    validateUserInfo: ({ user }) => {
+      assertAdminIdentity(user)
+    }
+  },
+  databaseHooks: adminDatabaseHooks(async (id) => {
+    const [user] = await db
+      .select({
+        email: schema.users.email,
+        emailVerified: schema.users.emailVerified
+      })
+      .from(schema.users)
+      .where(eq(schema.users.id, id))
+      .limit(1)
+    return user
+  })
 })
 
 export type Session = typeof auth.$Infer.Session

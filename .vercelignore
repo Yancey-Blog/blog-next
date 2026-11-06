@@ -1,0 +1,12 @@
+# Vercel supplies deployment configuration; local credentials must never be uploaded.
+.env
+.env.*
+**/.env
+**/.env.*
+.npmrc
+.claude/
+.agents/
+.codex/
+.vscode/
+.mcp.json
+*.tsbuildinfo

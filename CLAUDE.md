@@ -33,22 +33,23 @@ npm start                # Start production server
 
 ### Authentication System (better-auth)
 
-- **OAuth only** - Google and GitHub providers (email/password disabled)
-- **Whitelist-based access control**:
-  - Only emails in `ADMIN_EMAILS` environment variable can login
-  - Non-whitelisted users are blocked at OAuth callback and their session/user records are deleted
-  - No role field in database - authentication is purely whitelist-based
-  - Add collaborators by editing `ADMIN_EMAILS` in `.env.local`
-- **OAuth hooks**: `lib/auth.ts` implements `after` hook to block unauthorized users during sign-in
-- **Session storage**: PostgreSQL via Drizzle adapter
-- **Tables**: `users`, `sessions`, `accounts`, `verifications`
-- **Important**: All table IDs use `text` type (not uuid) for better-auth compatibility
+- Google/GitHub OAuth and Passkey use the existing Better Auth tables and configuration.
+- `lib/auth/access.ts` is the single, live `ADMIN_EMAILS` policy: normalized exact email match and verified email.
+- `lib/auth/provisioning.ts` rejects unauthorized identities before user persistence and session issuance. The
+  `user.validateUserInfo` gate checks fresh OAuth identity data for create, link and returning sign-in. The session
+  database hook also covers Passkey and historical users, independently of request route names.
+- `lib/auth/session.ts` filters every server session against the current policy. `requireAuth()` protects CMS
+  layouts and the blog AI API. `lib/trpc/init.ts` and `proxy.ts` check the same policy again at their own boundaries.
+- Do not use a `/sign-in/social` after-hook as the OAuth allowlist: normal OAuth login finishes at `/callback/:id`.
+- Do not delete users automatically on a rejected login: user deletion cascades into authored content. Historical
+  non-admin rows may be retained for investigation; a stored user/session is never sufficient authorization.
 
-Key files:
+### Theme mode lifetime
 
-- `lib/auth.ts` - better-auth configuration with OAuth access control hooks
-- `lib/session.ts` - `getSession()` and `requireAuth()` helpers
-- `lib/auth-utils.ts` - `getAdminEmails()` and `isAdminEmail()` helpers
+- Mount `ThemeModeProvider` only in `app/layout.tsx`, shared by auth, frontend and CMS routes.
+- Keep route layouts free of additional mode providers: mounting `next-themes` during client navigation creates
+  another inline bootstrap script and React reports that client-rendered scripts cannot execute.
+- CMS palette variables still come from `components/theme-provider.tsx`; this is separate from light/dark mode.
 
 ### Route Structure
 
@@ -61,7 +62,7 @@ app/
 ├── (cms)/admin/         # Admin CMS - requires authentication (whitelisted emails only)
 │   ├── layout.tsx       # Shared layout with sidebar + theme provider
 │   ├── page.tsx         # Dashboard
-│   ├── blog-management/ # Blog CRUD
+│   ├── blog-management/ # Blog CRUD; settings/ owns Hero Image, Open Source, AI Model and Push Notifications
 │   ├── users/           # User management
 │   ├── sessions/        # Active session monitoring
 │   └── settings/        # Theme selector
@@ -372,7 +373,7 @@ export const myRouter = router({
     .mutation(async ({ input, ctx }) => {
       // ctx.user is guaranteed to exist
       // ctx.session is guaranteed to exist
-      // All authenticated users are admins (whitelist enforced at OAuth)
+      // Current verified-email whitelist is checked on each protected request
     })
 })
 ```
@@ -466,7 +467,7 @@ See `.env.example` for detailed documentation on each variable.
 
 2. **All table IDs must be text type** - better-auth generates string IDs, not UUIDs. Do not change ID types back to uuid.
 
-3. **Whitelist-based authentication** - Only emails in `ADMIN_EMAILS` can login. Non-whitelisted users are blocked at OAuth callback via better-auth `after` hook in `lib/auth.ts`. Their session and user records are immediately deleted if they attempt to login.
+3. **Whitelist-based authentication** - Only verified emails in `ADMIN_EMAILS` may provision users, establish sessions or access protected resources. Policy is checked before writes and on every protected server request; historical user rows are retained.
 
 4. **No role field in users table** - Access control is purely whitelist-based. All authenticated users are admins by definition (since only whitelisted emails can login).
 
@@ -491,3 +492,117 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+### Hikki management
+
+`app/(cms)/admin/hikki-management/page.tsx` and `components/hikki-manager.tsx` add Hikki to the existing CMS.
+All operations use the `hikki` protected tRPC router in `lib/trpc/routers/hikki.ts` and the current verified-email
+admin whitelist. No separate login, auth tables or provider is introduced. `lib/hikki/` holds server-only CloudKit
+transport/review services; configure HIKKI_CLOUDKIT_* in this project's Vercel environment. The public Hikki site
+continues to handle SSR and native submissions; its /admin route redirects here. Review requests and notification device changes are audited in CloudKit. All community review is manual;
+there is no AI review provider, settings endpoint, or risk-hint UI. Approvals queue author notifications by CloudKit's authoritative record creator;
+native DeviceRegistration records prove the CloudKit creator without another App login. The protected CMS
+pairDevice/updateDevice procedures bind and revoke CommunityReviewerDevice records using fresh, one-time codes.
+Native registration and scoped-capability notification delivery run on the Hikki website (APNs keys stay there).
+lib/hikki/notifications.ts queues/dispatches approvals and retries a bounded outbox batch; nextAttemptAt provides
+backoff. Failed alerts remain queued. Real CloudKit/APNs and visual acceptance require deployment and the additive
+Configs/CloudKit/community-cms.ckdb from the Hikki repository.
+
+Hikki document updates retain the last approved snapshot and public URL while the new private snapshot is reviewed.
+ReviewSubmission.replaces links to the prior approved snapshot, but is never trusted alone: approval validates both
+CloudKit record creators and the current PublishedPage.reviewRecordName. CAS commits the approved snapshot to the
+stable public record; listing metadata/final status can be repaired by retrying a publishing item. A pending or rejected
+revision cannot withdraw the active version. Rejection includes a durable author reason and notification. Reviewer
+pairing keys are derived from the CloudKit account, so all enabled devices on that account receive alerts; legacy
+per-device binding keys are ignored. The current ADMIN_EMAILS identify the owner's three CMS identities.
+
+The latest 50 CMS auth/update/notification/error-diagnostic tests and 26 Hikki website tests passed in offline Linux containers
+with empty credentials, read-only source/toolchain and bounded resources. CMS TypeScript and targeted lint passed.
+Tests reproduce the legacy OAuth callback hook gap using fake providers and an in-memory adapter, and verify
+foreign historical sessions receive HTTP 401 from the blog AI route. The full Next/Turbopack production build
+also passed offline using cached fonts on container loopback and fixture-only configuration/root/worker limits.
+The earlier security review used offline fixtures and did not test production identities. The owner subsequently
+authorized production Community device testing. Redacted-query diagnostics deployment dpl_4pMvRh6w61Sofg5Miz72WBjwxF9U is Ready on production.
+Actual reviewer-list requests return 403 ACCESS_DENIED (server-key owner role membership pending), while the queue
+returns 400 BAD_REQUEST (upstream reason: createdBy is not queryable). The Hikki schema/desktop copy now
+adds Users.___recordID QUERYABLE and ReviewSubmission.___createdBy QUERYABLE; Console Users now returns 3 records.
+The device iCloud identity differs from the S2S creator. Do not guess IDs or grant all Users moderator rights.
+The error panel now offers Identify server account: protected hikki.serverIdentity reads GET users/caller
+with the configured server key, returning only container/environment/userRecordName. It does not enumerate other
+users or disclose profile data/credentials. GET signs an empty body; regression tests verify the signature
+and reject ambiguous/malformed identities. Existing permission tests also cover this protected endpoint.
+The initial live identity lookup failed without detailed logs. Network failures and unavailable caller shapes now
+log only fixed codes/structure booleans/counts; users/current provides a signed same-key compatibility fallback.
+Authentication/permission failures and ambiguous/invalid identities do not switch identity sources.
+Queue queries no longer show the index error, but empty results do not prove moderator access; device listing
+still returns ACCESS_DENIED and the owner subsequently identified the live server principal as _3f8ced5102ee91d1e2f0a343f15ab912. The owner assigned HikkiModerator to that exact Users record and verified at 2026-11-06 00:07 that reviewer/queue lists load without the permission error. The owner subsequently confirmed that the Yancey reviewer account is paired and enabled. Moderation writes and real Mac/iPhone APNs delivery remain unverified. The Paired by email identifies the CMS operator, not the linked iCloud account. Do not assume both are permissions errors.
+CloudKit transport logs fixed operation/status/code; 400 records/query hints redact URLs/opaque values and are bounded.
+Protected CMS errors distinguish server authentication, role access, schema/query feedback and version conflicts.
+No foreign account/AI probes, database cleanup or Git pushes were performed. Local .env files are excluded by
+.vercelignore, and deployment inputs were checked before upload.
+
+CMS decisions and attachment reads now require the revision returned with the reviewed detail. Confirmations
+capture that article and revision; conflicts invalidate stale detail before another decision. Public snapshots
+persist PublishedPage.reviewRevision, and asset re-referencing verifies the claimed source revision before
+publication. Recovery cannot substitute a changed source. Unpublishing checks a composite Listing/public-page
+revision and CAS-deletes content before discovery, retaining author withdrawal state across interrupted cleanup.
+Import the updated Hikki community-cms.ckdb before deploying this CMS revision.
+
+2026-11-06 live test: the author submitted and iPhone received the review alert, but Approve failed in
+records/modify with 400 BAD_REQUEST / Unexpected input. The exact write stage is unresolved. Failed writes
+now log bounded operation/record types and field name/type/kind only (no record IDs, values or asset receipts).
+The protected error prefix says request rather than query. Test submission recovery still needs live validation.
+
+Live retry at 2026-11-06 03:39 isolated the failing write to PublishedPage/create. Publication now normalizes
+Apple writable asset receipts (requires checksum/receipt/size; excludes read-only metadata), omits absent
+optional lists on first create, and explicitly clears old metadata on update. CAS/review lineage remains.
+Write diagnostics use JSON strings so nested fields survive log formatting. 50 CMS tests/typecheck/lint pass;
+root-cause closure and successful publication still require the owner to retry Finish publication after deploy.
+
+Owner-confirmed: the original test page is published and visible in Community, and the iPhone received its
+approval push. The UI now uses Approve and publish / Approve update consistently; the Finish publication
+label was removed at the owner's request. Backend publishing/CAS recovery is retained. Other flow acceptance
+(update/reject/unpublish/Mac delivery) is still pending.
+
+2026-11-06 reviewer enrollment is now CMS initiated: create a ten-minute hikki://reviewer-pair# invitation in CMS,
+explicitly confirm on iOS, then complete in the original CMS tab. No pairing code/action appears in public App settings.
+iOS community notifications use an explicit switch. macOS community notification registration/settings were removed;
+keep its separate CKSyncEngine silent-push registration and local reminders. Versioned device-registration-ios-UUID
+records let the server exclude all legacy/unknown-platform tokens (including old Macs) without schema migration.
+Existing iOS users must install/open build 8 to re-register; their account-level reviewer binding persists.
+CMS 52 + website 34 regressions and 4 native link tests (10 parameterized executions) passed. Native Release build 8
+archives and both signatures/ten symbol pairs passed; TestFlight upload/real-device acceptance tracked in issue-366 docs.
+
+2026-11-06 ISSUE-372: CMS notifications and Published use existing Table primitives; manual refresh/retry buttons
+were removed and bounded queue recovery runs once on CMS load. Reviewer rows expose account ID/operator/time/iOS
+counts only, never APNs tokens or enrollment proofs. Pending snapshots use protected, revision-checked preview
+asset manifests in a cross-origin Hikki website frame; it reuses the real SharedPage/HTML sanitizer/styles and
+accepts only known CMS origins. No private document is loaded by URL or anonymously queried by the preview shell.
+Public community URLs are now UUID-only. The owner explicitly requested no legacy-link compatibility: old
+page-review- URLs return 404, all current list/CMS/native-copy/approved-push links use the new public UUID.
+Storage record IDs and references remain stable; update approvals send the actual public page ID so the phone
+opens the same approved page. Native build 9 uploaded to both TestFlight platforms; Apple processing. CMS 60 +
+website 40 regressions and 20 native publishing tests passed. New pending-preview/device acceptance remains human.
+
+2026-11-06 follow-up: owner prefers manual inspection/removal of sharing activity rather than a standalone report UI
+or expanded account bans. Report this page was removed; public Contact and actual email/manual handling policy remain.
+CMS now lists active encrypted PublishedPage records (listed=0), metadata only; no key/title/content/asset URL leaves
+the protected boundary. removeLinkShare verifies listed=0 plus current etag before deletion, with a requested audit.
+It removes the hosted copy, not workspace data, saved reader copies or the ability to share again. No schema change.
+CMS READY dpl_EftyCwVJWmogYy6zJGnbSKDzM3xH; website READY dpl_JDoogJ7fYWTAGvKqom6wTYhRVUkK. 64 CMS tests,
+whole CMS types and changed-file lint pass. Chrome showed both existing encrypted shares and remove buttons; no real
+delete was performed. Full sharing-event history/push and CMS-readable encrypted-page content are NOT implemented.
+ISSUE-282 remains In Progress pending the owner's choice: retain link-only end-to-end encryption with metadata/removal
+only, or explicitly disclose administrator inspection and provide readable content. Do not silently upload keys or
+content, or claim existing encrypted pages are readable. Build 10 retains existing encryption; both TestFlight uploads
+succeeded. Native App remains untouched in this follow-up.
+
+2026-11-06 reader reporting supersedes the earlier proactive-sharing-inspection plan: link-only pages retain
+end-to-end encryption. Hikki website /api/reports accepts a reason and bounded explanation, never page contents,
+keys, complete URLs or anonymous read access. SharedPageReport records are HikkiModerator-only; import and deploy
+the new type in Hikki Configs/CloudKit/community-cms.ckdb before enabling production. The protected reports queue
+replaces the active encrypted-share inventory in HikkiManager. Plain reader allegations are rendered as text.
+Report actions dismiss, remove a confirmed current hosted revision, or close an already absent page honestly.
+Removal claims the report before deletion; failed operations remain under Removal in progress for deliberate
+recovery, never silently deleting a later page revision. Existing Community submission review stays in place.
+No report-triggered APNs notification is implemented.

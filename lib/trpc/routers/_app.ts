@@ -1,6 +1,7 @@
 import { createTRPCRouter } from '../init'
 import { adminRouter } from './admin'
 import { blogRouter } from './blog'
+import { hikkiRouter } from './hikki'
 import { meijiRouter } from './meiji'
 import { pushRouter } from './push'
 import { uploadRouter } from './upload'
@@ -12,6 +13,7 @@ export const appRouter = createTRPCRouter({
   upload: uploadRouter,
   admin: adminRouter,
   meiji: meijiRouter,
+  hikki: hikkiRouter,
   push: pushRouter
 })
 

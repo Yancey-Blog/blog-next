@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 import { auth } from './lib/auth'
+import { isAdminUser } from './lib/auth/access'
+export { isAdminEmail } from './lib/auth/access'
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -67,7 +69,7 @@ export async function proxy(request: NextRequest) {
       }
 
       // Check if user email is in whitelist
-      if (!isAdminEmail(session.user.email) || !session.user.emailVerified) {
+      if (!isAdminUser(session.user)) {
         return NextResponse.redirect(new URL('/unauthorized', request.url))
       }
     } catch (error) {
@@ -77,19 +79,6 @@ export async function proxy(request: NextRequest) {
   }
 
   return NextResponse.next()
-}
-
-/**
- * Check if email is in ADMIN_EMAILS whitelist
- */
-export function isAdminEmail(email: string | null | undefined): boolean {
-  if (!email) return false
-
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map((e) =>
-    e.trim().toLowerCase()
-  )
-
-  return adminEmails?.includes(email.toLowerCase()) ?? false
 }
 
 export const config = {

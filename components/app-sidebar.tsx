@@ -1,6 +1,13 @@
 'use client'
 
-import { Cat, FileText, LayoutDashboard, Newspaper, Users } from 'lucide-react'
+import {
+  Cat,
+  FileText,
+  LayoutDashboard,
+  PawPrint,
+  NotebookPen,
+  Users
+} from 'lucide-react'
 import * as React from 'react'
 
 import { NavMain } from '@/components/nav-main'
@@ -24,19 +31,28 @@ const data = {
       icon: LayoutDashboard
     },
     {
-      title: 'Blog Management',
+      title: 'Blog',
       url: '/admin/blog-management',
-      icon: FileText
+      icon: FileText,
+      items: [
+        { title: 'Posts', url: '/admin/blog-management' },
+        { title: 'Settings', url: '/admin/blog-management/settings' }
+      ]
     },
     {
-      title: 'Auth Management',
-      url: '/admin/management',
-      icon: Users
+      title: 'Hikki',
+      url: '/admin/hikki-management',
+      icon: NotebookPen
     },
     {
       title: 'Meiji',
       url: '/admin/meiji-management',
       icon: Cat
+    },
+    {
+      title: 'Auth Management',
+      url: '/admin/management',
+      icon: Users
     }
   ]
 }
@@ -53,8 +69,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5!"
               render={
                 <a href="/admin">
-                  <Newspaper className="size-5!" />
-                  <span className="text-base font-semibold">Blog Admin</span>
+                  <PawPrint className="size-5!" />
+                  <span className="text-base font-semibold">CMS</span>
                 </a>
               }
             />

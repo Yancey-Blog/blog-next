@@ -4,6 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
+import { ThemeModeProvider } from '@/components/theme-mode-provider'
 import { TRPCReactProvider } from '@/lib/trpc/client'
 
 const geistSans = Geist({
@@ -35,7 +36,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <ThemeModeProvider>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </ThemeModeProvider>
         <SpeedInsights />
         <Analytics />
       </body>

@@ -9,7 +9,10 @@ import {
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton
 } from '@/components/ui/sidebar'
 
 export function NavMain({
@@ -19,6 +22,7 @@ export function NavMain({
     title: string
     url: string
     icon?: LucideIcon
+    items?: { title: string; url: string }[]
   }[]
 }) {
   const pathname = usePathname()
@@ -32,12 +36,34 @@ export function NavMain({
               <Link href={item.url}>
                 <SidebarMenuButton
                   tooltip={item.title}
-                  isActive={pathname === item.url}
+                  isActive={
+                    pathname === item.url ||
+                    (!!item.items && pathname.startsWith(`${item.url}/`))
+                  }
                 >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>
               </Link>
+              {item.items &&
+                (pathname === item.url ||
+                  pathname.startsWith(`${item.url}/`)) && (
+                  <SidebarMenuSub>
+                    {item.items.map((child) => (
+                      <SidebarMenuSubItem key={child.url}>
+                        <SidebarMenuSubButton
+                          render={<Link href={child.url} />}
+                          isActive={pathname === child.url}
+                          aria-current={
+                            pathname === child.url ? 'page' : undefined
+                          }
+                        >
+                          <span>{child.title}</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

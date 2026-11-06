@@ -3,6 +3,7 @@ import { eq, inArray } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { DEFAULT_AI_MODEL, listOpenAIChatModels } from '@/lib/ai/models'
+import { isAdminEmail, isAdminUser } from '@/lib/auth/access'
 import { db } from '@/lib/db'
 import { sessions, users } from '@/lib/db/schema'
 import { BlogService } from '@/lib/services/blog.service'
@@ -32,7 +33,12 @@ export const adminRouter = {
   // User management
   users: {
     list: protectedProcedure.query(async () => {
-      return await db.select().from(users).orderBy(users.createdAt)
+      const records = await db.select().from(users).orderBy(users.createdAt)
+      return records.map((user) => ({
+        ...user,
+        canAccess: isAdminUser(user),
+        whitelisted: isAdminEmail(user.email)
+      }))
     }),
 
     byIds: protectedProcedure
