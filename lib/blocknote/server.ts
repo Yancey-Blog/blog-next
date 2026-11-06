@@ -3,11 +3,15 @@
 // `import 'server-only'` so it stays usable from any Node context.
 import type { Block } from '@blocknote/core'
 import { ServerBlockNoteEditor } from '@blocknote/server-util'
+import { getDocument } from '@blocknote/server-util/dom'
 
 import { blogSchema } from './schema'
 
 // ServerBlockNoteEditor is stateless per call; create once and reuse.
-const serverEditor = ServerBlockNoteEditor.create({ schema: blogSchema })
+const serverEditor = ServerBlockNoteEditor.create(
+  { schema: blogSchema },
+  getDocument()
+)
 
 /** Render BlockNote blocks to clean semantic HTML for storage/render. */
 export async function blocksToContentHtml(blocks: Block[]): Promise<string> {

@@ -2,39 +2,40 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | Yancey Blog',
-  description: 'Privacy policy for Yancey Blog.'
+  description:
+    'How Yancey Blog collects, uses, stores, shares, and protects personal information, including Google Sign-In data.'
 }
+
+const sections = [
+  ['#overview', 'I. Overview'],
+  ['#data-collected', 'II. Information We Collect'],
+  ['#google-sign-in', 'III. Google Sign-In and OAuth Authentication'],
+  ['#use-of-data', 'IV. How We Use Information'],
+  ['#sharing', 'V. Data Sharing and Third Parties'],
+  ['#storage-security', 'VI. Storage, Security, and Retention'],
+  ['#rights', 'VII. Your Choices and Rights'],
+  ['#cookies', 'VIII. Cookies and Technical Information'],
+  ['#changes', 'IX. Changes to This Policy'],
+  ['#contact', 'X. Contact']
+] as const
 
 export default function PrivacyPolicyPage() {
   return (
     <div className="container mx-auto max-w-3xl px-4 pt-28 pb-16">
       <h1 className="mb-2 text-4xl font-bold tracking-tight">Privacy Policy</h1>
       <p className="text-muted-foreground mb-10 text-sm">
-        Last updated: March 3, 2022
+        Last updated: November 7, 2026
       </p>
 
-      <nav className="bg-muted/40 mb-12 rounded-xl border p-6">
+      <nav
+        className="bg-muted/40 mb-12 rounded-xl border p-6"
+        aria-label="Contents"
+      >
         <p className="text-muted-foreground mb-3 text-sm font-semibold tracking-wider uppercase">
           Contents
         </p>
         <ol className="space-y-1.5 text-sm">
-          {[
-            ['#types-of-data', 'I. Types of Data Collected'],
-            ['#mode-and-place', 'II. Mode and Place of Processing the Data'],
-            ['#purposes', 'III. The Purposes of Processing'],
-            [
-              '#detailed-processing',
-              'IV. Detailed Information on the Processing of Personal Data'
-            ],
-            ['#user-rights', 'V. The Rights of Users'],
-            [
-              '#additional-info',
-              'VI. Additional Information about Data Collection and Processing'
-            ],
-            ['#third-party-services', 'VII. Third-Party Services'],
-            ['#definitions', 'VIII. Definitions and Legal References'],
-            ['#owner', 'IX. Owner and Data Controller']
-          ].map(([href, label]) => (
+          {sections.map(([href, label]) => (
             <li key={href}>
               <a href={href} className="text-primary hover:underline">
                 {label}
@@ -45,269 +46,288 @@ export default function PrivacyPolicyPage() {
       </nav>
 
       <article className="prose prose-neutral dark:prose-invert max-w-none">
-        <h2 id="types-of-data">I. Types of Data Collected</h2>
+        <h2 id="overview">I. Overview</h2>
         <p>
-          Among the types of Personal Data that this Application collects, by
-          itself or through third parties, there are: Cookies and Usage Data.
+          Yancey Blog (&quot;the Website&quot;, &quot;we&quot;, or
+          &quot;us&quot;) is a personal publishing website featuring articles,
+          projects, and related content. The Website also has a private
+          administration console used by authorized administrators to manage
+          blog content and related projects, including publication assets and
+          community content moderation.
         </p>
         <p>
-          Complete details on each type of Personal Data collected are provided
-          in the dedicated sections of this privacy policy or by specific
-          explanation texts displayed prior to the Data collection.
-        </p>
-        <p>
-          Personal Data may be freely provided by the User, or, in case of Usage
-          Data, collected automatically when using this Application.
-        </p>
-        <p>
-          Unless specified otherwise, all Data requested by this Application is
-          mandatory and failure to provide this Data may make it impossible for
-          this Application to provide its services.
-        </p>
-        <p>
-          Any use of Cookies — or of other tracking tools — by this Application
-          or by the owners of third-party services used by this Application
-          serves the purpose of providing the Service required by the User, in
-          addition to any other purposes described in the present document.
-        </p>
-        <p>
-          Users are responsible for any third-party Personal Data obtained,
-          published or shared through this Application and confirm that they
-          have the third party&apos;s consent to provide the Data to the Owner.
+          This Privacy Policy describes how information is collected, accessed,
+          used, stored, shared, and protected when people visit the Website or
+          attempt to sign in to its administration console. Public visitors do
+          not need a Google Account to read blog content. The administration
+          console is not a public registration service and is restricted to
+          explicitly authorized accounts.
         </p>
 
-        <h2 id="mode-and-place">II. Mode and Place of Processing the Data</h2>
-        <h3>Methods of processing</h3>
+        <h2 id="data-collected">II. Information We Collect</h2>
+        <h3>Information provided through sign-in providers</h3>
         <p>
-          The Owner takes appropriate security measures to prevent unauthorized
-          access, disclosure, modification, or unauthorized destruction of the
-          Data. The Data processing is carried out using computers and/or
-          IT-enabled tools, following organizational procedures and modes
-          strictly related to the purposes indicated.
-        </p>
-        <h3>Legal basis of processing</h3>
-        <p>
-          The Owner may process Personal Data relating to Users if one of the
-          following applies:
+          When an individual chooses to authenticate with Google, GitHub, or
+          Apple, the selected provider may supply basic identity information,
+          subject to the permissions granted and information available from that
+          provider. This may include:
         </p>
         <ul>
+          <li>Email address and, where provided, its verification status.</li>
+          <li>A provider-specific account identifier.</li>
+          <li>Display name and profile picture, if available.</li>
           <li>
-            Users have given their consent for one or more specific purposes.
-          </li>
-          <li>
-            Provision of Data is necessary for the performance of an agreement
-            with the User and/or for any pre-contractual obligations thereof.
-          </li>
-          <li>
-            Processing is necessary for compliance with a legal obligation to
-            which the Owner is subject.
-          </li>
-          <li>
-            Processing is related to a task that is carried out in the public
-            interest or in the exercise of official authority vested in the
-            Owner.
-          </li>
-          <li>
-            Processing is necessary for the purposes of the legitimate interests
-            pursued by the Owner or by a third party.
+            Authentication and account-linking information needed to operate the
+            sign-in process.
           </li>
         </ul>
-        <h3>Place</h3>
         <p>
-          The Data is processed at the Owner&apos;s operating offices and in any
-          other places where the parties involved in the processing are located.
-          Depending on the User&apos;s location, data transfers may involve
-          transferring the User&apos;s Data to a country other than their own.
+          We use these details to identify the account and determine whether it
+          belongs to an authorized administrator. We do not request access to
+          Gmail messages, Google Drive files, contacts, calendars, or other
+          Google Account content through Google Sign-In.
         </p>
-        <h3>Retention time</h3>
+        <h3>Technical and usage information</h3>
         <p>
-          Personal Data shall be processed and stored for as long as required by
-          the purpose they have been collected for. Once the retention period
-          expires, Personal Data shall be deleted.
-        </p>
-
-        <h2 id="purposes">III. The Purposes of Processing</h2>
-        <p>
-          The Data concerning the User is collected to allow the Owner to
-          provide its Services, as well as for the following purposes:
-          Analytics, Registration and authentication, and Interaction with
-          external social networks and platforms.
+          When you access the Website, our hosting and technical services may
+          process information such as your IP address, browser and device type,
+          requested pages, timestamps, and security or error logs.
+          Authentication services may also use session identifiers and cookies
+          to maintain a secure signed-in session.
         </p>
 
-        <h2 id="detailed-processing">
-          IV. Detailed Information on the Processing of Personal Data
+        <h2 id="google-sign-in">
+          III. Google Sign-In and OAuth Authentication
         </h2>
-        <h3>Analytics</h3>
+        <h3>What Google data we access</h3>
         <p>
-          Google Analytics is a web analysis service provided by Google Inc.
-          Google utilizes the Data collected to track and examine the use of
-          this Application and prepare reports on its activities. Personal Data
-          collected: Cookies and Usage Data. Place of processing: United States
-          —{' '}
+          Yancey Blog offers Google Sign-In as an optional authentication method
+          for its private administration console. With the basic OpenID Connect
+          scopes (openid, email, and profile), Google may provide a unique
+          Google Account identifier, email address, email verification status,
+          display name, and profile picture. We access only the identity data
+          needed for sign-in and access control; we do not request additional
+          Google API scopes for email, files, or other personal content.
+        </p>
+        <h3>How Google data is used</h3>
+        <ul>
+          <li>To verify account identity during OAuth authentication.</li>
+          <li>
+            To compare the verified email address with our administrator
+            allowlist.
+          </li>
+          <li>
+            To create and manage an authorized account and its login sessions.
+          </li>
+          <li>
+            To prevent unauthorized administrative access and investigate
+            security incidents.
+          </li>
+        </ul>
+        <p>
+          A successful Google authentication does not automatically grant access
+          to the administration console. Only accounts explicitly authorized by
+          the Website operator may use protected administrative functions.
+          Google identity information is not used for advertising, marketing,
+          profiling, or sale to third parties.
+        </p>
+        <h3>How Google data is stored</h3>
+        <p>
+          For authorized sign-ins, our authentication system may store the
+          account identifier, email address, profile details, linked-provider
+          information, and session records needed to operate the service.
+          Authentication records are kept in access-controlled application
+          storage. We do not store your Google password. Information submitted
+          by accounts that are not authorized is not intended to be used to
+          provide administrator access; limited technical or security records
+          may nevertheless be retained to protect the service.
+        </p>
+        <h3>Google data sharing and limitations</h3>
+        <p>
+          Google Sign-In information is used for the authentication and security
+          purposes stated in this policy. We do not sell it or disclose it to
+          advertisers. Information may be processed by infrastructure and
+          authentication service providers acting on our behalf, or disclosed
+          when required by applicable law. The use of information received from
+          Google APIs is limited to the purposes disclosed here and is subject
+          to the applicable Google API Services User Data Policy.
+        </p>
+        <p>
+          For details about Google&apos;s own data practices, see{' '}
           <a
             href="https://policies.google.com/privacy"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Privacy Policy
+            Google&apos;s Privacy Policy
           </a>
           .
         </p>
-        <h3>Registration and authentication</h3>
+        <h3>Other sign-in methods</h3>
         <p>
-          GitHub OAuth is a registration and authentication service provided by
-          GitHub Inc. Place of processing: United States —{' '}
+          The administration console may also support GitHub and Sign in with
+          Apple. These methods are used for the same identity verification and
+          administrator authorization purposes. Apple users may choose to hide
+          their email address, in which case an Apple relay address may be
+          supplied instead of their personal email. Access still depends on
+          matching an authorized identity.
+        </p>
+
+        <h2 id="use-of-data">IV. How We Use Information</h2>
+        <p>We process personal information only as reasonably necessary to:</p>
+        <ul>
+          <li>Deliver and maintain the Website and its public content.</li>
+          <li>Authenticate administrators and enforce access restrictions.</li>
+          <li>
+            Manage published material and perform administrative moderation.
+          </li>
+          <li>
+            Maintain sessions, diagnose errors, and protect against misuse.
+          </li>
+          <li>
+            Respond to privacy or support inquiries and meet legal obligations.
+          </li>
+        </ul>
+        <p>
+          Google Sign-In information is used for authentication, authorization,
+          and account security, not as a general-purpose source of user data.
+        </p>
+
+        <h2 id="sharing">V. Data Sharing and Third Parties</h2>
+        <h3>Authentication providers</h3>
+        <p>
+          Authentication is provided through Google, GitHub, and Apple when
+          those options are selected. Each provider processes information under
+          its own terms and privacy policy. See{' '}
+          <a
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Google
+          </a>
+          ,{' '}
           <a
             href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Privacy Policy
+            GitHub
+          </a>
+          , and{' '}
+          <a
+            href="https://www.apple.com/legal/privacy/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Apple
           </a>
           .
         </p>
+        <h3>Analytics, search, hosting, and assets</h3>
         <p>
-          Google OAuth is a registration and authentication service provided by
-          Google Inc. Place of processing: United States —{' '}
+          The Website may use Google Analytics to understand aggregated website
+          usage, Algolia to provide search, and hosting, object-storage, or CDN
+          services to deliver pages and assets. These providers may process
+          technical information required to perform their services. Their
+          involvement does not mean they are given access to Google Sign-In
+          profile information for advertising purposes.
+        </p>
+        <p>
+          For more information, see the privacy policies of{' '}
           <a
             href="https://policies.google.com/privacy"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Privacy Policy
-          </a>
-          .
-        </p>
-
-        <h2 id="user-rights">V. The Rights of Users</h2>
-        <p>
-          Users may exercise certain rights regarding their Data processed by
-          the Owner. In particular, Users have the right to do the following:
-        </p>
-        <ul>
-          <li>
-            <strong>Withdraw their consent at any time.</strong> Users have the
-            right to withdraw consent where they have previously given their
-            consent to the processing of their Personal Data.
-          </li>
-          <li>
-            <strong>Object to processing of their Data.</strong> Users have the
-            right to object to the processing of their Data if the processing is
-            carried out on a legal basis other than consent.
-          </li>
-          <li>
-            <strong>Access their Data.</strong> Users have the right to learn if
-            Data is being processed by the Owner and obtain a copy of the Data
-            undergoing processing.
-          </li>
-          <li>
-            <strong>Verify and seek rectification.</strong> Users have the right
-            to verify the accuracy of their Data and ask for it to be updated or
-            corrected.
-          </li>
-          <li>
-            <strong>Restrict the processing of their Data.</strong> Users have
-            the right, under certain circumstances, to restrict the processing
-            of their Data.
-          </li>
-          <li>
-            <strong>
-              Have their Personal Data deleted or otherwise removed.
-            </strong>{' '}
-            Users have the right, under certain circumstances, to obtain the
-            erasure of their Data from the Owner.
-          </li>
-          <li>
-            <strong>Lodge a complaint.</strong> Users have the right to bring a
-            claim before their competent data protection authority.
-          </li>
-        </ul>
-        <h3>How to exercise these rights</h3>
-        <p>
-          Any requests to exercise User rights can be directed to the Owner
-          through the contact details provided in this document. These requests
-          can be exercised free of charge and will be addressed by the Owner as
-          early as possible and always within one month.
-        </p>
-
-        <h2 id="additional-info">
-          VI. Additional Information about Data Collection and Processing
-        </h2>
-        <h3>Legal action</h3>
-        <p>
-          The User&apos;s Personal Data may be used for legal purposes by the
-          Owner in Court or in the stages leading to possible legal action
-          arising from improper use of this Application or the related Services.
-        </p>
-        <h3>System logs and maintenance</h3>
-        <p>
-          For operation and maintenance purposes, this Application and any
-          third-party services may collect files that record interaction with
-          this Application (System logs) and use other Personal Data (such as
-          the IP Address) for this purpose.
-        </p>
-        <h3>Changes to this privacy policy</h3>
-        <p>
-          The Owner reserves the right to make changes to this privacy policy at
-          any time by giving notice to its Users on this page. It is strongly
-          recommended to check this page often, referring to the date of the
-          last modification listed at the bottom.
-        </p>
-
-        <h2 id="third-party-services">VII. Third-Party Services</h2>
-        <p>
-          This Application uses Algolia for full-text search functionality.
-          Search queries may be processed by Algolia&apos;s servers. For more
-          information, please refer to{' '}
+            Google
+          </a>{' '}
+          and{' '}
           <a
             href="https://www.algolia.com/policies/privacy/"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Algolia&apos;s Privacy Policy
+            Algolia
           </a>
           .
         </p>
         <p>
-          Images and static assets are served via AWS S3 and a CDN. Access logs
-          may be retained for operational and security purposes.
+          We do not sell personal information. We may disclose information to
+          service providers for hosting, security, and operation of the Website,
+          or when legally required.
         </p>
 
-        <h2 id="definitions">VIII. Definitions and Legal References</h2>
-        <h3>Personal Data (or Data)</h3>
+        <h2 id="storage-security">VI. Storage, Security, and Retention</h2>
         <p>
-          Any information that directly, indirectly, or in connection with other
-          information allows for the identification or identifiability of a
-          natural person.
+          We use technical and organizational safeguards, including restricted
+          administrative access and authenticated sessions, to protect personal
+          information from unauthorized access, alteration, or disclosure. No
+          online system can guarantee absolute security.
         </p>
-        <h3>Usage Data</h3>
         <p>
-          Information collected automatically through this Application, which
-          can include: IP addresses, URI addresses, time of the request, browser
-          and operating system details, and other parameters about the
-          User&apos;s IT environment.
+          Account and authentication data is retained while needed to maintain
+          an authorized account, provide security, resolve disputes, or comply
+          with applicable obligations. We delete or de-identify information when
+          it is no longer reasonably necessary for those purposes, subject to
+          applicable retention requirements and operational backups.
+          Authentication sessions may expire or be revoked independently of the
+          associated account record.
         </p>
-        <h3>User</h3>
         <p>
-          The individual using this Application who, unless otherwise specified,
-          coincides with the Data Subject.
-        </p>
-        <h3>Cookies</h3>
-        <p>Small sets of data stored in the User&apos;s device.</p>
-        <h3>Legal information</h3>
-        <p>
-          This privacy statement has been prepared based on provisions of
-          multiple legislations, including Art. 13/14 of Regulation (EU)
-          2016/679 (General Data Protection Regulation). This privacy policy
-          relates solely to this Application, if not stated otherwise within
-          this document.
+          Infrastructure providers may process or store technical data in
+          jurisdictions other than the visitor&apos;s country of residence.
         </p>
 
-        <h2 id="owner">IX. Owner and Data Controller</h2>
-        <p>Yancey Inc. and its affiliates.</p>
+        <h2 id="rights">VII. Your Choices and Rights</h2>
         <p>
-          Owner contact email:{' '}
+          Depending on applicable law, you may request access to, correction of,
+          or deletion of personal information associated with your account, or
+          object to certain processing. You can also revoke Yancey Blog&apos;s
+          access to your Google Account through your Google Account settings.
+          Revoking access prevents future use of that authorization but does
+          not, by itself, necessarily delete account records already held by the
+          Website.
+        </p>
+        <p>
+          To request deletion or correction of authentication data stored by
+          Yancey Blog, email{' '}
+          <a href="mailto:developer@yanceyleo.com">developer@yanceyleo.com</a>{' '}
+          with sufficient information to identify the relevant account. We will
+          review the request and respond in accordance with applicable law,
+          subject to identity verification and legitimate retention needs.
+        </p>
+
+        <h2 id="cookies">VIII. Cookies and Technical Information</h2>
+        <p>
+          The administration console uses cookies or equivalent session
+          mechanisms required for authentication and account security. The
+          public Website and its third-party services may also use cookies or
+          similar technologies for analytics and basic functionality, where
+          enabled. Browser settings can be used to manage cookies, although
+          blocking essential session cookies may prevent sign-in.
+        </p>
+
+        <h2 id="changes">IX. Changes to This Policy</h2>
+        <p>
+          We may update this Privacy Policy as the Website and its related
+          services evolve. The latest version will be published on this page
+          with an updated revision date. Material changes to the handling of
+          personal information will be communicated as required by applicable
+          law.
+        </p>
+
+        <h2 id="contact">X. Contact</h2>
+        <p>
+          Website and service: <strong>Yancey Blog</strong>
+        </p>
+        <p>
+          Privacy and data requests:{' '}
           <a href="mailto:developer@yanceyleo.com">developer@yanceyleo.com</a>
+        </p>
+        <p>
+          Website:{' '}
+          <a href="https://www.yanceyleo.com">https://www.yanceyleo.com</a>
         </p>
       </article>
     </div>
