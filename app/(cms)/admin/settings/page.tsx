@@ -1,23 +1,41 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
-import { ThemeSettings } from '@/components/theme-settings'
-import { getQueryClient, trpc } from '@/lib/trpc/server'
+import { AIModelSettings } from '@/components/ai-model-settings'
+import AuthManagement from '@/components/auth-management'
+import { SettingsNav } from '@/components/settings-nav'
+import { getQueryClient } from '@/lib/trpc/server'
+
+const SECTIONS = [
+  { id: 'auth-management', title: 'Auth Management' },
+  { id: 'ai-model', title: 'AI Model' }
+]
 
 export default async function SettingsPage() {
   const queryClient = getQueryClient()
-  const theme = await queryClient.fetchQuery(
-    trpc.admin.theme.get.queryOptions()
-  )
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="container mx-auto space-y-8">
-        <header>
+      <div className="container mx-auto">
+        <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
           <p className="text-muted-foreground mt-2">
-            Choose the appearance of your CMS.
+            Customize your application settings
           </p>
-        </header>
-        <ThemeSettings currentTheme={theme.id} />
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[11rem_minmax(0,1fr)]">
+          <aside className="hidden lg:block">
+            <SettingsNav sections={SECTIONS} />
+          </aside>
+          <div className="space-y-8">
+            <section id="auth-management" className="scroll-mt-6">
+              <AuthManagement />
+            </section>
+            <section id="ai-model" className="scroll-mt-6">
+              <AIModelSettings />
+            </section>
+          </div>
+        </div>
       </div>
     </HydrationBoundary>
   )

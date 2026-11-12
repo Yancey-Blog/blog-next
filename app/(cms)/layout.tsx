@@ -15,15 +15,14 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Metadata } from 'next'
 
 import { SiteHeader } from '@/components/site-header'
-import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toast'
 import { requireAuth } from '@/lib/auth/session'
-import { getQueryClient, trpc } from '@/lib/trpc/server'
+import { getQueryClient } from '@/lib/trpc/server'
 
 export const metadata: Metadata = {
   title: 'CMS | Yancey Inc.',
-  description: 'CMS for the Yancey Inc.'
+  description: 'Content management system for Yancey Inc.'
 }
 
 export default async function AdminLayout({
@@ -34,16 +33,11 @@ export default async function AdminLayout({
   await requireAuth()
 
   const queryClient = getQueryClient()
-  const theme = await queryClient.fetchQuery(
-    trpc.admin.theme.get.queryOptions()
-  )
-  const currentTheme = theme.id
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="bg-sidebar">
         <ReactQueryDevtools initialIsOpen={false} />
-        <ThemeProvider themeId={currentTheme} />
         <SidebarProvider
           style={
             {

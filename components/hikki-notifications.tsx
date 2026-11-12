@@ -72,9 +72,16 @@ export function HikkiNotifications() {
         setAttempt(null)
         setName('')
         void refresh()
-        toast.success('Reviewer account linked')
+        toast.add({
+          type: 'success',
+          description: 'Reviewer account linked'
+        })
       },
-      onError: (error) => toast.error(error.message)
+      onError: (error) =>
+        toast.add({
+          type: 'error',
+          description: error.message
+        })
     })
   )
   const update = useMutation(
@@ -82,11 +89,17 @@ export function HikkiNotifications() {
       onSuccess: () => {
         setRemoving(null)
         void refresh()
-        toast.success('Reviewer account updated')
+        toast.add({
+          type: 'success',
+          description: 'Reviewer account updated'
+        })
       },
       onError: (error) => {
         void refresh()
-        toast.error(error.message)
+        toast.add({
+          type: 'error',
+          description: error.message
+        })
       }
     })
   )
@@ -163,13 +176,17 @@ export function HikkiNotifications() {
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(attempt.url)
-                      toast.success(
-                        'Connection link copied. Open it only on your own iPhone or iPad.'
-                      )
+                      toast.add({
+                        type: 'success',
+                        description:
+                          'Connection link copied. Open it only on your own iPhone or iPad.'
+                      })
                     } catch {
-                      toast.error(
-                        'Could not copy the link. Open this CMS page on your iPhone or iPad instead.'
-                      )
+                      toast.add({
+                        type: 'error',
+                        description:
+                          'Could not copy the link. Open this CMS page on your iPhone or iPad instead.'
+                      })
                     }
                   }}
                 >
@@ -248,9 +265,16 @@ export function HikkiNotifications() {
                       await navigator.clipboard.writeText(
                         identity.data!.userRecordName
                       )
-                      toast.success('Server record ID copied')
+                      toast.add({
+                        type: 'success',
+                        description: 'Server record ID copied'
+                      })
                     } catch {
-                      toast.error('Select and copy the server record ID above.')
+                      toast.add({
+                        type: 'error',
+                        description:
+                          'Select and copy the server record ID above.'
+                      })
                     }
                   }}
                 >

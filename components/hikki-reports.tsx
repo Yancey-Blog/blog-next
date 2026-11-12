@@ -74,17 +74,22 @@ export function HikkiReports() {
         setSelected(null)
         setConfirm(false)
         await cache.invalidateQueries(trpc.hikki.reports.queryFilter())
-        toast.success(
-          result.status === 'removed'
-            ? 'Shared copy removed and report resolved'
-            : 'Report resolved'
-        )
+        toast.add({
+          type: 'success',
+          description:
+            result.status === 'removed'
+              ? 'Shared copy removed and report resolved'
+              : 'Report resolved'
+        })
       },
       onError: (error) => {
         setConfirm(false)
         void cache.invalidateQueries(trpc.hikki.reportDetail.queryFilter())
         void cache.invalidateQueries(trpc.hikki.reports.queryFilter())
-        toast.error(error.message)
+        toast.add({
+          type: 'error',
+          description: error.message
+        })
       }
     })
   )
@@ -181,7 +186,7 @@ export function HikkiReports() {
           <CardTitle>Page reports</CardTitle>
           <CardDescription>
             Reader-submitted concerns about Community and link-only pages.
-            Reports include the reader’s explanation, never the page’s
+            Reports include the reader\'s explanation, never the page\'s
             decryption key or an automatic copy of its contents. No proactive
             inspection of link-only pages is performed.
           </CardDescription>
@@ -200,7 +205,6 @@ export function HikkiReports() {
           >
             <TabsList
               aria-label="Report status"
-              variant="line"
               className="max-w-full justify-start overflow-x-auto"
             >
               {statuses.map(([key, label]) => (
@@ -233,7 +237,7 @@ export function HikkiReports() {
             </DialogTitle>
             <DialogDescription>
               {confirm
-                ? 'This stops the current sharing link. The author’s workspace and copies readers already saved are unaffected. The author can share again.'
+                ? "This stops the current sharing link. The author's workspace and copies readers already saved are unaffected. The author can share again."
                 : 'An anonymous reader submitted this concern. Their explanation is an allegation, not verified page content.'}
             </DialogDescription>
           </DialogHeader>
@@ -253,8 +257,8 @@ export function HikkiReports() {
                   <dd>{reasons[report.reason] ?? 'Unknown reason'}</dd>
                 </div>
                 <div className="space-y-1">
-                  <dt className="font-bold">Reader’s explanation</dt>
-                  <dd className="break-words whitespace-pre-wrap">
+                  <dt className="font-bold">Reader's explanation</dt>
+                  <dd className="wrap-break-word whitespace-pre-wrap">
                     {report.details || 'No explanation supplied.'}
                   </dd>
                 </div>

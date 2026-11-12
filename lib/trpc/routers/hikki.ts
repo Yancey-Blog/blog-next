@@ -58,7 +58,7 @@ async function execute<T>(operation: () => Promise<T>): Promise<T> {
       message: authenticationFailure
         ? 'CloudKit server authentication failed. Check the CMS key ID and matching private key.'
         : permissionFailure
-          ? 'CloudKit denied CMS access. Check the server key owner’s HikkiModerator role in the configured environment.'
+          ? "CloudKit denied CMS access. Check the server key owner's HikkiModerator role in the configured environment."
           : cloudKit?.queryReason
             ? `CloudKit rejected the request: ${cloudKit.queryReason}`
             : cloudKit?.status === 409

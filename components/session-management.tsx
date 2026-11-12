@@ -46,13 +46,19 @@ export function SessionManagement() {
   const revokeSession = useMutation(
     trpc.admin.sessions.revoke.mutationOptions({
       onSuccess: () => {
-        toast.success('Session revoked successfully (user logged out)')
+        toast.add({
+          type: 'success',
+          description: 'Session revoked successfully (user logged out)'
+        })
         void queryClient.invalidateQueries({
           queryKey: trpc.admin.sessions.list.queryOptions().queryKey
         })
       },
       onError: (error) => {
-        toast.error(error.message || 'Failed to revoke session')
+        toast.add({
+          type: 'error',
+          description: error.message || 'Failed to revoke session'
+        })
       }
     })
   )

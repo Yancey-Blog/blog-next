@@ -65,9 +65,16 @@ export function MeijiMediaManager() {
         setPending(null)
         setCaption('')
         setMilestone('')
-        toast.success('Added to feed')
+        toast.add({
+          type: 'success',
+          description: 'Added to feed'
+        })
       },
-      onError: (e) => toast.error(e.message || 'Failed to add')
+      onError: (e) =>
+        toast.add({
+          type: 'error',
+          description: e.message || 'Failed to add'
+        })
     })
   )
 
@@ -75,9 +82,16 @@ export function MeijiMediaManager() {
     trpc.meiji.deleteMedia.mutationOptions({
       onSuccess: () => {
         void invalidate()
-        toast.success('Removed')
+        toast.add({
+          type: 'success',
+          description: 'Removed'
+        })
       },
-      onError: () => toast.error('Failed to remove')
+      onError: () =>
+        toast.add({
+          type: 'error',
+          description: 'Failed to remove'
+        })
     })
   )
 
@@ -89,9 +103,15 @@ export function MeijiMediaManager() {
         url: publicUrl,
         type: file.type.startsWith('video') ? 'video' : 'photo'
       })
-      toast.success('Uploaded — add a caption and save')
+      toast.add({
+        type: 'success',
+        description: 'Uploaded — add a caption and save'
+      })
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Upload failed')
+      toast.add({
+        type: 'error',
+        description: e instanceof Error ? e.message : 'Upload failed'
+      })
     } finally {
       setUploading(false)
     }
@@ -296,10 +316,17 @@ function EditMediaDialog({
     trpc.meiji.updateMedia.mutationOptions({
       onSuccess: () => {
         onSaved()
-        toast.success('Saved')
+        toast.add({
+          type: 'success',
+          description: 'Saved'
+        })
         onClose()
       },
-      onError: (e) => toast.error(e.message || 'Failed to save')
+      onError: (e) =>
+        toast.add({
+          type: 'error',
+          description: e.message || 'Failed to save'
+        })
     })
   )
 
@@ -309,9 +336,15 @@ function EditMediaDialog({
       const publicUrl = await uploadFile(file)
       setUrl(publicUrl)
       setType(file.type.startsWith('video') ? 'video' : 'photo')
-      toast.success('Replaced — save to apply')
+      toast.add({
+        type: 'success',
+        description: 'Replaced — save to apply'
+      })
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Upload failed')
+      toast.add({
+        type: 'error',
+        description: e instanceof Error ? e.message : 'Upload failed'
+      })
     } finally {
       setUploading(false)
     }

@@ -197,20 +197,29 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
 
   useEffect(() => {
     if (autosaveStatus === 'saving') {
-      toastIdRef.current = toast.loading('Saving draft...')
+      toastIdRef.current = toast.add({
+        type: 'loading',
+        description: 'Saving draft..'
+      })
     } else if (autosaveStatus === 'saved' && toastIdRef.current) {
-      toast.success('Draft saved', {
+      toast.add({
+        type: 'success',
+        title: 'Draft saved',
         id: toastIdRef.current,
         description: lastSaved
           ? `Last saved at ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
           : undefined
       })
+
       toastIdRef.current = null
     } else if (autosaveStatus === 'error' && toastIdRef.current) {
-      toast.error('Failed to save draft', {
+      toast.add({
+        type: 'error',
+        title: 'Failed to save draft',
         id: toastIdRef.current,
         description: autosaveError?.message || 'Please try again'
       })
+
       toastIdRef.current = null
     }
   }, [autosaveStatus, lastSaved, autosaveError])
@@ -234,7 +243,10 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
         router.replace(`/admin/blog-management/edit/${newBlog.id}`)
       }
 
-      toast.success('Draft saved successfully')
+      toast.add({
+        type: 'success',
+        description: 'Draft saved successfully'
+      })
       // Invalidate both frontend and admin lists
       void queryClient.invalidateQueries({
         queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
@@ -245,9 +257,11 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
       router.refresh()
     } catch (error) {
       console.error('Save draft error:', error)
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to save draft'
-      )
+      toast.add({
+        type: 'error',
+        description:
+          error instanceof Error ? error.message : 'Failed to save draft'
+      })
     } finally {
       setLoading(false)
     }
@@ -271,7 +285,10 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
         setBlogId(newBlog.id)
       }
 
-      toast.success('Blog published successfully')
+      toast.add({
+        type: 'success',
+        description: 'Blog published successfully'
+      })
       // Invalidate both frontend and admin lists
       void queryClient.invalidateQueries({
         queryKey: trpc.blog.list.queryOptions({ page: 1 }).queryKey
@@ -283,7 +300,11 @@ export function BlogForm({ blog, mode }: BlogFormProps) {
       router.refresh()
     } catch (error) {
       console.error('Publish error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to publish')
+      toast.add({
+        type: 'error',
+        description:
+          error instanceof Error ? error.message : 'Failed to publish'
+      })
     } finally {
       setLoading(false)
     }

@@ -111,10 +111,16 @@ export function HikkiManager({
           cache.invalidateQueries(trpc.hikki.detail.queryFilter())
         ])
         if (input.action !== 'unpublish' && !result.notificationQueued)
-          toast.warning(
-            'Decision saved. Queued notifications will retry when you reload this page.'
-          )
-        else toast.success('Review decision saved')
+          toast.add({
+            type: 'warning',
+            description:
+              'Decision saved. Queued notifications will retry when you reload this page.'
+          })
+        else
+          toast.add({
+            type: 'success',
+            description: 'Review decision saved'
+          })
       },
       onError: (error) => {
         // A failure must leave the confirmation overlay before the global error toast is shown.
@@ -360,7 +366,7 @@ export function HikkiManager({
         onValueChange={(value) => switchMode(value === 'published')}
         className="min-w-0 gap-4"
       >
-        <TabsList aria-label="Community pages" variant="line">
+        <TabsList aria-label="Community pages">
           <TabsTrigger value="pending" disabled={decide.isPending}>
             Pending review
           </TabsTrigger>

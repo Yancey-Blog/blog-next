@@ -183,7 +183,10 @@ export function AIReviewBar({ editor, disabled }: AIReviewBarProps) {
     if (!reviewing || changes.length > 0) return
     ai.closeAIMenu()
     if (polishing.current) {
-      toast.success('AI review complete')
+      toast.add({
+        type: 'success',
+        description: 'AI review complete'
+      })
     }
   }, [ai, reviewing, changes.length])
 
@@ -269,9 +272,10 @@ export function AIReviewBar({ editor, disabled }: AIReviewBarProps) {
       })
     })
     if (skipped > 0) {
-      toast.warning(
-        `AI couldn't apply its edit to ${skipped} block${skipped === 1 ? '' : 's'}; ${skipped === 1 ? 'it was' : 'they were'} left unchanged`
-      )
+      toast.add({
+        type: 'warning',
+        description: `AI couldn't apply its edit to ${skipped} block${skipped === 1 ? '' : 's'}; ${skipped === 1 ? 'it was' : 'they were'} left unchanged`
+      })
     }
   }
 

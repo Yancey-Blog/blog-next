@@ -88,21 +88,6 @@ export class SettingsService {
   }
 
   /**
-   * Get current theme
-   */
-  static async getCurrentTheme(): Promise<string> {
-    const theme = await this.get<string>('theme')
-    return theme || 'default'
-  }
-
-  /**
-   * Set current theme
-   */
-  static async setCurrentTheme(themeId: string): Promise<void> {
-    await this.set('theme', themeId, 'Current active theme')
-  }
-
-  /**
    * Get hero image URL
    */
   static async getHeroImage(): Promise<string | null> {

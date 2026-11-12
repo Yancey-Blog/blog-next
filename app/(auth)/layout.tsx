@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 import { Toaster } from '@/components/ui/toast'
 
 export const metadata: Metadata = {
-  title: 'Blog CMS',
-  description: 'Blog content management system'
+  title: 'CMS | Yancey Inc.',
+  description: 'Content management system for Yancey Inc.'
 }
 
 export default function AuthLayout({

@@ -27,10 +27,10 @@ export function ThemeModeSwitcher() {
         />
         <label
           htmlFor="theme-switch-system"
-          className="text-muted-foreground hover:text-foreground peer-checked:bg-background peer-checked:text-foreground relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm"
+          className="text-muted-foreground hover:text-foreground peer-checked:bg-background peer-checked:text-foreground relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm"
           title="System theme"
         >
-          <LaptopIcon className="h-4 w-4" />
+          <LaptopIcon className="h-3 w-3" />
         </label>
       </span>
       <span className="h-full">
@@ -44,10 +44,10 @@ export function ThemeModeSwitcher() {
         />
         <label
           htmlFor="theme-switch-light"
-          className="text-muted-foreground hover:text-foreground peer-checked:bg-background peer-checked:text-foreground relative flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm"
+          className="text-muted-foreground hover:text-foreground peer-checked:bg-background peer-checked:text-foreground relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm"
           title="Light theme"
         >
-          <SunIcon className="h-4 w-4" />
+          <SunIcon className="h-3 w-3" />
         </label>
       </span>
       <span className="h-full">
@@ -61,10 +61,10 @@ export function ThemeModeSwitcher() {
         />
         <label
           htmlFor="theme-switch-dark"
-          className="text-muted-foreground hover:text-foreground peer-checked:bg-background peer-checked:text-foreground relative flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm"
+          className="text-muted-foreground hover:text-foreground peer-checked:bg-background peer-checked:text-foreground relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm"
           title="Dark theme"
         >
-          <MoonIcon className="h-4 w-4" />
+          <MoonIcon className="h-3 w-3" />
         </label>
       </span>
     </div>

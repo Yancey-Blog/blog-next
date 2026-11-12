@@ -8,7 +8,6 @@ import { db } from '@/lib/db'
 import { sessions, users } from '@/lib/db/schema'
 import { BlogService } from '@/lib/services/blog.service'
 import { SettingsService } from '@/lib/services/settings.service'
-import { PRESET_THEMES } from '@/lib/themes'
 
 import { protectedProcedure } from '../init'
 
@@ -147,28 +146,6 @@ export const adminRouter = {
       .mutation(async ({ input }) => {
         await SettingsService.setOpenSourceProjects(input)
         return { ok: true }
-      })
-  },
-
-  // Theme management
-  theme: {
-    get: protectedProcedure.query(async () => {
-      const themeId = await SettingsService.getCurrentTheme()
-      const theme = PRESET_THEMES.find((t) => t.id === themeId)
-      return theme || PRESET_THEMES[0]
-    }),
-
-    update: protectedProcedure
-      .input(z.object({ themeId: z.string() }))
-      .mutation(async ({ input }) => {
-        // Validate that theme exists
-        const theme = PRESET_THEMES.find((t) => t.id === input.themeId)
-        if (!theme) {
-          throw new Error('Theme not found')
-        }
-
-        await SettingsService.setCurrentTheme(input.themeId)
-        return { message: 'Theme updated successfully', themeId: input.themeId }
       })
   }
 }

@@ -5,8 +5,7 @@ import {
   FileText,
   LayoutDashboard,
   PawPrint,
-  NotebookPen,
-  Users
+  NotebookPen
 } from 'lucide-react'
 import * as React from 'react'
 
@@ -31,28 +30,23 @@ const data = {
       icon: LayoutDashboard
     },
     {
-      title: 'Blog',
+      title: 'Blog Management',
       url: '/admin/blog-management',
       icon: FileText,
       items: [
         { title: 'Posts', url: '/admin/blog-management' },
-        { title: 'Settings', url: '/admin/blog-management/settings' }
+        { title: 'Media Assets', url: '/admin/blog-management/media-assets' }
       ]
     },
     {
-      title: 'Hikki',
+      title: 'Hikki Community',
       url: '/admin/hikki-management',
       icon: NotebookPen
     },
     {
-      title: 'Meiji',
+      title: '明治ちゃん',
       url: '/admin/meiji-management',
       icon: Cat
-    },
-    {
-      title: 'Auth Management',
-      url: '/admin/management',
-      icon: Users
     }
   ]
 }
@@ -70,7 +64,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               render={
                 <a href="/admin">
                   <PawPrint className="size-5!" />
-                  <span className="text-base font-semibold">CMS</span>
+                  <span className="text-base font-semibold">Yancey Inc.</span>
                 </a>
               }
             />

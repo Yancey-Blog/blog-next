@@ -35,7 +35,10 @@ export function DeleteBlogDialog({ blogId, blogTitle }: DeleteBlogDialogProps) {
   const deleteMutation = useMutation({
     ...trpc.blog.delete.mutationOptions(),
     onSuccess: () => {
-      toast.success('Blog deleted successfully')
+      toast.add({
+        type: 'success',
+        description: 'Blog deleted successfully'
+      })
       setOpen(false)
       // Invalidate both frontend and admin lists
       void queryClient.invalidateQueries({
@@ -48,9 +51,11 @@ export function DeleteBlogDialog({ blogId, blogTitle }: DeleteBlogDialogProps) {
     },
     onError: (error) => {
       console.error('Delete error:', error)
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to delete blog'
-      )
+      toast.add({
+        type: 'error',
+        description:
+          error instanceof Error ? error.message : 'Failed to delete blog'
+      })
     }
   })
 

@@ -27,9 +27,16 @@ export function PushNotificationSettings() {
   const sendMutation = useMutation(
     trpc.push.sendTest.mutationOptions({
       onSuccess: (result) => {
-        toast.success(`Sent to ${result.sent} subscriber(s)`)
+        toast.add({
+          type: 'success',
+          description: `Sent to ${result.sent} subscriber(s)`
+        })
       },
-      onError: () => toast.error('Failed to send notification')
+      onError: () =>
+        toast.add({
+          type: 'error',
+          description: 'Failed to send notification'
+        })
     })
   )
 

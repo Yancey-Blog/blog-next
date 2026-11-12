@@ -35,9 +35,16 @@ export function HeroImageSettings() {
         void queryClient.invalidateQueries(
           trpc.admin.heroImage.get.queryFilter()
         )
-        toast.success('Hero image updated')
+        toast.add({
+          type: 'success',
+          description: 'Hero image updated'
+        })
       },
-      onError: () => toast.error('Failed to save image URL')
+      onError: () =>
+        toast.add({
+          type: 'error',
+          description: 'Failed to save image URL'
+        })
     })
   )
 
@@ -49,7 +56,10 @@ export function HeroImageSettings() {
       const publicUrl = await uploadFile(file)
       saveMutation.mutate({ url: publicUrl })
     } catch {
-      toast.error('Upload failed')
+      toast.add({
+        type: 'error',
+        description: 'Upload failed'
+      })
     } finally {
       setUploading(false)
     }

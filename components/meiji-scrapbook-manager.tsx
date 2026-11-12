@@ -54,9 +54,16 @@ export function MeijiScrapbookManager() {
         void queryClient.invalidateQueries(
           trpc.meiji.getScrapbook.queryFilter()
         )
-        toast.success('Scrapbook saved')
+        toast.add({
+          type: 'success',
+          description: 'Scrapbook saved'
+        })
       },
-      onError: (e) => toast.error(e.message || 'Failed to save')
+      onError: (e) =>
+        toast.add({
+          type: 'error',
+          description: e.message || 'Failed to save'
+        })
     })
   )
 
@@ -74,7 +81,10 @@ export function MeijiScrapbookManager() {
       const publicUrl = await uploadFile(file)
       update(index, 'imageUrl', publicUrl)
     } catch {
-      toast.error('Upload failed')
+      toast.add({
+        type: 'error',
+        description: 'Upload failed'
+      })
     } finally {
       setUploadingIndex(null)
     }

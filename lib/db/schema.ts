@@ -170,7 +170,7 @@ export const blogVersions = pgTable('blog_versions', {
 // Settings table for storing app-wide configuration
 export const settings = pgTable('settings', {
   id: text('id').primaryKey(),
-  key: text('key').notNull().unique(), // Setting key (e.g., 'theme', 'siteName')
+  key: text('key').notNull().unique(), // Setting key (e.g., 'siteName')
   value: text('value').notNull(), // JSON string value
   description: text('description'), // Optional description
   createdAt: timestamp('created_at').defaultNow().notNull(),

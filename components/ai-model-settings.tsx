@@ -45,9 +45,16 @@ export function AIModelSettings() {
       onSuccess: () => {
         void queryClient.invalidateQueries(trpc.admin.aiModel.get.queryFilter())
         setPicked(null)
-        toast.success('AI model saved')
+        toast.add({
+          type: 'success',
+          description: 'AI model saved'
+        })
       },
-      onError: (error) => toast.error(error.message)
+      onError: (error) =>
+        toast.add({
+          type: 'error',
+          description: error.message
+        })
     })
   )
 

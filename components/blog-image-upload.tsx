@@ -48,17 +48,26 @@ export function BlogImageUpload({
     async (file: File) => {
       const validationError = validateFile(file)
       if (validationError) {
-        toast.error(validationError)
+        toast.add({
+          type: 'error',
+          description: validationError
+        })
         return
       }
 
       setIsUploading(true)
       try {
         onChange(await upload(file))
-        toast.success('Image uploaded successfully')
+        toast.add({
+          type: 'success',
+          description: 'Image uploaded successfully'
+        })
       } catch (error) {
         console.error('Upload error:', error)
-        toast.error('Failed to upload image')
+        toast.add({
+          type: 'error',
+          description: 'Failed to upload image'
+        })
       } finally {
         setIsUploading(false)
       }
@@ -98,7 +107,10 @@ export function BlogImageUpload({
 
   const handleRemove = () => {
     onChange(null)
-    toast.success('Image removed')
+    toast.add({
+      type: 'success',
+      description: 'Image removed'
+    })
   }
 
   if (value) {

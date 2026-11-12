@@ -31,7 +31,7 @@ const LAYOUT: Slot[] = [
     depth: -70,
     bg: 'linear-gradient(140deg, var(--m-mint), var(--m-mint-deep))',
     emoji: '😸',
-    caption: 'nap o’clock'
+    caption: "nap o'clock"
   },
   {
     pos: { left: '13%', top: '34%' },

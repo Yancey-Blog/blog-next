@@ -71,7 +71,10 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
       { blogId, versionId },
       {
         onSuccess: () => {
-          toast.success('Version restored successfully')
+          toast.add({
+            type: 'success',
+            description: 'Version restored successfully'
+          })
           setOpen(false)
           void queryClient.invalidateQueries({
             queryKey: trpc.version.list.queryOptions({ blogId }).queryKey
@@ -80,7 +83,10 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
         },
         onError: (error) => {
           console.error('Restore version error:', error)
-          toast.error('Failed to restore version')
+          toast.add({
+            type: 'error',
+            description: 'Failed to restore version'
+          })
         }
       }
     )
@@ -95,7 +101,10 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
       if (checked) {
         // Only allow 2 selections
         if (prev.length >= 2) {
-          toast.error('You can only compare 2 versions at a time')
+          toast.add({
+            type: 'error',
+            description: 'You can only compare 2 versions at a time'
+          })
           return prev
         }
         return [...prev, versionId]
@@ -107,7 +116,10 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
 
   const handleCompare = async () => {
     if (selectedForCompare.length !== 2) {
-      toast.error('Please select exactly 2 versions to compare')
+      toast.add({
+        type: 'error',
+        description: 'Please select exactly 2 versions to compare'
+      })
       return
     }
 
@@ -116,7 +128,10 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
     const version2 = versions.find((v) => v.id === versionId2)
 
     if (!version1 || !version2) {
-      toast.error('Failed to compare versions')
+      toast.add({
+        type: 'error',
+        description: 'Failed to compare versions'
+      })
       return
     }
 
@@ -134,7 +149,10 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
       setSelectedVersion(null) // Clear single version view
     } catch (error) {
       console.error('Compare versions error:', error)
-      toast.error('Failed to compare versions')
+      toast.add({
+        type: 'error',
+        description: 'Failed to compare versions'
+      })
     } finally {
       setComparing(false)
     }

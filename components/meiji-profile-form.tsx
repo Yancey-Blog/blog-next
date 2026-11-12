@@ -42,9 +42,16 @@ export function MeijiProfileForm() {
     trpc.meiji.updateProfile.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries(trpc.meiji.getProfile.queryFilter())
-        toast.success('Profile saved')
+        toast.add({
+          type: 'success',
+          description: 'Profile saved'
+        })
       },
-      onError: (e) => toast.error(e.message || 'Failed to save profile')
+      onError: (e) =>
+        toast.add({
+          type: 'error',
+          description: e.message || 'Failed to save profile'
+        })
     })
   )
 
@@ -57,9 +64,15 @@ export function MeijiProfileForm() {
     try {
       const publicUrl = await uploadFile(file)
       set('avatarUrl', publicUrl)
-      toast.success('Avatar uploaded')
+      toast.add({
+        type: 'success',
+        description: 'Avatar uploaded'
+      })
     } catch {
-      toast.error('Upload failed')
+      toast.add({
+        type: 'error',
+        description: 'Upload failed'
+      })
     } finally {
       setUploading(false)
     }

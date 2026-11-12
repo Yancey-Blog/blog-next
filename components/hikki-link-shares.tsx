@@ -44,12 +44,18 @@ export function HikkiLinkShares() {
       onSuccess: async () => {
         setSelection(null)
         await cache.invalidateQueries(trpc.hikki.linkShares.queryFilter())
-        toast.success('The hosted copy was removed')
+        toast.add({
+          type: 'success',
+          description: 'The hosted copy was removed'
+        })
       },
       onError: (error) => {
         setSelection(null)
         void cache.invalidateQueries(trpc.hikki.linkShares.queryFilter())
-        toast.error(error.message)
+        toast.add({
+          type: 'error',
+          description: error.message
+        })
       }
     })
   )
@@ -63,7 +69,7 @@ export function HikkiLinkShares() {
           <CardDescription>
             Encrypted pages shared outside Community. Content and titles cannot
             be read here without the complete sharing link. You can remove a
-            hosted copy while keeping the author’s workspace intact.
+            hosted copy while keeping the author\'s workspace intact.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -157,7 +163,7 @@ export function HikkiLinkShares() {
           <DialogHeader>
             <DialogTitle>Remove this shared copy?</DialogTitle>
             <DialogDescription>
-              The current sharing link will stop working. The author’s original
+              The current sharing link will stop working. The author\'s original
               document and copies readers have already saved are unaffected.
               This does not ban the author from sharing again.
             </DialogDescription>

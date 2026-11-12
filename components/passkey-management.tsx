@@ -55,13 +55,18 @@ export function PasskeyManagement() {
     setAdding(true)
     try {
       await authClient.passkey.addPasskey({ name: name || undefined })
-      toast.success('Passkey added')
+      toast.add({
+        type: 'success',
+        description: 'Passkey added'
+      })
       setAddOpen(false)
       setName('')
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to add passkey'
-      )
+      toast.add({
+        type: 'error',
+        description:
+          error instanceof Error ? error.message : 'Failed to add passkey'
+      })
     } finally {
       setAdding(false)
     }
@@ -70,9 +75,15 @@ export function PasskeyManagement() {
   async function handleDelete(id: string) {
     const { error } = await authClient.passkey.deletePasskey({ id })
     if (error) {
-      toast.error(error.message || 'Failed to delete passkey')
+      toast.add({
+        type: 'error',
+        description: error.message || 'Failed to delete passkey'
+      })
     } else {
-      toast.success('Passkey removed')
+      toast.add({
+        type: 'success',
+        description: 'Passkey removed'
+      })
     }
   }
 

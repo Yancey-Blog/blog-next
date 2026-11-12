@@ -55,9 +55,16 @@ export function OpenSourceSettings() {
         void queryClient.invalidateQueries(
           trpc.admin.openSource.get.queryFilter()
         )
-        toast.success('Open source projects saved')
+        toast.add({
+          type: 'success',
+          description: 'Open source projects saved'
+        })
       },
-      onError: () => toast.error('Failed to save projects')
+      onError: () =>
+        toast.add({
+          type: 'error',
+          description: 'Failed to save projects'
+        })
     })
   )
 
@@ -71,7 +78,10 @@ export function OpenSourceSettings() {
         prev.map((p, i) => (i === index ? { ...p, logo: publicUrl } : p))
       )
     } catch {
-      toast.error('Upload failed')
+      toast.add({
+        type: 'error',
+        description: 'Upload failed'
+      })
     } finally {
       setUploadingIndex(null)
     }
@@ -95,7 +105,10 @@ export function OpenSourceSettings() {
   function handleSave() {
     const invalid = projects.some((p) => !p.name || !p.logo || !p.link)
     if (invalid) {
-      toast.error('Please fill in name, logo, and link for all projects')
+      toast.add({
+        type: 'error',
+        description: 'Please fill in name, logo, and link for all projects'
+      })
       return
     }
     saveMutation.mutate(projects)

@@ -47,13 +47,19 @@ export function UserManagement() {
   const deleteUser = useMutation(
     trpc.admin.users.delete.mutationOptions({
       onSuccess: () => {
-        toast.success('User deleted successfully')
+        toast.add({
+          type: 'success',
+          description: 'User deleted successfully'
+        })
         void queryClient.invalidateQueries({
           queryKey: trpc.admin.users.list.queryOptions().queryKey
         })
       },
       onError: (error) => {
-        toast.error(error.message || 'Failed to delete user')
+        toast.add({
+          type: 'error',
+          description: error.message || 'Failed to delete user'
+        })
       }
     })
   )
