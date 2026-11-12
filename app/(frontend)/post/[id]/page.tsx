@@ -24,7 +24,7 @@ export default async function BlogDetailPage({
   const { id } = await params
   const queryClient = getQueryClient()
 
-  const blog = await queryClient.fetchQuery(trpc.blog.byId.queryOptions({ id }))
+  const blog = await queryClient.query(trpc.blog.byId.queryOptions({ id }))
 
   if (!blog || !blog.published) {
     notFound()
@@ -35,7 +35,7 @@ export default async function BlogDetailPage({
   const tocItems = extractToc(storedContent)
   // Render-time only: stored HTML keeps plain <img> tags.
   const content = transformContentImages(storedContent)
-  const { prev, next } = await queryClient.fetchQuery(
+  const { prev, next } = await queryClient.query(
     trpc.blog.adjacent.queryOptions({ id: blog.id })
   )
 
@@ -154,7 +154,7 @@ export async function generateMetadata({
   const { id } = await params
   const queryClient = getQueryClient()
 
-  const blog = await queryClient.fetchQuery(trpc.blog.byId.queryOptions({ id }))
+  const blog = await queryClient.query(trpc.blog.byId.queryOptions({ id }))
 
   if (!blog) {
     return {

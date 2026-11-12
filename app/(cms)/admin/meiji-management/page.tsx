@@ -9,9 +9,15 @@ export default async function MeijiManagementPage() {
   const queryClient = getQueryClient()
 
   await Promise.all([
-    queryClient.prefetchQuery(trpc.meiji.getProfile.queryOptions()),
-    queryClient.prefetchQuery(trpc.meiji.listMedia.queryOptions()),
-    queryClient.prefetchQuery(trpc.meiji.getScrapbook.queryOptions())
+    queryClient
+      .query(trpc.meiji.getProfile.queryOptions())
+      .catch(() => undefined),
+    queryClient
+      .query(trpc.meiji.listMedia.queryOptions())
+      .catch(() => undefined),
+    queryClient
+      .query(trpc.meiji.getScrapbook.queryOptions())
+      .catch(() => undefined)
   ])
 
   return (

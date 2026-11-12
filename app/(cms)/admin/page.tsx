@@ -8,9 +8,7 @@ import { getQueryClient, trpc } from '@/lib/trpc/server'
 export default async function Page() {
   const queryClient = getQueryClient()
 
-  const dashboard = await queryClient.fetchQuery(
-    trpc.admin.dashboard.queryOptions()
-  )
+  const dashboard = await queryClient.query(trpc.admin.dashboard.queryOptions())
 
   return (
     <div className="flex flex-col gap-6 pb-8">

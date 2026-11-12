@@ -137,7 +137,7 @@ export function BlogVersionHistory({ blogId }: BlogVersionHistoryProps) {
 
     setComparing(true)
     try {
-      const diff = await queryClient.fetchQuery(
+      const diff = await queryClient.query(
         trpc.version.diff.queryOptions({ blogId, versionId1, versionId2 })
       )
 

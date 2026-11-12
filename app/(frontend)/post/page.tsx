@@ -25,7 +25,7 @@ export default async function BlogsPage({
   const search = params.search || ''
   const queryClient = getQueryClient()
 
-  const blogsData = await queryClient.fetchQuery(
+  const blogsData = await queryClient.query(
     trpc.blog.list.queryOptions({
       page,
       pageSize: 12,
