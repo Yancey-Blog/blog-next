@@ -29,6 +29,12 @@ export const adminRouter = {
     return { stats, byMonth, ...chartData }
   }),
 
+  blog: {
+    byId: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .query(async ({ input }) => BlogService.getBlogById(input.id))
+  },
+
   // User management
   users: {
     list: protectedProcedure.query(async () => {

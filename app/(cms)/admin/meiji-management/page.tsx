@@ -1,42 +1,25 @@
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+'use client'
 
 import { MeijiMediaManager } from '@/components/meiji-media-manager'
 import { MeijiProfileForm } from '@/components/meiji-profile-form'
 import { MeijiScrapbookManager } from '@/components/meiji-scrapbook-manager'
-import { getQueryClient, trpc } from '@/lib/trpc/server'
 
-export default async function MeijiManagementPage() {
-  const queryClient = getQueryClient()
-
-  await Promise.all([
-    queryClient
-      .query(trpc.meiji.getProfile.queryOptions())
-      .catch(() => undefined),
-    queryClient
-      .query(trpc.meiji.listMedia.queryOptions())
-      .catch(() => undefined),
-    queryClient
-      .query(trpc.meiji.getScrapbook.queryOptions())
-      .catch(() => undefined)
-  ])
-
+export default function MeijiManagementPage() {
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="container mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Meiji 🐱</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage the cat site at meiji.yanceyleo.com — profile, hero
-            scrapbook, and the Daily Meiji media feed.
-          </p>
-        </div>
-
-        <div className="space-y-8">
-          <MeijiProfileForm />
-          <MeijiScrapbookManager />
-          <MeijiMediaManager />
-        </div>
+    <div className="container mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Meiji 🐱</h1>
+        <p className="text-muted-foreground mt-2">
+          Manage the cat site at meiji.yanceyleo.com — profile, hero scrapbook,
+          and the Daily Meiji media feed.
+        </p>
       </div>
-    </HydrationBoundary>
+
+      <div className="space-y-8">
+        <MeijiProfileForm />
+        <MeijiScrapbookManager />
+        <MeijiMediaManager />
+      </div>
+    </div>
   )
 }

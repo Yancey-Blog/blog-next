@@ -1,6 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Calendar, Clock, Eye } from 'lucide-react'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 
 import { BlogAdjacentNav } from '@/components/blog-adjacent-nav'
 import { BlogComments } from '@/components/blog-comments'
@@ -9,6 +10,7 @@ import { BlogToc } from '@/components/blog-toc'
 import { LazyLoadImage } from '@/components/lazy-load-image'
 import { PostActions } from '@/components/post-actions'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { extractToc } from '@/lib/blocknote/extract-toc'
 import { transformContentImages } from '@/lib/images/transform-html'
 import { getQueryClient, trpc } from '@/lib/trpc/server'
@@ -35,10 +37,6 @@ export default async function BlogDetailPage({
   const tocItems = extractToc(storedContent)
   // Render-time only: stored HTML keeps plain <img> tags.
   const content = transformContentImages(storedContent)
-  const { prev, next } = await queryClient.query(
-    trpc.blog.adjacent.queryOptions({ id: blog.id })
-  )
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="container mx-auto px-4 pt-24 pb-8">
@@ -130,7 +128,9 @@ export default async function BlogDetailPage({
             />
             <BlogContentImages containerId="blog-content" />
 
-            <BlogAdjacentNav prev={prev} next={next} />
+            <Suspense fallback={<AdjacentNavSkeleton />}>
+              <AdjacentPosts id={blog.id} />
+            </Suspense>
 
             <BlogComments
               identifier={blog.id}
@@ -143,6 +143,37 @@ export default async function BlogDetailPage({
         </div>
       </div>
     </HydrationBoundary>
+  )
+}
+
+async function AdjacentPosts({ id }: { id: string }) {
+  const queryClient = getQueryClient()
+  const { prev, next } = await queryClient.query(
+    trpc.blog.adjacent.queryOptions({ id })
+  )
+  return <BlogAdjacentNav prev={prev} next={next} />
+}
+
+function AdjacentNavSkeleton() {
+  return (
+    <nav
+      aria-label="More posts"
+      aria-busy="true"
+      className="my-10 grid grid-cols-1 gap-4 border-y py-6 sm:grid-cols-2"
+    >
+      {[0, 1].map((item) => (
+        <div
+          key={item}
+          className="flex items-center gap-4 rounded-xl border p-4"
+        >
+          <Skeleton className="aspect-video w-24 shrink-0 rounded-lg sm:w-28" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <Skeleton className="h-3 w-28" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+        </div>
+      ))}
+    </nav>
   )
 }
 

@@ -14,6 +14,7 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
 import { useUploadFile } from '@/lib/hooks/use-upload-file'
 import { useTRPC } from '@/lib/trpc/client'
@@ -26,7 +27,7 @@ export function HeroImageSettings() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
-  const { data } = useQuery(trpc.admin.heroImage.get.queryOptions())
+  const { data, isPending } = useQuery(trpc.admin.heroImage.get.queryOptions())
   const currentUrl = data?.url ?? null
 
   const saveMutation = useMutation(
@@ -67,6 +68,26 @@ export function HeroImageSettings() {
 
   const isSaving = saveMutation.isPending
   const isWorking = uploading || isSaving
+
+  if (isPending) {
+    return (
+      <Card
+        role="status"
+        aria-label="Loading hero image settings"
+        aria-busy="true"
+      >
+        <CardHeader className="space-y-3">
+          <Skeleton className="h-5 w-44" />
+          <Skeleton className="h-4 w-72 max-w-full" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-48 w-full rounded-lg" />
+          <Skeleton className="h-10 w-full rounded-full" />
+          <Skeleton className="h-3 w-64 max-w-full" />
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card>

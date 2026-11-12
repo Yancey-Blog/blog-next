@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
 import { useTRPC } from '@/lib/trpc/client'
 
@@ -22,7 +23,7 @@ export function PushNotificationSettings() {
   const [title, setTitle] = useState('New notification')
   const [body, setBody] = useState('Hello from Yancey Blog!')
 
-  const { data } = useQuery(trpc.push.subscriberCount.queryOptions())
+  const { data, isPending } = useQuery(trpc.push.subscriberCount.queryOptions())
 
   const sendMutation = useMutation(
     trpc.push.sendTest.mutationOptions({
@@ -45,8 +46,18 @@ export function PushNotificationSettings() {
       <CardHeader>
         <CardTitle>Push Notifications</CardTitle>
         <CardDescription>
-          {data?.count ?? 0} subscriber{data?.count === 1 ? '' : 's'} opted in.
-          Send a test notification to everyone currently subscribed.
+          {isPending ? (
+            <>
+              <Skeleton className="inline-block h-4 w-8 align-middle" />{' '}
+              subscribers opted in. Send a test notification to everyone
+              currently subscribed.
+            </>
+          ) : (
+            <>
+              {data?.count ?? 0} subscriber{data?.count === 1 ? '' : 's'} opted
+              in. Send a test notification to everyone currently subscribed.
+            </>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>

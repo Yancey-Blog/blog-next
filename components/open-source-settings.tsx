@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast'
 import { useUploadFile } from '@/lib/hooks/use-upload-file'
@@ -116,9 +117,27 @@ export function OpenSourceSettings() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+      <Card
+        role="status"
+        aria-label="Loading open source projects"
+        aria-busy="true"
+      >
+        <CardHeader className="space-y-3">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-4 w-96 max-w-full" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[0, 1].map((item) => (
+            <div key={item} className="space-y-4 rounded-lg border p-4">
+              <Skeleton className="h-4 w-20" />
+              <div className="grid gap-4 md:grid-cols-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+          ))}
         </CardContent>
       </Card>
     )

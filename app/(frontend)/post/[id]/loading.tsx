@@ -2,7 +2,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function BlogDetailLoading() {
   return (
-    <div className="container mx-auto px-4 pt-24 pb-8">
+    <div
+      role="status"
+      aria-label="Loading article"
+      aria-busy="true"
+      className="container mx-auto px-4 pt-24 pb-8"
+    >
       <div className="relative grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_16rem] xl:items-start">
         <article className="mx-auto w-full max-w-4xl min-w-0">
           {/* Cover image */}

@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast'
 import { useUploadFile } from '@/lib/hooks/use-upload-file'
@@ -80,9 +81,24 @@ export function MeijiProfileForm() {
 
   if (isLoading || !profile) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+      <Card role="status" aria-label="Loading Meiji profile" aria-busy="true">
+        <CardHeader className="space-y-3">
+          <Skeleton className="h-5 w-28" />
+          <Skeleton className="h-4 w-60" />
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="flex items-center gap-4">
+            <Skeleton className="size-20 rounded-full" />
+            <Skeleton className="h-10 w-36" />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[0, 1, 2, 3].map((item) => (
+              <div key={item} className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     )

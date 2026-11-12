@@ -1,10 +1,12 @@
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+
 import { HikkiManager } from '@/components/hikki-manager'
-export default async function HikkiManagementPage({
-  searchParams
-}: {
-  searchParams: Promise<{ review?: string | string[] }>
-}) {
-  const { review } = await searchParams
+
+export default function HikkiManagementPage() {
+  const searchParams = useSearchParams()
+  const review = searchParams.get('review')
   const initialReview =
     typeof review === 'string' && /^review-[a-zA-Z0-9-]{1,100}$/.test(review)
       ? review

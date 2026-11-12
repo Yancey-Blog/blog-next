@@ -37,6 +37,7 @@ import {
 } from './ui/combobox'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
+import { Skeleton } from './ui/skeleton'
 import { Textarea } from './ui/textarea'
 
 function TagsField({
@@ -97,8 +98,24 @@ const BlogEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-muted flex min-h-96 items-center justify-center rounded-md border">
-        <p className="text-muted-foreground text-sm">Loading editor...</p>
+      <div
+        role="status"
+        aria-label="Loading editor"
+        aria-busy="true"
+        className="space-y-5 rounded-md border p-6"
+      >
+        <div className="flex gap-2 border-b pb-4">
+          {[0, 1, 2, 3, 4, 5, 6].map((item) => (
+            <Skeleton key={item} className="size-8" />
+          ))}
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-7 w-2/3" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-4/5" />
+        </div>
+        <Skeleton className="min-h-72 w-full" />
       </div>
     )
   }

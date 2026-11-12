@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
 import type { MeijiMedia } from '@/lib/db/schema'
 import { useUploadFile } from '@/lib/hooks/use-upload-file'
@@ -219,8 +220,18 @@ export function MeijiMediaManager() {
 
         {/* existing */}
         {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+          <div
+            role="status"
+            aria-label="Loading media"
+            aria-busy="true"
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"
+          >
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((item) => (
+              <Skeleton
+                key={item}
+                className="aspect-square w-full rounded-lg"
+              />
+            ))}
           </div>
         ) : media && media.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">

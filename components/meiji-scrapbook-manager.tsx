@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
 import { useUploadFile } from '@/lib/hooks/use-upload-file'
 import { useTRPC } from '@/lib/trpc/client'
@@ -92,9 +93,20 @@ export function MeijiScrapbookManager() {
 
   if (isLoading || !items) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+      <Card role="status" aria-label="Loading hero scrapbook" aria-busy="true">
+        <CardHeader className="space-y-3">
+          <Skeleton className="h-5 w-36" />
+          <Skeleton className="h-4 w-96 max-w-full" />
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          {[0, 1, 2, 3].map((item) => (
+            <div key={item} className="space-y-3 rounded-lg border p-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-16 w-16 rounded-md" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ))}
         </CardContent>
       </Card>
     )

@@ -11,14 +11,12 @@ const ReactQueryDevtools =
       )
     : () => null
 
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Metadata } from 'next'
 
 import { SiteHeader } from '@/components/site-header'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toast'
 import { requireAuth } from '@/lib/auth/session'
-import { getQueryClient } from '@/lib/trpc/server'
 
 export const metadata: Metadata = {
   title: 'CMS | Yancey Inc.',
@@ -32,32 +30,28 @@ export default async function AdminLayout({
 }) {
   await requireAuth()
 
-  const queryClient = getQueryClient()
-
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="bg-sidebar">
-        <ReactQueryDevtools initialIsOpen={false} />
-        <SidebarProvider
-          style={
-            {
-              '--sidebar-width': 'calc(var(--spacing) * 72)',
-              '--header-height': 'calc(var(--spacing) * 12)'
-            } as React.CSSProperties
-          }
-        >
-          <AppSidebar variant="inset" />
-          <SidebarInset>
-            <SiteHeader />
-            <div className="flex flex-1 flex-col">
-              <div className="@container/main flex flex-1 flex-col gap-2 p-4">
-                {children}
-              </div>
+    <div className="bg-sidebar">
+      <ReactQueryDevtools initialIsOpen={false} />
+      <SidebarProvider
+        style={
+          {
+            '--sidebar-width': 'calc(var(--spacing) * 72)',
+            '--header-height': 'calc(var(--spacing) * 12)'
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" />
+        <SidebarInset>
+          <SiteHeader />
+          <div className="flex flex-1 flex-col">
+            <div className="@container/main flex flex-1 flex-col gap-2 p-4">
+              {children}
             </div>
-          </SidebarInset>
-        </SidebarProvider>
-        <Toaster />
-      </div>
-    </HydrationBoundary>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+      <Toaster />
+    </div>
   )
 }
