@@ -35,7 +35,8 @@ const data = {
       icon: FileText,
       items: [
         { title: 'Posts', url: '/admin/blog-management' },
-        { title: 'Media Assets', url: '/admin/blog-management/media-assets' }
+        { title: 'Media Assets', url: '/admin/blog-management/media-assets' },
+        { title: 'Settings', url: '/admin/blog-management/settings' }
       ]
     },
     {
