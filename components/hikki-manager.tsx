@@ -117,13 +117,12 @@ export function HikkiManager({
         else toast.success('Review decision saved')
       },
       onError: (error) => {
-        if (error.data?.code === 'CONFLICT') {
-          setAction(null)
-          void cache.invalidateQueries(trpc.hikki.detail.queryFilter())
-          void cache.invalidateQueries(trpc.hikki.queue.queryFilter())
-          void cache.invalidateQueries(trpc.hikki.listings.queryFilter())
-        }
-        toast.error(error.message)
+        // A failure must leave the confirmation overlay before the global error toast is shown.
+        setAction(null)
+        void cache.invalidateQueries(trpc.hikki.detail.queryFilter())
+        void cache.invalidateQueries(trpc.hikki.queue.queryFilter())
+        void cache.invalidateQueries(trpc.hikki.listings.queryFilter())
+        toast.add({ type: 'error', description: error.message })
       }
     })
   )

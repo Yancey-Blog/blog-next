@@ -19,6 +19,7 @@ import {
   pageReportDetail,
   resolvePageReport
 } from '@/lib/hikki/page-reports'
+import { ReviewPublicationError } from '@/lib/hikki/publication-error'
 import {
   approveReview,
   getListing,
@@ -41,7 +42,10 @@ async function execute<T>(operation: () => Promise<T>): Promise<T> {
     return await operation()
   } catch (cause) {
     if (cause instanceof TRPCError) throw cause
-    const cloudKit = cause instanceof CloudKitRequestError ? cause : null
+    const publication = cause instanceof ReviewPublicationError ? cause : null
+    const rootCause = publication?.cause ?? cause
+    const cloudKit =
+      rootCause instanceof CloudKitRequestError ? rootCause : null
     const authenticationFailure =
       cloudKit &&
       (cloudKit.status === 401 ||
@@ -50,19 +54,18 @@ async function execute<T>(operation: () => Promise<T>): Promise<T> {
       cloudKit &&
       (cloudKit.status === 403 || cloudKit.serverCode === 'ACCESS_DENIED')
     throw new TRPCError({
-      code:
-        cause instanceof CloudKitRequestError && cause.status === 409
-          ? 'CONFLICT'
-          : 'BAD_GATEWAY',
+      code: cloudKit?.status === 409 ? 'CONFLICT' : 'BAD_GATEWAY',
       message: authenticationFailure
         ? 'CloudKit server authentication failed. Check the CMS key ID and matching private key.'
         : permissionFailure
           ? 'CloudKit denied CMS access. Check the server key owner’s HikkiModerator role in the configured environment.'
           : cloudKit?.queryReason
             ? `CloudKit rejected the request: ${cloudKit.queryReason}`
-            : cause instanceof CloudKitRequestError && cause.status === 409
+            : cloudKit?.status === 409
               ? 'This page changed. Review the latest version before trying again.'
-              : 'The Hikki operation could not be completed. Refresh before retrying.'
+              : publication
+                ? `${publication.message}. ${publication.diagnostic} Refresh the page before retrying.`
+                : 'The Hikki operation could not be completed. Refresh before retrying.'
     })
   }
 }

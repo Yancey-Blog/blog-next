@@ -1,3 +1,4 @@
+import { copyAttachmentAssets } from './attachment-assets'
 import {
   CloudKitRequestError,
   lookupRecord,
@@ -8,6 +9,7 @@ import {
   type CloudKitField,
   type CloudKitRecord
 } from './cloudkit'
+import { ReviewPublicationError } from './publication-error'
 
 export const REVIEW_RECORD_TYPE = 'ReviewSubmission'
 export const LISTING_RECORD_TYPE = 'Listing'
@@ -285,219 +287,241 @@ export async function approveReview(
   recordName: string,
   revision: string
 ): Promise<void> {
-  const review = await lookupRecord(config, REVIEW_RECORD_TYPE, recordName)
-  if (!review) throw new CloudKitRequestError(404)
-  requireRevision(review, revision)
-  const status = stringValue(review, 'status')
-  if (status !== 'pending' && status !== 'publishing')
-    throw new CloudKitRequestError(409)
-  const previousID = stringValue(review, 'replaces')
-  let pageName = `page-${recordName}`
-  if (previousID) {
-    const previous = await lookupRecord(config, REVIEW_RECORD_TYPE, previousID)
+  let stage = 'loading the submission'
+  let diagnostic = ''
+  try {
+    const review = await lookupRecord(config, REVIEW_RECORD_TYPE, recordName)
+    if (!review) throw new CloudKitRequestError(404)
+    requireRevision(review, revision)
+    stage = 'validating the viewed revision'
+    const status = stringValue(review, 'status')
+    if (status !== 'pending' && status !== 'publishing')
+      throw new CloudKitRequestError(409)
+    const previousID = stringValue(review, 'replaces')
+    let pageName = `page-${recordName}`
+    if (previousID) {
+      const previous = await lookupRecord(
+        config,
+        REVIEW_RECORD_TYPE,
+        previousID
+      )
+      if (
+        !previous ||
+        previous.created?.userRecordName !== review.created?.userRecordName ||
+        !review.created?.userRecordName ||
+        (status === 'pending' && stringValue(previous, 'status') !== 'approved')
+      )
+        throw new CloudKitRequestError(409)
+      pageName =
+        stringValue(previous, 'publicPageRecordName') || `page-${previousID}`
+    }
+    const listingName = `listing-${pageName}`
+    const page = await lookupRecord(config, PUBLISHED_RECORD_TYPE, pageName)
+    const listing = await lookupRecord(config, LISTING_RECORD_TYPE, listingName)
+    const publishedReview = page ? stringValue(page, 'reviewRecordName') : ''
+    const alreadyWritten = publishedReview === recordName
+    if (alreadyWritten && stringValue(page!, 'reviewRevision') !== revision)
+      throw new CloudKitRequestError(409)
+    if (previousID) {
+      // The last approved revision must still be current. This also rejects forged parent/page fields.
+      if (
+        !page ||
+        !listing ||
+        objectValue(listing, 'page')?.recordName !== pageName ||
+        (!alreadyWritten &&
+          (publishedReview ||
+            (pageName === `page-${previousID}` ? previousID : '')) !==
+            previousID)
+      )
+        throw new CloudKitRequestError(409)
+    } else if (
+      (page || listing) &&
+      !(status === 'publishing' && alreadyWritten)
+    ) {
+      throw new CloudKitRequestError(409)
+    }
+    if (!review.recordChangeTag) throw new CloudKitRequestError(502)
+    // Claim before any public write. A retry can finish a publishing revision after a partial failure.
+    let claimed = review
+    if (status === 'pending') {
+      ;[claimed] = await modifyRecords(config, [
+        {
+          operationType: 'update',
+          record: {
+            recordType: REVIEW_RECORD_TYPE,
+            recordName,
+            recordChangeTag: review.recordChangeTag,
+            fields: {
+              status: field('publishing', 'STRING'),
+              publicPageRecordName: field(pageName, 'STRING')
+            }
+          }
+        }
+      ])
+    }
+    const fileCount = Array.isArray(recordValue(review, 'files'))
+      ? (recordValue(review, 'files') as unknown[]).length
+      : 0
+    stage = 'copying the attachments'
+    // Re-reference the scalar snapshot; CloudKit rejects re-referencing an ASSET_LIST field.
+    const reused = alreadyWritten
+      ? []
+      : await rereferenceAssets(config, recordName, ['payloadFile'])
+    const payload = writableAsset(reused[0])
+    const files =
+      alreadyWritten || !fileCount
+        ? []
+        : await copyAttachmentAssets(
+            config,
+            pageName,
+            recordValue(review, 'files') as unknown[]
+          )
+    if (!alreadyWritten && (!payload || files.length !== fileCount)) {
+      diagnostic = `Expected ${fileCount} attachments; received ${files.length}.`
+      throw new CloudKitRequestError(502)
+    }
+    // The asset API reads by record name. Reject a source edited while assets were copied.
+    const source = await lookupRecord(config, REVIEW_RECORD_TYPE, recordName)
+    if (!source) throw new CloudKitRequestError(409)
+    requireRevision(source, claimed.recordChangeTag ?? '')
+    const title = stringValue(review, 'title', 'Untitled page'),
+      icon = stringValue(review, 'icon'),
+      excerpt = stringValue(review, 'excerpt'),
+      author = stringValue(review, 'author')
+    const tags = stringArray(review, 'tags'),
+      terms = stringArray(review, 'terms')
+    const publishedAt =
+      typeof recordValue(page ?? review, 'publishedAt') === 'number'
+        ? recordValue(page ?? review, 'publishedAt')
+        : Date.now()
+    const publicFields = {
+      version: field(1, 'INT64'),
+      bytes: field(
+        typeof recordValue(review, 'bytes') === 'number'
+          ? recordValue(review, 'bytes')
+          : 0,
+        'INT64'
+      ),
+      // Asset receipts are write values; download URLs are read-only metadata.
+      payloadFile: field(payload),
+      ...(files.length || page ? { files: field(files) } : {}),
+      listed: field(1, 'INT64'),
+      reviewRecordName: field(recordName, 'STRING'),
+      reviewRevision: field(claimed.recordChangeTag, 'STRING'),
+      title: field(title, 'STRING'),
+      excerpt: field(excerpt, 'STRING'),
+      ...(tags.length || page ? { tags: field(tags, 'STRING_LIST') } : {}),
+      ...(terms.length || page ? { terms: field(terms, 'STRING_LIST') } : {}),
+      icon: field(icon, 'STRING'),
+      author: field(author, 'STRING'),
+      publishedAt: field(publishedAt, 'TIMESTAMP')
+    }
+    stage = 'writing the public snapshot'
+    if (!alreadyWritten) {
+      // CAS is the content commit. A losing concurrent approval cannot overwrite a newer accepted revision.
+      try {
+        await modifyRecords(config, [
+          {
+            operationType: page ? 'update' : 'create',
+            record: {
+              recordType: PUBLISHED_RECORD_TYPE,
+              recordName: pageName,
+              ...(page ? { recordChangeTag: page.recordChangeTag } : {}),
+              fields: publicFields
+            }
+          }
+        ])
+      } catch (cause) {
+        if (cause instanceof CloudKitRequestError && cause.status === 409) {
+          const observed = await lookupRecord(
+            config,
+            PUBLISHED_RECORD_TYPE,
+            pageName
+          )
+          if (
+            stringValue(
+              observed ?? {
+                recordType: PUBLISHED_RECORD_TYPE,
+                recordName: pageName
+              },
+              'reviewRecordName'
+            ) !== recordName &&
+            claimed.recordChangeTag
+          ) {
+            await modifyRecords(config, [
+              {
+                operationType: 'update',
+                record: {
+                  recordName,
+                  recordChangeTag: claimed.recordChangeTag,
+                  fields: { status: field('pending', 'STRING') }
+                }
+              }
+            ])
+          }
+        }
+        throw cause
+      }
+    }
+    // An update keeps the same URL and discovery entry. If this write fails, the old Listing remains and retry repairs its metadata.
+    stage = 'updating the community listing'
+    const currentListing = await lookupRecord(
+      config,
+      LISTING_RECORD_TYPE,
+      listingName
+    )
+    await modifyRecords(config, [
+      {
+        operationType: currentListing ? 'update' : 'create',
+        record: {
+          recordType: LISTING_RECORD_TYPE,
+          recordName: listingName,
+          ...(currentListing
+            ? { recordChangeTag: currentListing.recordChangeTag }
+            : {}),
+          fields: {
+            title: field(title, 'STRING'),
+            excerpt: field(excerpt, 'STRING'),
+            icon: field(icon, 'STRING'),
+            author: field(author, 'STRING'),
+            ...(tags.length || currentListing
+              ? { tags: field(tags, 'STRING_LIST') }
+              : {}),
+            ...(terms.length || currentListing
+              ? { terms: field(terms, 'STRING_LIST') }
+              : {}),
+            publishedAt: field(publishedAt, 'TIMESTAMP'),
+            page: field({ recordName: pageName, action: 'NONE' }, 'REFERENCE')
+          }
+        }
+      }
+    ])
+    stage = 'saving the final decision'
+    const current = await lookupRecord(config, REVIEW_RECORD_TYPE, recordName)
     if (
-      !previous ||
-      previous.created?.userRecordName !== review.created?.userRecordName ||
-      !review.created?.userRecordName ||
-      (status === 'pending' && stringValue(previous, 'status') !== 'approved')
+      !current?.recordChangeTag ||
+      stringValue(current, 'status') !== 'publishing' ||
+      current.recordChangeTag !== claimed.recordChangeTag
     )
       throw new CloudKitRequestError(409)
-    pageName =
-      stringValue(previous, 'publicPageRecordName') || `page-${previousID}`
-  }
-  const listingName = `listing-${pageName}`
-  const page = await lookupRecord(config, PUBLISHED_RECORD_TYPE, pageName)
-  const listing = await lookupRecord(config, LISTING_RECORD_TYPE, listingName)
-  const publishedReview = page ? stringValue(page, 'reviewRecordName') : ''
-  const alreadyWritten = publishedReview === recordName
-  if (alreadyWritten && stringValue(page!, 'reviewRevision') !== revision)
-    throw new CloudKitRequestError(409)
-  if (previousID) {
-    // The last approved revision must still be current. This also rejects forged parent/page fields.
-    if (
-      !page ||
-      !listing ||
-      objectValue(listing, 'page')?.recordName !== pageName ||
-      (!alreadyWritten &&
-        (publishedReview ||
-          (pageName === `page-${previousID}` ? previousID : '')) !== previousID)
-    )
-      throw new CloudKitRequestError(409)
-  } else if (
-    (page || listing) &&
-    !(status === 'publishing' && alreadyWritten)
-  ) {
-    throw new CloudKitRequestError(409)
-  }
-  if (!review.recordChangeTag) throw new CloudKitRequestError(502)
-  // Claim before any public write. A retry can finish a publishing revision after a partial failure.
-  let claimed = review
-  if (status === 'pending') {
-    ;[claimed] = await modifyRecords(config, [
+    await modifyRecords(config, [
       {
         operationType: 'update',
         record: {
           recordType: REVIEW_RECORD_TYPE,
           recordName,
-          recordChangeTag: review.recordChangeTag,
+          recordChangeTag: current.recordChangeTag,
           fields: {
-            status: field('publishing', 'STRING'),
-            publicPageRecordName: field(pageName, 'STRING')
+            status: field('approved', 'STRING'),
+            publicPageRecordName: field(pageName, 'STRING'),
+            decidedAt: field(Date.now(), 'TIMESTAMP')
           }
         }
       }
     ])
+  } catch (cause) {
+    throw new ReviewPublicationError(stage, cause, diagnostic)
   }
-  const fileCount = Array.isArray(recordValue(review, 'files'))
-    ? (recordValue(review, 'files') as unknown[]).length
-    : 0
-  const reused = alreadyWritten
-    ? []
-    : await rereferenceAssets(
-        config,
-        recordName,
-        fileCount ? ['payloadFile', 'files'] : ['payloadFile']
-      )
-  const payload = writableAsset(reused[0]),
-    files = assetListValue(reused[1])
-  if (!alreadyWritten && (!payload || files.length !== fileCount))
-    throw new CloudKitRequestError(502)
-  // The asset API reads by record name. Reject a source edited while assets were copied.
-  const source = await lookupRecord(config, REVIEW_RECORD_TYPE, recordName)
-  if (!source) throw new CloudKitRequestError(409)
-  requireRevision(source, claimed.recordChangeTag ?? '')
-  const title = stringValue(review, 'title', 'Untitled page'),
-    icon = stringValue(review, 'icon'),
-    excerpt = stringValue(review, 'excerpt'),
-    author = stringValue(review, 'author')
-  const tags = stringArray(review, 'tags'),
-    terms = stringArray(review, 'terms')
-  const publishedAt =
-    typeof recordValue(page ?? review, 'publishedAt') === 'number'
-      ? recordValue(page ?? review, 'publishedAt')
-      : Date.now()
-  const publicFields = {
-    version: field(1, 'INT64'),
-    bytes: field(
-      typeof recordValue(review, 'bytes') === 'number'
-        ? recordValue(review, 'bytes')
-        : 0,
-      'INT64'
-    ),
-    // Asset receipts are write values; download URLs are read-only metadata.
-    payloadFile: field(payload),
-    ...(files.length || page ? { files: field(files) } : {}),
-    listed: field(1, 'INT64'),
-    reviewRecordName: field(recordName, 'STRING'),
-    reviewRevision: field(claimed.recordChangeTag, 'STRING'),
-    title: field(title, 'STRING'),
-    excerpt: field(excerpt, 'STRING'),
-    ...(tags.length || page ? { tags: field(tags, 'STRING_LIST') } : {}),
-    ...(terms.length || page ? { terms: field(terms, 'STRING_LIST') } : {}),
-    icon: field(icon, 'STRING'),
-    author: field(author, 'STRING'),
-    publishedAt: field(publishedAt, 'TIMESTAMP')
-  }
-  if (!alreadyWritten) {
-    // CAS is the content commit. A losing concurrent approval cannot overwrite a newer accepted revision.
-    try {
-      await modifyRecords(config, [
-        {
-          operationType: page ? 'update' : 'create',
-          record: {
-            recordType: PUBLISHED_RECORD_TYPE,
-            recordName: pageName,
-            ...(page ? { recordChangeTag: page.recordChangeTag } : {}),
-            fields: publicFields
-          }
-        }
-      ])
-    } catch (cause) {
-      if (cause instanceof CloudKitRequestError && cause.status === 409) {
-        const observed = await lookupRecord(
-          config,
-          PUBLISHED_RECORD_TYPE,
-          pageName
-        )
-        if (
-          stringValue(
-            observed ?? {
-              recordType: PUBLISHED_RECORD_TYPE,
-              recordName: pageName
-            },
-            'reviewRecordName'
-          ) !== recordName &&
-          claimed.recordChangeTag
-        ) {
-          await modifyRecords(config, [
-            {
-              operationType: 'update',
-              record: {
-                recordName,
-                recordChangeTag: claimed.recordChangeTag,
-                fields: { status: field('pending', 'STRING') }
-              }
-            }
-          ])
-        }
-      }
-      throw cause
-    }
-  }
-  // An update keeps the same URL and discovery entry. If this write fails, the old Listing remains and retry repairs its metadata.
-  const currentListing = await lookupRecord(
-    config,
-    LISTING_RECORD_TYPE,
-    listingName
-  )
-  await modifyRecords(config, [
-    {
-      operationType: currentListing ? 'update' : 'create',
-      record: {
-        recordType: LISTING_RECORD_TYPE,
-        recordName: listingName,
-        ...(currentListing
-          ? { recordChangeTag: currentListing.recordChangeTag }
-          : {}),
-        fields: {
-          title: field(title, 'STRING'),
-          excerpt: field(excerpt, 'STRING'),
-          icon: field(icon, 'STRING'),
-          author: field(author, 'STRING'),
-          ...(tags.length || currentListing
-            ? { tags: field(tags, 'STRING_LIST') }
-            : {}),
-          ...(terms.length || currentListing
-            ? { terms: field(terms, 'STRING_LIST') }
-            : {}),
-          publishedAt: field(publishedAt, 'TIMESTAMP'),
-          page: field({ recordName: pageName, action: 'NONE' }, 'REFERENCE')
-        }
-      }
-    }
-  ])
-  const current = await lookupRecord(config, REVIEW_RECORD_TYPE, recordName)
-  if (
-    !current?.recordChangeTag ||
-    stringValue(current, 'status') !== 'publishing' ||
-    current.recordChangeTag !== claimed.recordChangeTag
-  )
-    throw new CloudKitRequestError(409)
-  await modifyRecords(config, [
-    {
-      operationType: 'update',
-      record: {
-        recordType: REVIEW_RECORD_TYPE,
-        recordName,
-        recordChangeTag: current.recordChangeTag,
-        fields: {
-          status: field('approved', 'STRING'),
-          publicPageRecordName: field(pageName, 'STRING'),
-          decidedAt: field(Date.now(), 'TIMESTAMP')
-        }
-      }
-    }
-  ])
 }
 
 export async function rejectReview(
@@ -604,12 +628,6 @@ function assetValue(asset: unknown): unknown {
   if (!asset || typeof asset !== 'object') return null
   const value = asset as { value?: unknown; singleFile?: unknown }
   return value.value ?? value.singleFile ?? asset
-}
-
-function assetListValue(asset: unknown): unknown[] {
-  const value = assetValue(asset)
-  const assets = Array.isArray(value) ? value : value ? [value] : []
-  return assets.map(writableAsset).filter((asset) => asset !== null)
 }
 
 /** Only Apple's writable asset receipt keys may enter a records/modify request. */

@@ -611,3 +611,13 @@ Report actions dismiss, remove a confirmed current hosted revision, or close an 
 Removal claims the report before deletion; failed operations remain under Removal in progress for deliberate
 recovery, never silently deleting a later page revision. Existing Community submission review stays in place.
 No report-triggered APNs notification is implemented.
+
+2026-11-13 publication recovery: the owner's N4 submission had seven ASSET_LIST attachments. Apple's
+assets/rereference returned a per-field error for files while the scalar payloadFile receipt succeeded.
+Publication now re-references only the scalar payload and copies each attachment through assets/upload,
+retaining order and validating checksum/size. Downloads/uploads accept only trusted Apple HTTPS hosts,
+reject redirects, and use bounded streams, timeouts and a 20 MiB aggregate limit. Source revision is checked
+again before any public write; publishing retries and the stable page URL remain intact. Errors identify a
+fixed publication stage without exposing contents, signed URLs or receipts. Failed decisions close the
+confirmation overlay, invalidate stale data and show the error toast. Production retry of the original N4
+returned 200 / ok / notificationQueued, left Pending review and appeared in Published; its public page returns 200. 227 CMS tests, TypeScript and changed-file lint pass. No user article or sharing record was deleted.

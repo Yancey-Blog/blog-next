@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { copyAttachmentAssets } from '@/lib/hikki/attachment-assets'
+vi.mock('@/lib/hikki/attachment-assets', () => ({
+  copyAttachmentAssets: vi.fn()
+}))
+
 import { rereferenceAssets, type CloudKitConfig } from '@/lib/hikki/cloudkit'
 const state = vi.hoisted(() => ({
   records: new Map<string, any>(),
@@ -166,6 +171,32 @@ describe('reviewed document updates', () => {
     ).toBe(false)
     expect((await getReview(db, 'review-new'))?.status).toBe('approved')
     expect(state.records.has('listing-page-review-new')).toBe(true)
+  })
+  it('publishes a seven-attachment first submission without re-referencing the list field', async () => {
+    const files = Array.from({ length: 7 }, (_, i) => ({
+      fileChecksum: `checksum-${i}`,
+      receipt: `receipt-${i}`,
+      size: 3
+    }))
+    vi.mocked(copyAttachmentAssets).mockResolvedValueOnce(files)
+    add('ReviewSubmission', 'review-seven', {
+      status: 'pending',
+      title: 'Seven attachments',
+      files
+    })
+    await approveReview(db, 'review-seven', '1')
+    expect(rereferenceAssets).toHaveBeenLastCalledWith(db, 'review-seven', [
+      'payloadFile'
+    ])
+    expect(copyAttachmentAssets).toHaveBeenCalledWith(
+      db,
+      'page-review-seven',
+      files
+    )
+    expect(state.records.get('page-review-seven').fields.files.value).toEqual(
+      files
+    )
+    expect((await getReview(db, 'review-seven'))?.status).toBe('approved')
   })
   it('clears removed attachments and optional metadata on an approved update', async () => {
     const page = state.records.get('page-review-original')
