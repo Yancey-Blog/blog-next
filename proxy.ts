@@ -27,6 +27,23 @@ export async function proxy(request: NextRequest) {
   const hostname = host.split(':')[0]
   const isLocalHost =
     hostname === 'localhost' || hostname.endsWith('.localhost')
+  const isAlternateAuthHost = [
+    'yancey.app',
+    'www.yancey.app',
+    'www.yanceyleo.com'
+  ].includes(hostname)
+  const isAdminPath = pathname === '/admin' || pathname.startsWith('/admin/')
+
+  // OAuth providers are registered against yanceyleo.com. Keep admin and
+  // login flows on that origin so Better Auth uses the registered callbacks.
+  if (isAlternateAuthHost && (isAdminPath || pathname === '/login')) {
+    const url = request.nextUrl.clone()
+    url.protocol = 'https:'
+    url.hostname = 'yanceyleo.com'
+    url.port = ''
+    return NextResponse.redirect(url, 308)
+  }
+
   const isMeijiHost =
     hostname === 'meiji.yanceyleo.com' || hostname === 'meiji.localhost'
   if (isMeijiHost) {

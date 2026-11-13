@@ -9,6 +9,24 @@ import * as schema from '@/lib/db/schema'
 
 import { adminDatabaseHooks, assertAdminIdentity } from './provisioning'
 
+const publicAppURL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+const authBaseURL =
+  process.env.VERCEL_ENV === 'production'
+    ? 'https://yanceyleo.com'
+    : process.env.BETTER_AUTH_URL || publicAppURL
+
+const trustedOrigins = [
+  'https://appleid.apple.com',
+  authBaseURL,
+  publicAppURL,
+  publicAppURL.replace('://www.', '://'),
+  publicAppURL.replace('://', '://www.'),
+  'https://yanceyleo.com',
+  'https://www.yanceyleo.com',
+  'https://yancey.app',
+  'https://www.yancey.app'
+]
+
 // Generate the client secret JWT required for 'Sign in with Apple'.
 async function generateAppleClientSecret(
   clientId: string,
@@ -35,6 +53,7 @@ async function generateAppleClientSecret(
 }
 
 export const auth = betterAuth({
+  baseURL: authBaseURL,
   secret: process.env.BETTER_AUTH_SECRET!,
   database: drizzleAdapter(db, {
     provider: 'pg',
@@ -72,21 +91,11 @@ export const auth = betterAuth({
   },
   plugins: [
     passkey({
-      rpID: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
-        .hostname,
+      rpID: new URL(authBaseURL).hostname,
       rpName: 'Yancey Blog'
     })
   ],
-  trustedOrigins: [
-    'https://appleid.apple.com',
-    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    ...(process.env.NEXT_PUBLIC_APP_URL
-      ? [
-          process.env.NEXT_PUBLIC_APP_URL.replace('://www.', '://'),
-          process.env.NEXT_PUBLIC_APP_URL.replace('://', '://www.')
-        ]
-      : [])
-  ],
+  trustedOrigins: [...new Set(trustedOrigins)],
   user: {
     validateUserInfo: ({ user }) => {
       assertAdminIdentity(user)
