@@ -12,7 +12,7 @@ import { adminDatabaseHooks, assertAdminIdentity } from './provisioning'
 const publicAppURL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 const authBaseURL =
   process.env.VERCEL_ENV === 'production'
-    ? 'https://yanceyleo.com'
+    ? 'https://www.yanceyleo.com'
     : process.env.BETTER_AUTH_URL || publicAppURL
 
 const trustedOrigins = [
